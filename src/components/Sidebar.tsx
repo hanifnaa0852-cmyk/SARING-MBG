@@ -33,7 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, onLogo
             <div className="w-8 h-8 shrink-0 flex items-center justify-center p-0.5 rounded-lg bg-[#000F4A] border border-[#FFBA09]/40 shadow-xs">
               <SaringLogoSvg size={28} theme="dark" animated={true} idSuffix="nav-brand" />
             </div>
-            <span className="text-[1.375rem] font-bold tracking-tight text-white font-['Plus_Jakarta_Sans',sans-serif]">
+            <span className="text-[1.375rem] font-extrabold tracking-tight bg-gradient-to-r from-[#60A5FA] via-[#93C5FD] to-[#FFBA09] bg-clip-text text-transparent font-['Plus_Jakarta_Sans',sans-serif]">
               SARING-MBG
             </span>
           </div>

@@ -248,7 +248,7 @@ export const LogoShowcasePage: React.FC<LogoShowcasePageProps> = ({ onGoToApp, o
 
         {/* Wordmark and Tagline */}
         <div className="mt-6 flex flex-col items-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white font-['Plus_Jakarta_Sans',sans-serif]">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-[#60A5FA] via-[#93C5FD] to-[#FFBA09] bg-clip-text text-transparent font-['Plus_Jakarta_Sans',sans-serif]">
             SARING-MBG
           </h1>
           <p className="mt-2 text-base md:text-lg font-medium text-[#B8C4E6] tracking-wide">

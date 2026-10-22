@@ -104,7 +104,10 @@ export const AiLoginModal: React.FC<AiLoginModalProps> = ({ isOpen, onClose, onS
 
         {/* Title */}
         <h3 className="mt-5 text-xl font-extrabold text-white font-['Plus_Jakarta_Sans',sans-serif]">
-          SARING-MBG Risk Gate
+          <span className="bg-gradient-to-r from-[#60A5FA] via-[#93C5FD] to-[#FFBA09] bg-clip-text text-transparent">
+            SARING-MBG
+          </span>{' '}
+          Risk Gate
         </h3>
         <p className="text-xs text-[#B8C4E6] mt-1">
           Penyelarasan Algoritma Screening Mingguan Sebelum Top-Up

@@ -18,14 +18,14 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
   onSelectKitchenForDetail,
   onSendRecommendationToPPK,
 }) => {
-  const [selectedKitchenId, setSelectedKitchenId] = useState<string>('SPPG Contoh 087');
+  const [selectedKitchenId, setSelectedKitchenId] = useState<string>('SPPG Banyumas 087');
   const [triaseFilter, setTriaseFilter] = useState<'all' | TriaseLabel>('all');
   const [regionFilter, setRegionFilter] = useState<'all' | Region>('all');
   const [flagFilter, setFlagFilter] = useState<'all' | RedFlagCode>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set(['SPPG Contoh 087']));
+  const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set(['SPPG Banyumas 087']));
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -33,9 +33,9 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Filtered Kitchens
+  // Filtered Kitchens with default priority sort (Merah > Kuning > Hijau)
   const filteredKitchens = useMemo(() => {
-    return kitchens.filter((k) => {
+    const list = kitchens.filter((k) => {
       if (triaseFilter !== 'all' && k.triase !== triaseFilter) return false;
       if (regionFilter !== 'all' && k.region !== regionFilter) return false;
       if (flagFilter !== 'all' && !k.activeFlags.includes(flagFilter)) return false;
@@ -48,6 +48,14 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
         if (!matchesId && !matchesName && !matchesLocation && !matchesPartner) return false;
       }
       return true;
+    });
+
+    // Default urgency ordering: Merah first, then Kuning, then Hijau
+    const urgencyOrder: Record<TriaseLabel, number> = { Merah: 0, Kuning: 1, Hijau: 2 };
+    return [...list].sort((a, b) => {
+      const diff = urgencyOrder[a.triase] - urgencyOrder[b.triase];
+      if (diff !== 0) return diff;
+      return a.id.localeCompare(b.id, undefined, { numeric: true });
     });
   }, [kitchens, triaseFilter, regionFilter, flagFilter, searchQuery]);
 
@@ -164,11 +172,45 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
         </div>
       </div>
 
+      {/* High-Urgency Executive Banner */}
+      <div className="bg-gradient-to-r from-[#FFF0F0] via-[#FCEBEB] to-[#FFF5F5] rounded-xl p-5 border-2 border-[#D64545]/40 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-[#D64545] text-white flex items-center justify-center shrink-0 shadow-md">
+            <span className="material-symbols-outlined text-[24px]">crisis_alert</span>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2 py-0.5 rounded bg-[#D64545] text-white text-[10px] font-bold uppercase tracking-wider font-mono">
+                STATUS AUDIT MINGGU 4: TINGKAT URGENSI TINGGI
+              </span>
+              <span className="text-xs font-bold text-[#B02A2A] flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-[#D64545] animate-ping"></span>
+                <span>376 SPPG (75,2%) Kategori Merah</span>
+              </span>
+            </div>
+            <p className="text-xs text-[#181C20] leading-relaxed max-w-4xl">
+              Dominasi kategori <strong>Merah</strong> pada siklus berjalan memicu mekanisme pengamanan fiskal otomatis: 
+              pencairan komponen operasional 20% (<strong>Rp {operasionalDitahanJuta} Juta</strong>) ditahan sementara 
+              untuk mencegah potensi kebocoran anggaran negara, sementara alokasi bahan pangan 80% tetap disalurkan penuh 
+              sesuai prinsip <em>"gate holds money, not people"</em>.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
+          <div className="bg-white/90 border border-[#D64545]/30 rounded-lg px-3 py-2 text-right">
+            <div className="text-[10px] text-[#757683] uppercase font-bold tracking-wider">Verifikasi Lapangan ITJEN</div>
+            <div className="text-sm font-extrabold text-[#D64545] font-mono">
+              376 Dapur (T+5 Hari)
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filter & Control Bar */}
       <div className="bg-white rounded-xl shadow-xs border border-[#E0E2E7] p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Segmented Control Triase Filter */}
-          <div className="inline-flex p-1 rounded-lg bg-[#ECEEF3]">
+          <div className="inline-flex p-1 rounded-lg bg-[#ECEEF3] flex-wrap gap-1">
             <button
               onClick={() => { setTriaseFilter('all'); setCurrentPage(1); }}
               className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
@@ -203,14 +245,19 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
             </button>
             <button
               onClick={() => { setTriaseFilter('Merah'); setCurrentPage(1); }}
-              className={`px-3 py-1.5 rounded text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded text-xs font-bold transition-all flex items-center gap-1.5 ${
                 triaseFilter === 'Merah'
-                  ? 'bg-white text-[#000F4A] shadow-xs'
-                  : 'text-[#454652] hover:text-[#181C20]'
+                  ? 'bg-[#D64545] text-white shadow-xs'
+                  : 'bg-[#FCEBEB] text-[#B02A2A] hover:bg-[#F8D7D7]'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-[#D64545]"></span>
+              <span className="w-2 h-2 rounded-full bg-[#D64545] animate-ping"></span>
               <span>Merah (<AnimatedNumber value={merahCount} />)</span>
+              <span className={`px-1.5 py-0.2 rounded text-[9px] uppercase font-bold tracking-wider ${
+                triaseFilter === 'Merah' ? 'bg-white/25 text-white' : 'bg-[#D64545] text-white'
+              }`}>
+                DOMINAN 75,2%
+              </span>
             </button>
           </div>
 
@@ -226,6 +273,13 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] uppercase tracking-wider text-[#757683] font-semibold">Operasional Ditahan:</span>
               <span className="font-bold text-[#D64545] tabular-nums font-mono">Rp {operasionalDitahanJuta} Juta</span>
+            </div>
+            <span className="text-[#C5C5D4]">|</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] uppercase tracking-wider text-[#B02A2A] font-bold">Prioritas Lapangan ITJEN:</span>
+              <span className="px-2 py-0.5 rounded bg-[#FCEBEB] text-[#D64545] font-bold font-mono text-[11px]">
+                {merahCount} SPPG
+              </span>
             </div>
           </div>
         </div>
@@ -268,10 +322,13 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
               onChange={(e) => { setRegionFilter(e.target.value as any); setCurrentPage(1); }}
               className="w-full px-3 py-2 text-sm bg-white border border-[#E0E2E7] rounded-lg text-[#000F4A] focus:outline-none focus:ring-2 focus:ring-[#011F7B]/20 cursor-pointer"
             >
-              <option value="all">Semua Wilayah Kerja</option>
-              <option value="Wilayah A">Wilayah A (Jawa Barat)</option>
-              <option value="Wilayah B">Wilayah B (Jawa Tengah)</option>
-              <option value="Wilayah C">Wilayah C (Jawa Timur &amp; Luar Jawa)</option>
+              <option value="all">Semua Wilayah Kerja (Indonesia)</option>
+              <option value="Jawa Barat">Jawa Barat</option>
+              <option value="Jawa Tengah">Jawa Tengah</option>
+              <option value="Jawa Timur">Jawa Timur</option>
+              <option value="DKI Jakarta">DKI Jakarta</option>
+              <option value="Banten">Banten</option>
+              <option value="Sumatera Utara">Sumatera Utara</option>
             </select>
           </div>
 

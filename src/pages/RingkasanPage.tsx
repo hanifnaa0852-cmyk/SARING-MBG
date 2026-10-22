@@ -215,9 +215,15 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             {/* Header and Legend */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 gap-3 border-b border-[#ECEEF3]">
               <div>
-                <h2 className="text-lg font-bold text-[#000F4A]">Tren 4 Minggu Terakhir</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-lg font-bold text-[#000F4A]">Tren 4 Minggu Terakhir</h2>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FCEBEB] text-[#D64545] border border-[#F5C2C2] text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                    <span className="material-symbols-outlined text-[13px]">emergency</span>
+                    Urgensi Tinggi (Merah Dominan &gt;70%)
+                  </span>
+                </div>
                 <p className="text-xs text-[#454652] mt-0.5">
-                  Distribusi triase kepatuhan SPPG per periode mingguan (N = 500 unit dapur)
+                  Distribusi triase kepatuhan SPPG per periode mingguan (N = 500 unit dapur) — Pengawasan ketat pra-pencairan SPP
                 </p>
               </div>
 
@@ -232,8 +238,8 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
                   <span className="text-xs text-[#181C20] font-medium">Kuning</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded bg-[#D64545]"></span>
-                  <span className="text-xs text-[#181C20] font-medium">Merah</span>
+                  <span className="w-2.5 h-2.5 rounded bg-[#D64545] shadow-[0_0_6px_#D64545]"></span>
+                  <span className="text-xs text-[#B02A2A] font-bold">Merah (Urgensi Kritis)</span>
                 </div>
               </div>
             </div>
@@ -249,44 +255,59 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
                   <div
                     key={item.week}
                     className={`flex flex-col gap-1.5 ${
-                      item.active ? 'p-3 bg-[#F1F4F9] rounded-xl border border-[#011F7B]/20' : ''
+                      item.active ? 'p-3 bg-[#FFF5F5] rounded-xl border-2 border-[#D64545]/40 shadow-xs' : ''
                     }`}
                   >
                     <div className="flex items-center justify-between text-xs">
-                      <span className={`font-semibold text-[#000F4A] flex items-center gap-1.5`}>
+                      <span className="font-semibold text-[#000F4A] flex items-center gap-1.5">
                         {item.active && (
-                          <span className="w-2 h-2 rounded-full bg-[#1E9E6A] animate-pulse"></span>
+                          <span className="w-2 h-2 rounded-full bg-[#D64545] animate-ping"></span>
                         )}
                         {item.label}
+                        {item.active && (
+                          <span className="px-1.5 py-0.2 rounded text-[10px] bg-[#D64545] text-white font-bold font-mono">
+                            SIKLUS AKTIF
+                          </span>
+                        )}
                       </span>
                       <div className="flex items-center gap-3 text-[#454652] tabular-nums font-mono text-xs">
                         <span>H: <strong className="text-[#1E9E6A]">{item.hijau}</strong> ({hPct.replace('.', ',')}%)</span>
                         <span>K: <strong className="text-[#8A5A00]">{item.kuning}</strong> ({kPct.replace('.', ',')}%)</span>
-                        <span>M: <strong className="text-[#D64545]">{item.merah}</strong> ({mPct.replace('.', ',')}%)</span>
+                        <span className="px-2 py-0.5 rounded bg-[#FCEBEB] text-[#B02A2A] font-bold border border-[#F5C2C2]">
+                          M: <strong className="text-[#D64545]">{item.merah}</strong> ({mPct.replace('.', ',')}%)
+                        </span>
                       </div>
                     </div>
 
-                    <div className="w-full h-7 rounded-lg overflow-hidden flex bg-[#ECEEF3] shadow-inner">
+                    <div className="w-full h-8 rounded-lg overflow-hidden flex bg-[#ECEEF3] shadow-inner border border-[#E0E2E7]">
+                      {/* Hijau Bar Segment */}
                       <div
-                        className="bg-[#1E9E6A] h-full flex items-center justify-center text-white text-[11px] font-bold"
+                        className="bg-[#1E9E6A] h-full flex items-center justify-center text-white text-[10px] font-bold transition-all hover:opacity-90"
                         style={{ width: `${hPct}%` }}
-                        title={`Hijau: ${item.hijau}`}
+                        title={`Hijau: ${item.hijau} unit (${hPct}%)`}
                       >
                         {item.hijau}
                       </div>
+
+                      {/* Kuning Bar Segment */}
                       <div
-                        className="bg-[#fcb803] h-full flex items-center justify-center text-[#000F4A] text-[11px] font-bold"
+                        className="bg-[#fcb803] h-full flex items-center justify-center text-[#000F4A] text-[10px] font-bold transition-all hover:opacity-90"
                         style={{ width: `${kPct}%` }}
-                        title={`Kuning: ${item.kuning}`}
+                        title={`Kuning: ${item.kuning} unit (${kPct}%)`}
                       >
                         {item.kuning}
                       </div>
+
+                      {/* Merah Bar Segment (DOMINAN BESAR & MENONJOL) */}
                       <div
-                        className="bg-[#D64545] h-full flex items-center justify-center text-white text-[11px] font-bold"
+                        className="bg-gradient-to-r from-[#D64545] to-[#B02A2A] h-full flex items-center justify-center text-white text-xs font-extrabold shadow-inner relative transition-all hover:brightness-105"
                         style={{ width: `${mPct}%` }}
-                        title={`Merah: ${item.merah}`}
+                        title={`Merah (Urgensi Kritis): ${item.merah} unit (${mPct}%)`}
                       >
-                        {item.merah}
+                        <div className="flex items-center gap-1.5 px-2 truncate">
+                          <span className="material-symbols-outlined text-[15px] animate-pulse">dangerous</span>
+                          <span>Merah: {item.merah} Unit ({mPct.replace('.', ',')}%)</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -297,17 +318,17 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
 
           {/* Metric comparison footnote */}
           <div className="mt-3 pt-3 border-t border-[#ECEEF3] flex flex-wrap items-center justify-between gap-2 text-xs text-[#454652]">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 text-amber-800 text-xs font-semibold">
-                <span className="material-symbols-outlined text-[14px]">trending_up</span> +1 Kuning
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#FCEBEB] text-[#B02A2A] text-xs font-bold border border-[#F5C2C2]">
+                <span className="material-symbols-outlined text-[15px]">report</span>
+                Status Merah Dominan: &gt;75% Dapur Wajib Audit Lapangan
               </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-50 text-rose-800 text-xs font-semibold">
-                <span className="material-symbols-outlined text-[14px]">trending_up</span> +1 Merah
+              <span className="text-xs text-[#525363]">
+                Tren eskalasi red flag memuncak di M4 (376 dapur terindikasi risiko)
               </span>
-              <span>dibandingkan minggu sebelumnya (M3)</span>
             </div>
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[#454652]/70">
-              Tingkat Anomali Terkendali &lt; 5%
+            <span className="text-[11px] uppercase tracking-wider font-bold text-[#D64545] bg-rose-50 px-2.5 py-1 rounded border border-rose-200">
+              URGENSI TERTINGGI: DANA OPERASIONAL DITAHAN
             </span>
           </div>
         </div>

@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type Region = 'Wilayah A' | 'Wilayah B' | 'Wilayah C';
+export type Region =
+  | 'Jawa Barat'
+  | 'Jawa Tengah'
+  | 'Jawa Timur'
+  | 'DKI Jakarta'
+  | 'Banten'
+  | 'Sumatera Utara';
 
 export type TargetGroup = 'SD' | 'SMP';
 
@@ -24,8 +30,8 @@ export interface DailyFinancial {
 }
 
 export interface Kitchen {
-  id: string; // e.g. "SPPG Contoh 087"
-  name: string; // e.g. "SPPG Sentra Mandiri 087"
+  id: string; // e.g. "SPPG Banyumas 087"
+  name: string; // e.g. "SPPG Purwokerto Timur 087"
   region: Region;
   location: string; // e.g. "Kab. Banyumas, Wilayah B"
   partner: string; // e.g. "Koperasi Mitra MBG Bersama"

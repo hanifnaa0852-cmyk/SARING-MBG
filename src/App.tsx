@@ -24,9 +24,9 @@ export default function App() {
   const [params, setParams] = useState<SimulationParameters>({
     tolR5: 10,
     tolR4a: 0,
-    propProblematic: 4,
-    propHonestError: 8,
-    fieldCapacity: 150,
+    propProblematic: 75.2,
+    propHonestError: 16,
+    fieldCapacity: 400,
   });
 
   const [decisionLogs, setDecisionLogs] = useState<DecisionLogEntry[]>(INITIAL_DECISION_LOGS);
@@ -37,7 +37,7 @@ export default function App() {
   }, [params]);
 
   // Selected kitchen for Detail Kasus
-  const [selectedKitchenId, setSelectedKitchenId] = useState<string>('SPPG Contoh 087');
+  const [selectedKitchenId, setSelectedKitchenId] = useState<string>('SPPG Banyumas 087');
 
   const selectedKitchen = useMemo(() => {
     return kitchens.find((k) => k.id === selectedKitchenId) || kitchens[0];
@@ -58,7 +58,7 @@ export default function App() {
       time: 'Hari Ini, ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
       sppgId: 'Batch SPP M4',
       kitchenName: 'Seluruh Antrean Triase Minggu 4 (N=500)',
-      region: 'Wilayah A',
+      region: 'Jawa Barat',
       label: 'Kuning',
       tingkat: 'Tingkat 2',
       keputusan: 'Rekomendasi Berkas Diteruskan ke Meja PPK',

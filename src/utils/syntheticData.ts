@@ -16,10 +16,66 @@ function createRng(seed: number) {
   };
 }
 
-const REGION_CITIES: Record<Region, string[]> = {
-  'Wilayah A': ['Kota Bandung', 'Kab. Bogor', 'Kota Depok', 'Kab. Ciamis', 'Kota Bekasi', 'Kab. Sukabumi', 'Kab. Garut'],
-  'Wilayah B': ['Kab. Banyumas', 'Kota Surakarta', 'Kab. Boyolali', 'Kota Semarang', 'Kab. Magelang', 'Kab. Cilacap', 'Kab. Klaten'],
-  'Wilayah C': ['Kab. Malang', 'Kab. Sidoarjo', 'Kab. Kediri', 'Kota Surabaya', 'Kab. Jember', 'Kab. Badung', 'Kota Makassar']
+interface CityDetail {
+  cityName: string;
+  shortName: string;
+  subdistricts: string[];
+}
+
+const REGION_CITY_DETAILS: Record<Region, CityDetail[]> = {
+  'Jawa Barat': [
+    { cityName: 'Kota Bandung', shortName: 'Bandung', subdistricts: ['Coblong', 'Sukasari', 'Cicendo', 'Batununggal', 'Kiaracondong', 'Lengkong'] },
+    { cityName: 'Kab. Bogor', shortName: 'Bogor', subdistricts: ['Sukaraja', 'Cibinong', 'Babakan Madang', 'Cileungsi', 'Citeureup', 'Gunung Putri'] },
+    { cityName: 'Kota Depok', shortName: 'Depok', subdistricts: ['Pancoran Mas', 'Sukmajaya', 'Cinere', 'Sawangan', 'Cimanggis', 'Tapos'] },
+    { cityName: 'Kab. Ciamis', shortName: 'Ciamis', subdistricts: ['Ciamis Kota', 'Kawali', 'Panumbangan', 'Baregbeg', 'Rancah'] },
+    { cityName: 'Kota Bekasi', shortName: 'Bekasi', subdistricts: ['Bekasi Timur', 'Bekasi Selatan', 'Rawalumbu', 'Mustikajaya', 'Pondok Gede'] },
+    { cityName: 'Kab. Sukabumi', shortName: 'Sukabumi', subdistricts: ['Cisaat', 'Cibadak', 'Palabuhanratu', 'Cicurug', 'Parungkuda'] },
+    { cityName: 'Kab. Garut', shortName: 'Garut', subdistricts: ['Tarogong Garut', 'Tarogong Kaler', 'Garut Kota', 'Kadungora', 'Leles'] },
+    { cityName: 'Kab. Cianjur', shortName: 'Cianjur', subdistricts: ['Cianjur Kota', 'Cipanas', 'Ciranjang', 'Karangtengah'] }
+  ],
+  'Jawa Tengah': [
+    { cityName: 'Kab. Banyumas', shortName: 'Banyumas', subdistricts: ['Purwokerto Timur', 'Purwokerto Barat', 'Ajibarang', 'Sokaraja', 'Wangon', 'Rawalo'] },
+    { cityName: 'Kota Surakarta', shortName: 'Surakarta', subdistricts: ['Banjarsari', 'Jebres', 'Laweyan', 'Pasar Kliwon', 'Serengan'] },
+    { cityName: 'Kab. Boyolali', shortName: 'Boyolali', subdistricts: ['Mojosongo Boyolali', 'Teras', 'Banyudono', 'Ampel', 'Simo'] },
+    { cityName: 'Kota Semarang', shortName: 'Semarang', subdistricts: ['Semarang Barat', 'Pedurungan', 'Banyumanik', 'Ngaliyan', 'Tembalang'] },
+    { cityName: 'Kab. Magelang', shortName: 'Magelang', subdistricts: ['Mertoyudan', 'Muntilan', 'Borobudur', 'Secang', 'Salam'] },
+    { cityName: 'Kab. Cilacap', shortName: 'Cilacap', subdistricts: ['Cilacap Tengah', 'Majenang', 'Kroya', 'Sidareja', 'Kesugihan'] },
+    { cityName: 'Kab. Klaten', shortName: 'Klaten', subdistricts: ['Klaten Utara', 'Delanggu', 'Jatinom', 'Pedan', 'Trucuk'] },
+    { cityName: 'Kab. Brebes', shortName: 'Brebes', subdistricts: ['Brebes Kota', 'Bumiayu', 'Ketanggungan', 'Bulakamba', 'Jatibarang'] }
+  ],
+  'Jawa Timur': [
+    { cityName: 'Kab. Malang', shortName: 'Malang', subdistricts: ['Klojen Malang', 'Lowokwaru', 'Singosari', 'Kepanjen', 'Dau', 'Lawang'] },
+    { cityName: 'Kab. Sidoarjo', shortName: 'Sidoarjo', subdistricts: ['Waru Sidoarjo', 'Candi', 'Gedangan', 'Taman', 'Krian'] },
+    { cityName: 'Kab. Kediri', shortName: 'Kediri', subdistricts: ['Pare Kediri', 'Gampengrejo', 'Ngadiluwih', 'Wates', 'Gurah'] },
+    { cityName: 'Kota Surabaya', shortName: 'Surabaya', subdistricts: ['Rungkut', 'Wonokromo', 'Gubeng', 'Tegalsari', 'Sukolilo'] },
+    { cityName: 'Kab. Jember', shortName: 'Jember', subdistricts: ['Kaliwates', 'Sumbersari', 'Patrang', 'Rambipuji', 'Tanggul'] },
+    { cityName: 'Kab. Banyuwangi', shortName: 'Banyuwangi', subdistricts: ['Banyuwangi Kota', 'Rogojampi', 'Genteng', 'Kabat'] },
+    { cityName: 'Kab. Pasuruan', shortName: 'Pasuruan', subdistricts: ['Pandaan', 'Bangil', 'Purwosari', 'Gempol'] },
+    { cityName: 'Kab. Bojonegoro', shortName: 'Bojonegoro', subdistricts: ['Bojonegoro Kota', 'Dander', 'Kapas', 'Sumberrejo'] }
+  ],
+  'DKI Jakarta': [
+    { cityName: 'Jakarta Pusat', shortName: 'Jakpus', subdistricts: ['Gambir', 'Kemayoran', 'Senen', 'Menteng', 'Tanah Abang'] },
+    { cityName: 'Jakarta Timur', shortName: 'Jaktim', subdistricts: ['Jatinegara', 'Duren Sawit', 'Ciracas', 'Cakung', 'Pasar Rebo'] },
+    { cityName: 'Jakarta Selatan', shortName: 'Jaksel', subdistricts: ['Pasar Minggu', 'Kebayoran Baru', 'Cilandak', 'Tebet', 'Mampang'] },
+    { cityName: 'Jakarta Barat', shortName: 'Jakbar', subdistricts: ['Kebon Jeruk', 'Palmerah', 'Grogol Petamburan', 'Kembangan', 'Cengkareng'] },
+    { cityName: 'Jakarta Utara', shortName: 'Jakut', subdistricts: ['Tanjung Priok', 'Kelapa Gading', 'Koja', 'Penjaringan', 'Pademangan'] }
+  ],
+  'Banten': [
+    { cityName: 'Kota Tangerang', shortName: 'Tangerang', subdistricts: ['Karawaci', 'Cipondoh', 'Ciledug', 'Pinang', 'Benda'] },
+    { cityName: 'Kab. Tangerang', shortName: 'Kab. Tangerang', subdistricts: ['Kelapa Dua', 'Balaraja', 'Curug', 'Pasar Kemis', 'Cikupa'] },
+    { cityName: 'Kota Serang', shortName: 'Serang', subdistricts: ['Cipocok Jaya', 'Serang Kota', 'Kasemen', 'Curug Serang', 'Walantaka'] },
+    { cityName: 'Kab. Lebak', shortName: 'Lebak', subdistricts: ['Rangkasbitung', 'Malingping', 'Warunggunung', 'Cibadak'] },
+    { cityName: 'Kab. Pandeglang', shortName: 'Pandeglang', subdistricts: ['Pandeglang Kota', 'Labuan', 'Menes', 'Panimbang'] },
+    { cityName: 'Kota Cilegon', shortName: 'Cilegon', subdistricts: ['Cibeber', 'Jombang Cilegon', 'Ciwandan', 'Pulomerak'] }
+  ],
+  'Sumatera Utara': [
+    { cityName: 'Kota Medan', shortName: 'Medan', subdistricts: ['Medan Kota', 'Medan Sunggal', 'Medan Tembung', 'Medan Helvetia', 'Medan Johor'] },
+    { cityName: 'Kab. Deli Serdang', shortName: 'Deli Serdang', subdistricts: ['Lubuk Pakam', 'Percut Sei Tuan', 'Sunggal', 'Tanjung Morawa'] },
+    { cityName: 'Kab. Karo', shortName: 'Karo', subdistricts: ['Kabanjahe', 'Berastagi', 'Tigapanah', 'Barusjahe'] },
+    { cityName: 'Kota Binjai', shortName: 'Binjai', subdistricts: ['Binjai Kota', 'Binjai Barat', 'Binjai Timur', 'Binjai Selatan'] },
+    { cityName: 'Kab. Simalungun', shortName: 'Simalungun', subdistricts: ['Siantar', 'Girsang Sipangan Bolon', 'Tanah Jawa', 'Raya'] },
+    { cityName: 'Kota Pematangsiantar', shortName: 'Pematangsiantar', subdistricts: ['Siantar Barat', 'Siantar Timur', 'Siantar Selatan', 'Siantar Utara'] }
+  ]
 };
 
 const PARTNER_PREFIXES = [
@@ -56,14 +112,14 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
   }
 
   // Force specific IDs to match Stitch designs exactly
-  // SPPG Contoh 087 -> problematic (Wilayah B, Banyumas)
-  // SPPG Contoh 014 -> problematic (Wilayah A, non-aktif)
-  // SPPG Contoh 045 -> problematic (Wilayah A)
-  // SPPG Contoh 212 -> honest_error (Wilayah C)
-  // SPPG Contoh 156 -> honest_error (Wilayah A)
-  // SPPG Contoh 092 -> honest_error (Wilayah B)
-  // SPPG Contoh 188 -> honest_error (Wilayah C)
-  // SPPG Contoh 301, 302, 303 -> normal (Hijau)
+  // SPPG Banyumas 087 -> problematic (Jawa Tengah, Banyumas)
+  // SPPG Bandung 014 -> problematic (Jawa Barat, non-aktif)
+  // SPPG Depok 045 -> problematic (Jawa Barat)
+  // SPPG Malang 212 -> honest_error (Jawa Timur)
+  // SPPG Ciamis 156 -> honest_error (Jawa Barat)
+  // SPPG Boyolali 092 -> honest_error (Jawa Tengah)
+  // SPPG Kediri 188 -> honest_error (Jawa Timur)
+  // SPPG Surakarta 301, SPPG Bogor 302, SPPG Sidoarjo 303 -> normal (Hijau)
   const pinIndex = (idNum: number, truth: GroundTruth) => {
     const idx = idNum - 1;
     const oldTruth = groundTruths[idx];
@@ -86,29 +142,83 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
   for (let i = 1; i <= totalKitchens; i++) {
     const idNum = i;
     const idStr = String(idNum).padStart(3, '0');
-    const id = `SPPG Contoh ${idStr}`;
     const truth = groundTruths[i - 1];
 
     // Pick region
-    const regions: Region[] = ['Wilayah A', 'Wilayah B', 'Wilayah C'];
-    let region: Region = regions[(idNum - 1) % 3];
-    if (idNum === 87) region = 'Wilayah B';
-    else if (idNum === 14 || idNum === 156 || idNum === 45 || idNum === 302) region = 'Wilayah A';
-    else if (idNum === 212 || idNum === 188 || idNum === 303) region = 'Wilayah C';
-    else if (idNum === 92 || idNum === 301) region = 'Wilayah B';
+    const regions: Region[] = ['Jawa Barat', 'Jawa Tengah', 'Jawa Timur', 'DKI Jakarta', 'Banten', 'Sumatera Utara'];
+    let region: Region = regions[(idNum - 1) % regions.length];
+    if (idNum === 87) region = 'Jawa Tengah';
+    else if (idNum === 14 || idNum === 156 || idNum === 45 || idNum === 302) region = 'Jawa Barat';
+    else if (idNum === 212 || idNum === 188 || idNum === 303) region = 'Jawa Timur';
+    else if (idNum === 92 || idNum === 301) region = 'Jawa Tengah';
 
-    const cityList = REGION_CITIES[region];
-    let location = `${cityList[Math.floor(rng() * cityList.length)]}, ${region}`;
-    if (idNum === 87) location = 'Kab. Banyumas, Wilayah B';
-    else if (idNum === 14) location = 'Kota Bandung, Wilayah A';
-    else if (idNum === 212) location = 'Kab. Malang, Wilayah C';
-    else if (idNum === 156) location = 'Kab. Ciamis, Wilayah A';
-    else if (idNum === 92) location = 'Kab. Boyolali, Wilayah B';
-    else if (idNum === 301) location = 'Kota Surakarta, Wilayah B';
-    else if (idNum === 302) location = 'Kab. Bogor, Wilayah A';
-    else if (idNum === 303) location = 'Kab. Sidoarjo, Wilayah C';
-    else if (idNum === 45) location = 'Kota Depok, Wilayah A';
-    else if (idNum === 188) location = 'Kab. Kediri, Wilayah C';
+    let id = '';
+    let kitchenName = '';
+    let location = '';
+
+    if (idNum === 87) {
+      region = 'Jawa Tengah';
+      id = 'SPPG Banyumas 087';
+      kitchenName = 'SPPG Purwokerto Timur 087';
+      location = 'Kab. Banyumas, Jawa Tengah';
+    } else if (idNum === 14) {
+      region = 'Jawa Barat';
+      id = 'SPPG Bandung 014';
+      kitchenName = 'SPPG Coblong Bandung 014';
+      location = 'Kota Bandung, Jawa Barat';
+    } else if (idNum === 45) {
+      region = 'Jawa Barat';
+      id = 'SPPG Depok 045';
+      kitchenName = 'SPPG Pancoran Mas Depok 045';
+      location = 'Kota Depok, Jawa Barat';
+    } else if (idNum === 212) {
+      region = 'Jawa Timur';
+      id = 'SPPG Malang 212';
+      kitchenName = 'SPPG Klojen Malang 212';
+      location = 'Kab. Malang, Jawa Timur';
+    } else if (idNum === 156) {
+      region = 'Jawa Barat';
+      id = 'SPPG Ciamis 156';
+      kitchenName = 'SPPG Ciamis Kota 156';
+      location = 'Kab. Ciamis, Jawa Barat';
+    } else if (idNum === 92) {
+      region = 'Jawa Tengah';
+      id = 'SPPG Boyolali 092';
+      kitchenName = 'SPPG Mojosongo Boyolali 092';
+      location = 'Kab. Boyolali, Jawa Tengah';
+    } else if (idNum === 188) {
+      region = 'Jawa Timur';
+      id = 'SPPG Kediri 188';
+      kitchenName = 'SPPG Pare Kediri 188';
+      location = 'Kab. Kediri, Jawa Timur';
+    } else if (idNum === 301) {
+      region = 'Jawa Tengah';
+      id = 'SPPG Surakarta 301';
+      kitchenName = 'SPPG Banjarsari Surakarta 301';
+      location = 'Kota Surakarta, Jawa Tengah';
+    } else if (idNum === 302) {
+      region = 'Jawa Barat';
+      id = 'SPPG Bogor 302';
+      kitchenName = 'SPPG Sukaraja Bogor 302';
+      location = 'Kab. Bogor, Jawa Barat';
+    } else if (idNum === 303) {
+      region = 'Jawa Timur';
+      id = 'SPPG Sidoarjo 303';
+      kitchenName = 'SPPG Waru Sidoarjo 303';
+      location = 'Kab. Sidoarjo, Jawa Timur';
+    } else if (idNum === 319) {
+      region = 'Jawa Barat';
+      id = 'SPPG Garut 319';
+      kitchenName = 'SPPG Tarogong Garut 319';
+      location = 'Kab. Garut, Jawa Barat';
+    } else {
+      const cityList = REGION_CITY_DETAILS[region];
+      const cityObj = cityList[Math.floor(rng() * cityList.length)];
+      const subdistrict = cityObj.subdistricts[Math.floor(rng() * cityObj.subdistricts.length)];
+      id = `SPPG ${cityObj.shortName} ${idStr}`;
+      kitchenName = `SPPG ${subdistrict} ${idStr}`;
+      location = `${cityObj.cityName}, ${region}`;
+    }
 
     const partner = PARTNER_PREFIXES[Math.floor(rng() * PARTNER_PREFIXES.length)];
     const targetGroup: TargetGroup = rng() > 0.35 ? 'SD' : 'SMP';
@@ -274,7 +384,7 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
 
     kitchens.push({
       id,
-      name: `SPPG Sentra Mandiri ${idStr}`,
+      name: kitchenName,
       region,
       location,
       partner,
@@ -306,17 +416,20 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
 
 /**
  * Historical stacked data for Week 1 - Week 4
+ * Merah dibuat dominan besar di semua minggu agar urgensi pengawasan risiko terlihat sangat jelas.
  */
 export function getHistoricalWeeksSummary(week4Kitchens: Kitchen[]) {
-  const w4Hijau = week4Kitchens.filter(k => k.triase === 'Hijau').length;
-  const w4Kuning = week4Kitchens.filter(k => k.triase === 'Kuning').length;
-  const w4Merah = week4Kitchens.filter(k => k.triase === 'Merah').length;
+  const total = 500;
+  // Merah dominan besar di semua minggu untuk menampilkan urgensi tinggi mitigasi fiskal
+  const w4Merah = 376;
+  const w4Kuning = 80;
+  const w4Hijau = 44;
 
   return [
-    { week: 'Minggu 1', label: 'Minggu 1', hijau: 438, kuning: 44, merah: 18, total: 500, active: false },
-    { week: 'Minggu 2', label: 'Minggu 2', hijau: 440, kuning: 42, merah: 18, total: 500, active: false },
-    { week: 'Minggu 3', label: 'Minggu 3', hijau: 443, kuning: 40, merah: 17, total: 500, active: false },
-    { week: 'Minggu 4', label: 'Minggu 4 (Audit Aktif)', hijau: w4Hijau, kuning: w4Kuning, merah: w4Merah, total: 500, active: true },
+    { week: 'Minggu 1', label: 'Minggu 1', hijau: 60, kuning: 115, merah: 325, total, active: false },
+    { week: 'Minggu 2', label: 'Minggu 2', hijau: 58, kuning: 100, merah: 342, total, active: false },
+    { week: 'Minggu 3', label: 'Minggu 3', hijau: 52, kuning: 90, merah: 358, total, active: false },
+    { week: 'Minggu 4', label: 'Minggu 4 (Audit Aktif)', hijau: w4Hijau, kuning: w4Kuning, merah: w4Merah, total, active: true },
   ];
 }
 

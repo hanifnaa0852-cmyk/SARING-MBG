@@ -169,7 +169,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
           </div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#ECEEF3]">
             <span className="material-symbols-outlined text-[16px] text-[#011F7B]">account_balance_wallet</span>
-            <span>ID Virtual Account: <strong className="text-[#181C20] font-semibold font-mono">VA-BGN-3302-{kitchen.id.replace('SPPG Contoh ', '')}</strong></span>
+            <span>ID Virtual Account: <strong className="text-[#181C20] font-semibold font-mono">VA-BGN-3302-{kitchen.id.replace(/[^0-9]/g, '').slice(-3) || '087'}</strong></span>
           </div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#ECEEF3]">
             <span className="material-symbols-outlined text-[16px] text-[#1E9E6A]">verified</span>

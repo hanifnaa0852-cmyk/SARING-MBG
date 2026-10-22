@@ -52,39 +52,39 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
       updated = {
         tolR5: 5,
         tolR4a: 0,
-        propProblematic: 5,
-        propHonestError: 6,
-        fieldCapacity: 200,
+        propProblematic: 78,
+        propHonestError: 14,
+        fieldCapacity: 450,
       };
     } else if (presetKey === 'longgar') {
       updated = {
         tolR5: 20,
         tolR4a: 5,
-        propProblematic: 3,
-        propHonestError: 10,
-        fieldCapacity: 100,
+        propProblematic: 35,
+        propHonestError: 20,
+        fieldCapacity: 250,
       };
     } else {
       updated = {
         tolR5: 10,
         tolR4a: 0,
-        propProblematic: 4,
-        propHonestError: 8,
-        fieldCapacity: 150,
+        propProblematic: 75.2,
+        propHonestError: 16,
+        fieldCapacity: 400,
       };
     }
     setParams(updated);
     onUpdateParams(updated);
-    showToast(`Preset "${presetKey === 'ketat' ? 'Pemeriksaan Ketat' : presetKey === 'longgar' ? 'Fasilitasi Kelancaran Salur' : 'Kalibrasi Awal'}" diterapkan.`);
+    showToast(`Preset "${presetKey === 'ketat' ? 'Pemeriksaan Ketat' : presetKey === 'longgar' ? 'Fasilitasi Kelancaran Salur' : 'Kalibrasi Awal (Urgensi Tinggi)'}" diterapkan.`);
   };
 
   const handleReset = () => {
     const defaultParams: SimulationParameters = {
       tolR5: 10,
       tolR4a: 0,
-      propProblematic: 4,
-      propHonestError: 8,
-      fieldCapacity: 150,
+      propProblematic: 75.2,
+      propHonestError: 16,
+      fieldCapacity: 400,
     };
     setPreset('kalibrasi_awal');
     setParams(defaultParams);
@@ -256,7 +256,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 <input
                   type="range"
                   min="2"
-                  max="10"
+                  max="85"
                   step="0.5"
                   value={params.propProblematic}
                   onChange={(e) => handleSliderChange('propProblematic', Number(e.target.value))}
@@ -264,7 +264,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 />
                 <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
                   <span>2% (10 unit)</span>
-                  <span>10% (50 unit)</span>
+                  <span>85% (425 unit)</span>
                 </div>
               </div>
             </div>
@@ -286,7 +286,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 <input
                   type="range"
                   min="3"
-                  max="15"
+                  max="30"
                   step="1"
                   value={params.propHonestError}
                   onChange={(e) => handleSliderChange('propHonestError', Number(e.target.value))}
@@ -294,7 +294,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 />
                 <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
                   <span>3% (15 unit)</span>
-                  <span>15% (75 unit)</span>
+                  <span>30% (150 unit)</span>
                 </div>
               </div>
             </div>

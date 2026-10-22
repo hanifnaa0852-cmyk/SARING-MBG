@@ -36,7 +36,7 @@ const SCENARIOS: ScenarioPreset[] = [
     title: 'Salah input laporan',
     icon: 'edit_document',
     desc: 'Operator salah ketik pagu bahan baku Rp11.000 (seharusnya Rp8.000). Nota fisik pasar basah diverifikasi sah.',
-    sppgDefault: 'SPPG Contoh 156 (Sentra Gizi Priangan)',
+    sppgDefault: 'SPPG Ciamis 156 (SPPG Ciamis Kota 156)',
     alasanDefault: 'Kekeliruan ketik kolom biaya bahan; faktur fisik pedagang pasar sah dan pagu dikoreksi administratif.',
     toggles: {
       redFlag: true,
@@ -51,7 +51,7 @@ const SCENARIOS: ScenarioPreset[] = [
     title: 'Laporan terlambat',
     icon: 'pending_actions',
     desc: 'Dapur berada di blank spot wilayah pegunungan; unggahan nota tertunda saat cut-off Rabu 23:59 WIB.',
-    sppgDefault: 'SPPG Contoh 212 (Dapur Sehat Berkah)',
+    sppgDefault: 'SPPG Malang 212 (SPPG Klojen Malang 212)',
     alasanDefault: 'Transmisi nota terlambat akibat pemadaman jaringan telekomunikasi; fisik berkas lengkap dan sah.',
     toggles: {
       redFlag: true,
@@ -66,7 +66,7 @@ const SCENARIOS: ScenarioPreset[] = [
     title: 'Selisih berulang 3 minggu',
     icon: 'history',
     desc: 'Deviasi arus kas VA vs nota berulang di minggu 2, 3, dan 4 tanpa perbaikan bukti pembukuan.',
-    sppgDefault: 'SPPG Contoh 087 (SPPG Sentra Mandiri)',
+    sppgDefault: 'SPPG Banyumas 087 (SPPG Purwokerto Timur 087)',
     alasanDefault: 'Selisih pengeluaran berulang selama 3 pekan berturut-turut; bukti pembukuan tidak dapat dipertanggungjawabkan.',
     toggles: {
       redFlag: true,
@@ -81,7 +81,7 @@ const SCENARIOS: ScenarioPreset[] = [
     title: 'Dokumen direkayasa + pemasok terafiliasi',
     icon: 'warning',
     desc: 'Nota belanja dicetak ulang dengan stempel buatan dan rekening toko pemasok atas nama pengurus dapur.',
-    sppgDefault: 'SPPG Contoh 319 (Dapur Satria Wilayah C)',
+    sppgDefault: 'SPPG Garut 319 (SPPG Tarogong Garut 319)',
     alasanDefault: 'Ditemukan nota pasar direkayasa dan rekening penyedia logistik terindikasi terafiliasi pengurus dapur.',
     toggles: {
       redFlag: true,
@@ -215,7 +215,7 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
     polaBerulang: false,
     pemasokTerafiliasi: false,
   });
-  const [customSppg, setCustomSppg] = useState<string>('SPPG Contoh 156 (Sentra Gizi Priangan)');
+  const [customSppg, setCustomSppg] = useState<string>('SPPG Ciamis 156 (SPPG Ciamis Kota 156)');
   const [customAlasan, setCustomAlasan] = useState<string>(
     'Kekeliruan ketik kolom biaya bahan; faktur fisik pedagang pasar sah dan pagu dikoreksi administratif.'
   );
@@ -345,12 +345,23 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
       assignedAction = 'Rujukan Investigasi & Penahanan Penuh';
     }
 
+    const sppgCleanId = customSppg.includes('(')
+      ? customSppg.split('(')[0].trim()
+      : customSppg;
+    const kitchenCleanName = customSppg.includes('(')
+      ? customSppg.split('(')[1].replace(')', '').trim()
+      : customSppg;
+
+    let regionDetermined: any = 'Jawa Barat';
+    if (customSppg.includes('Banyumas')) regionDetermined = 'Jawa Tengah';
+    else if (customSppg.includes('Malang')) regionDetermined = 'Jawa Timur';
+
     const newEntry: DecisionLogEntry = {
       id: newLogId,
       time: nowStr,
-      sppgId: customSppg.split(' ')[0] + ' ' + customSppg.split(' ')[1] + ' ' + customSppg.split(' ')[2],
-      kitchenName: customSppg,
-      region: 'Wilayah B',
+      sppgId: sppgCleanId,
+      kitchenName: kitchenCleanName,
+      region: regionDetermined,
       label: assignedLabel,
       tingkat: `Tingkat ${reachedLevel}` as 'Tingkat 1' | 'Tingkat 2' | 'Tingkat 3',
       keputusan: assignedAction,
