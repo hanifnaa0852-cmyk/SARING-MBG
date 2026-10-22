@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "secondary-fixed": "#ffdea6",
+          "secondary": "#7c5800",
+          "on-tertiary-container": "#8692b2",
+          "on-surface-variant": "#454652",
+          "surface-container-lowest": "#ffffff",
+          "surface-tint": "#4457b0",
+          "on-secondary-container": "#6a4b00",
+          "primary-fixed-dim": "#b9c3ff",
+          "on-secondary-fixed": "#271900",
+          "on-primary-fixed": "#001356",
+          "on-primary": "#ffffff",
+          "surface-container-high": "#e6e8ed",
+          "surface-bright": "#f7f9fe",
+          "on-primary-container": "#798ce9",
+          "inverse-on-surface": "#eff1f6",
+          "tertiary-fixed-dim": "#bac6e8",
+          "outline-variant": "#c5c5d4",
+          "on-surface": "#181c20",
+          "on-background": "#181c20",
+          "tertiary": "#091630",
+          "error": "#ba1a1a",
+          "tertiary-container": "#1f2b46",
+          "on-secondary-fixed-variant": "#5e4200",
+          "on-tertiary-fixed-variant": "#3a4663",
+          "on-error": "#ffffff",
+          "surface-dim": "#d8dadf",
+          "on-error-container": "#93000a",
+          "on-secondary": "#ffffff",
+          "inverse-primary": "#b9c3ff",
+          "on-primary-fixed-variant": "#2a3f97",
+          "surface-container": "#eceef3",
+          "primary-container": "#011f7b",
+          "surface-container-highest": "#e0e2e7",
+          "primary-fixed": "#dde1ff",
+          "surface": "#f7f9fe",
+          "outline": "#757683",
+          "background": "#f7f9fe",
+          "on-tertiary": "#ffffff",
+          "inverse-surface": "#2d3135",
+          "surface-container-low": "#f1f4f9",
+          "primary": "#000f4a",
+          "on-tertiary-fixed": "#0e1b35",
+          "secondary-fixed-dim": "#ffbb13",
+          "tertiary-fixed": "#d9e2ff",
+          "surface-variant": "#e0e2e7",
+          "error-container": "#ffdad6",
+          "secondary-container": "#fcb803"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin-lg": "2rem",
+          "gutter": "1rem",
+          "space-xl": "1.5rem",
+          "space-lg": "1rem",
+          "space-xs": "0.25rem",
+          "margin": "1.5rem",
+          "space-md": "0.75rem",
+          "gutter-lg": "1.5rem",
+          "space-2xl": "2rem",
+          "space-sm": "0.5rem"
+        },
+        "fontFamily": {
+          "body-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "label-badge": [
+            "Plus Jakarta Sans"
+          ],
+          "body-base": [
+            "Plus Jakarta Sans"
+          ],
+          "table-header": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "data-metric": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-xl": [
+            "Plus Jakarta Sans"
+          ]
+        },
+        "fontSize": {
+          "body-lg": [
+            "1rem",
+            {
+              "lineHeight": "1.5rem",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-md": [
+            "1.125rem",
+            {
+              "lineHeight": "1.625rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "label-badge": [
+            "0.6875rem",
+            {
+              "lineHeight": "0.875rem",
+              "letterSpacing": "0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-base": [
+            "0.875rem",
+            {
+              "lineHeight": "1.375rem",
+              "fontWeight": "400"
+            }
+          ],
+          "table-header": [
+            "0.75rem",
+            {
+              "lineHeight": "1rem",
+              "letterSpacing": "0.04em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-sm": [
+            "0.75rem",
+            {
+              "lineHeight": "1.125rem",
+              "fontWeight": "400"
+            }
+          ],
+          "data-metric": [
+            "1.625rem",
+            {
+              "lineHeight": "2rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg": [
+            "1.375rem",
+            {
+              "lineHeight": "1.875rem",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-xl": [
+            "1.75rem",
+            {
+              "lineHeight": "2.25rem",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-surface font-body-base text-on-surface antialiased min-h-screen"><aside class="fixed left-0 top-0 h-full w-[240px] bg-primary-container text-on-primary z-50 flex flex-col justify-between select-none shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="px-space-lg pt-space-xl pb-space-lg"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-secondary-container text-[24px]">shield</span><h1 class="font-headline-lg text-headline-lg text-on-primary tracking-tight font-bold">SARING-MBG</h1></div><p class="font-body-sm text-body-sm text-on-primary/70 mt-space-xs leading-snug">Gerbang red flag sebelum top-up mingguan</p></div><div class="h-[1px] bg-white/10 mx-space-lg mb-space-md"></div><nav class="flex flex-col space-y-space-xs" data-active-classes="bg-white/10 text-on-primary font-bold border-l-4 border-secondary-container"><a class="flex items-center gap-space-md px-space-lg py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors" data-path="ringkasan" href="#"><span class="material-symbols-outlined text-[18px]">dashboard</span><span>Ringkasan</span></a><a class="flex items-center gap-space-md px-space-lg py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors" data-path="antrean-mingguan" href="#"><span class="material-symbols-outlined text-[18px]">pending_actions</span><span>Antrean Mingguan</span></a><a class="flex items-center gap-space-md px-space-lg py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors" data-path="simulator-ambang" href="#"><span class="material-symbols-outlined text-[18px]">tune</span><span>Simulator Ambang</span></a><a class="flex items-center gap-space-md px-space-lg py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors" data-path="kamus-red-flag" href="#"><span class="material-symbols-outlined text-[18px]">menu_book</span><span>Kamus Red Flag</span></a><a class="flex items-center gap-space-md px-space-lg py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors" data-path="error-vs-fraud" href="#"><span class="material-symbols-outlined text-[18px]">balance</span><span>Error vs Fraud</span></a><a aria-current="page" class="flex items-center gap-space-md px-space-lg py-space-sm transition-colors bg-white/10 text-on-primary font-bold border-l-4 border-secondary-container" data-path="indikator-pilot" href="#"><span class="material-symbols-outlined text-[18px]">verified</span><span>Indikator Pilot</span></a></nav></div><div class="p-space-lg bg-black/15"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[16px] text-secondary-container">lock</span><span class="font-label-badge text-label-badge text-on-primary/80 uppercase tracking-wider">Sistem Audit Fiskal MBG</span></div><div class="font-body-sm text-body-sm text-on-primary/60 mt-space-xs">Akses Terverifikasi v2.4</div></div></aside><div class="pl-[240px]"><header class="fixed top-0 left-[240px] right-0 h-16 bg-surface-container-lowest z-40 flex items-center justify-between px-space-2xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-lg"><div class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-lowest text-primary-container rounded font-label-badge text-label-badge border-[1.5px] border-primary-container uppercase tracking-wide"><span class="material-symbols-outlined text-[14px] text-primary-container">warning</span><span>SIMULASI ILUSTRATIF – DATA SINTETIS, BUKAN DATA BGN</span></div><div class="hidden xl:flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm"><span class="material-symbols-outlined text-[16px] text-on-surface-variant">schedule</span><span>Pembaruan: Kamis, 08:00 WIB</span></div></div><div class="flex items-center gap-space-lg"><div class="text-right hidden sm:block"><div class="font-table-header text-table-header text-on-surface tracking-wider uppercase font-semibold">Auditor Tim 3 MBG</div><div class="font-body-sm text-body-sm text-on-surface-variant font-medium">INSPEKTORAT JENDERAL</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface-container-lowest min-h-screen"><div class="flex flex-col w-full">
+<div class="px-space-2xl py-space-xl space-y-space-xl">
+<!-- Top Context & Action Bar -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg bg-surface-container-lowest p-space-xl rounded-xl shadow-sm">
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-table-header text-table-header uppercase tracking-wider text-outline">Pilar Audit MBG</span>
+<span class="material-symbols-outlined text-outline-variant text-[14px]">chevron_right</span>
+<span class="font-table-header text-table-header uppercase tracking-wider text-primary-container font-semibold">Indikator Pilot</span>
+</div>
+<h2 class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">
+          Indikator Uji Coba dan Batas Simulasi
+        </h2>
+<p class="font-body-base text-body-base text-on-surface-variant max-w-3xl">
+          Metrik kinerja sistem triase pencegahan deviasi anggaran program Makan Bergizi Gratis (MBG) berbasis model simulasi awal.
+        </p>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center gap-space-md shrink-0">
+<button class="flex items-center gap-space-xs px-space-lg py-space-sm bg-surface-container-lowest text-primary-container hover:bg-surface-container-low active:bg-surface-container transition-colors rounded-lg font-body-base text-body-base font-semibold shadow-sm" id="copy-btn" onclick="copyParameters()">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span id="copy-text">Salin Parameter Metrik</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-lg py-space-sm bg-secondary-container hover:bg-secondary-fixed-dim active:bg-secondary transition-colors text-primary-container rounded-lg font-body-base text-body-base font-bold shadow-md" onclick="downloadReport()">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Unduh Ringkasan Simulasi</span>
+</button>
+</div>
+</div>
+<!-- Live Simulation Calibration Status Strip -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md bg-surface-container-low p-space-md rounded-xl">
+<div class="flex items-center gap-space-md px-space-md py-space-xs">
+<div class="w-2.5 h-2.5 rounded-full bg-secondary-container animate-pulse"></div>
+<div>
+<div class="font-table-header text-table-header text-outline uppercase font-semibold">Status Lingkungan</div>
+<div class="font-body-sm text-body-sm text-primary font-bold">Simulasi Uji Sintetis v2.4</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md px-space-md py-space-xs">
+<span class="material-symbols-outlined text-primary-container text-[20px]">layers</span>
+<div>
+<div class="font-table-header text-table-header text-outline uppercase font-semibold">Cakupan Data Uji</div>
+<div class="font-body-sm text-body-sm text-on-surface font-semibold">4.820 Pengajuan SPPG Sintetis</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md px-space-md py-space-xs">
+<span class="material-symbols-outlined text-primary-container text-[20px]">verified_user</span>
+<div>
+<div class="font-table-header text-table-header text-outline uppercase font-semibold">Protokol Penilaian</div>
+<div class="font-body-sm text-body-sm text-on-surface font-semibold">Audit Forensik Pra-Top-Up</div>
+</div>
+</div>
+</div>
+<!-- 8 Metric Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-lg">
+<!-- Card 1 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[22px]">find_in_page</span>
+</div>
+<span class="font-label-badge text-label-badge px-space-sm py-space-xs bg-surface-container-high text-on-surface-variant rounded font-semibold uppercase tracking-wider text-right">
+              Target ditetapkan sebelum pilot
+            </span>
+</div>
+<div>
+<h3 class="font-table-header text-table-header uppercase text-outline tracking-wider font-semibold">
+              Proporsi top-up dibaca sebelum SPP
+            </h3>
+<div class="font-data-metric text-data-metric text-primary-container font-bold mt-space-xs tabular-nums tracking-tight">
+              100%
+            </div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-lg leading-relaxed pt-space-sm bg-surface-container-low/50 -mx-space-xl -mb-space-xl p-space-md rounded-b-xl">
+          Cakupan otomatisasi mesin aturan terhadap seluruh pengajuan SPPG mingguan.
+        </p>
+</div>
+<!-- Card 2 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[22px]">crisis_alert</span>
+</div>
+<span class="font-label-badge text-label-badge px-space-sm py-space-xs bg-surface-container-high text-on-surface-variant rounded font-semibold uppercase tracking-wider text-right">
+              Target ditetapkan sebelum pilot
+            </span>
+</div>
+<div>
+<h3 class="font-table-header text-table-header uppercase text-outline tracking-wider font-semibold">
+              Presisi (dana ditahan bermasalah)
+            </h3>
+<div class="font-data-metric text-data-metric text-primary-container font-bold mt-space-xs tabular-nums tracking-tight">
+              38%
+            </div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-lg leading-relaxed pt-space-sm bg-surface-container-low/50 -mx-space-xl -mb-space-xl p-space-md rounded-b-xl">
+          Akurasi penahanan porsi operasional terhadap temuan salah saji atau deviasi riil.
+        </p>
+</div>
+<!-- Card 3 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-[22px]">notification_important</span>
+</div>
+<span class="font-label-badge text-label-badge px-space-sm py-space-xs bg-surface-container-high text-on-surface-variant rounded font-semibold uppercase tracking-wider text-right">
+              Target ditetapkan sebelum pilot
+            </span>
+</div>
+<div>
+<h3 class="font-table-header text-table-header uppercase text-outline tracking-wider font-semibold">
+              Tingkat positif palsu
+            </h3>
+<div class="font-data-metric text-data-metric text-primary-container font-bold mt-space-xs tabular-nums tracking-tight">
+              62%
+            </div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-lg leading-relaxed pt-space-sm bg-surface-container-low/50 -mx-space-xl -mb-space-xl p-space-md rounded-b-xl">
+          Dapur tertahan sementara akibat salah ketik administratif tanpa kesengajaan fraud.
+        </p>
+</div>
+<!-- Card 4 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[22px]">shield_with_heart</span>
+</div>
+<span class="font-label-badge text-label-badge px-space-sm py-space-xs bg-surface-container-high text-on-surface-variant rounded font-semibold uppercase tracking-wider text-right">
+              Target ditetapkan sebelum pilot
+            </span>
+</div>
+<div>
+<h3 class="font-table-header text-table-header uppercase text-outline tracking-wider font-semibold">
+              Perkiraan negatif palsu
+            </h3>
+<div class="font-data-metric text-data-metric text-primary-container font-bold mt-space-xs tabular-nums tracking-tight">
+              1,1%
+            </div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-lg leading-relaxed pt-space-sm bg-surface-container-low/50 -mx-space-xl -mb-space-xl p-space-md rounded-b-xl">
+          Estimasi SPPG bermasalah yang terlewat dan lolos verifikasi top-up hijau.
+        </p>
+</div>
+<!-- Card 5 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[22px]">published_with_changes</span>
+</div>
+<span class="font-label-badge text-label-badge px-space-sm py-space-xs bg-surface-container-high text-on-surface-variant rounded font-semibold uppercase tracking-wider text-right">
+              Target ditetapkan sebelum pilot
+            </span>
+</div>
+<div>
+<h3 class="font-table-header text-table-header uppercase text-outline tracking-wider font-semibold">
+              Rasio pembatalan oleh verifikator
+            </h3>
+<div class="font-data-metric text-data-metric text-primary-container font-bold mt-space-xs tabular-nums tracking-tight">
+              6%
+            </div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-lg leading-relaxed pt-space-sm bg-surface-container-low/50 -mx-space-xl -mb-space-xl p-space-md rounded-b-xl">
+          Penyesuaian sinyal mesin otomatis oleh verifikator pasca bukti fisik diklarifikasi.
+        </p>
+</div>
+<!-- Card 6 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[22px]">timer</span>
+</div>
+<span class="font-label-badge text-label-badge px-space-sm py-space-xs bg-surface-container-high text-on-surface-variant rounded font-semibold uppercase tracking-wider text-right">
+              Target ditetapkan sebelum pilot
+            </span>
+</div>
+<div>
+<h3 class="font-table-header text-table-header uppercase text-outline tracking-wider font-semibold">
+              Median hari verifikasi (kuning / merah)
+            </h3>
+<div class="font-headline-lg text-headline-lg text-primary-container font-bold mt-space-xs tabular-nums tracking-tight">
+              2,1 / 3,8 <span class="font-body-base text-body-base text-outline font-normal">hari kerja</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-lg leading-relaxed pt-space-sm bg-surface-container-low/50 -mx-space-xl -mb-space-xl p-space-md rounded-b-xl">
+          Waktu siklus resolusi klarifikasi berkas (Kuning SLA 3 hari, Merah SLA 5 hari).
+        </p>
+</div>
+<!-- Card 7 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[22px]">restaurant</span>
+</div>
+<span class="font-label-badge text-label-badge px-space-sm py-space-xs bg-surface-container-high text-on-surface-variant rounded font-semibold uppercase tracking-wider text-right">
+              Target ditetapkan sebelum pilot
+            </span>
+</div>
+<div>
+<h3 class="font-table-header text-table-header uppercase text-outline tracking-wider font-semibold">
+              Layanan terganggu per dapur
+            </h3>
+<div class="font-data-metric text-data-metric text-primary-container font-bold mt-space-xs tabular-nums tracking-tight">
+              0,4 <span class="font-body-base text-body-base text-outline font-normal">hari</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-lg leading-relaxed pt-space-sm bg-surface-container-low/50 -mx-space-xl -mb-space-xl p-space-md rounded-b-xl">
+          Dampak penahanan likuiditas operasional terhadap kontinuitas pasokan porsi siswa.
+        </p>
+</div>
+<!-- Card 8 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[22px]">account_balance</span>
+</div>
+<span class="font-label-badge text-label-badge px-space-sm py-space-xs bg-surface-container-high text-on-surface-variant rounded font-semibold uppercase tracking-wider text-right">
+              Target ditetapkan sebelum pilot
+            </span>
+</div>
+<div>
+<h3 class="font-table-header text-table-header uppercase text-outline tracking-wider font-semibold">
+              Sisa dana akhir tahun
+            </h3>
+<div class="font-headline-md text-headline-md text-primary-container font-bold mt-space-xs tracking-tight">
+              Diukur dari IHPS, tidak disimulasikan
+            </div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-lg leading-relaxed pt-space-sm bg-surface-container-low/50 -mx-space-xl -mb-space-xl p-space-md rounded-b-xl">
+          Berdasarkan Ikhtisar Hasil Pemeriksaan Semester BPK RI pasca tahun anggaran selesai.
+        </p>
+</div>
+</div>
+<!-- Visual Benchmarking Bar & Technical Reference -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+<!-- Visual Ratio Representation (Precision vs False Positive Matrix) -->
+<div class="lg:col-span-5 bg-surface-container-lowest p-space-xl rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-table-header text-table-header uppercase text-outline font-semibold tracking-wider">Keseimbangan Forensik Triase</span>
+<span class="font-label-badge text-label-badge px-space-sm py-space-xs bg-surface-container-high text-on-surface-variant rounded font-bold">RASIO 38:62</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-primary font-bold">Distribusi Hasil Penahanan Dana</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">
+            Perbandingan antara penghentian dana berdampak riil versus penundaan akibat galat administrasi non-fraud.
+          </p>
+<!-- Precision Breakdown Visual -->
+<div class="mt-space-xl space-y-space-md">
+<div>
+<div class="flex justify-between font-body-sm text-body-sm mb-space-xs font-semibold">
+<span class="text-primary-container flex items-center gap-space-xs">
+<span class="w-3 h-3 rounded-full bg-primary-container inline-block"></span>
+                  Presisi Anomali Riil (Deviasi/Salah Saji)
+                </span>
+<span class="text-primary-container font-bold">38%</span>
+</div>
+<div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 38%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-body-sm text-body-sm mb-space-xs font-semibold">
+<span class="text-secondary flex items-center gap-space-xs">
+<span class="w-3 h-3 rounded-full bg-secondary-container inline-block"></span>
+                  Positif Palsu (Klarifikasi Dokumen Bersih)
+                </span>
+<span class="text-secondary font-bold">62%</span>
+</div>
+<div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 62%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-body-sm text-body-sm mb-space-xs font-semibold">
+<span class="text-outline flex items-center gap-space-xs">
+<span class="w-3 h-3 rounded-full bg-outline-variant inline-block"></span>
+                  Toleransi Negatif Palsu (Lolos Audit Acak)
+                </span>
+<span class="text-outline font-bold">1,1%</span>
+</div>
+<div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-outline rounded-full" style="width: 1.1%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-xl p-space-md bg-surface-container-low rounded-lg flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary-container text-[20px]">tune</span>
+<span class="font-body-sm text-body-sm text-on-surface">Target evaluasi pilot: Menekan tingkat positif palsu di bawah <strong>45%</strong> tanpa menaikkan negatif palsu di atas <strong>1,5%</strong>.</span>
+</div>
+</div>
+<!-- Execution Limits & Simulation Boundary Panel -->
+<div class="lg:col-span-7 bg-surface-container-low p-space-xl rounded-xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-space-sm mb-space-md">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[18px]">info</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-primary font-bold">Batas Simulasi</h4>
+<span class="font-table-header text-table-header uppercase tracking-wider text-outline">Klausul Batasan Model Operasional</span>
+</div>
+</div>
+<div class="space-y-space-md mt-space-lg">
+<!-- Item 1 -->
+<div class="flex items-start gap-space-md bg-surface-container-lowest p-space-md rounded-lg shadow-sm">
+<div class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-primary-container">database</span>
+</div>
+<div class="space-y-space-xs">
+<div class="font-body-base text-body-base text-primary font-bold">
+                  Data sintetis, bukan data BGN
+                </div>
+<div class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  Semua kalkulasi, nominal rupiah, dan proporsi unit berasal dari dataset pengujian awal untuk memvalidasi arsitektur perangkat lunak.
+                </div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-start gap-space-md bg-surface-container-lowest p-space-md rounded-lg shadow-sm">
+<div class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-primary-container">sliders</span>
+</div>
+<div class="space-y-space-xs">
+<div class="font-body-base text-body-base text-primary font-bold">
+                  Ambang, batas hari, dan proporsi dapur ditandai adalah usulan yang diuji di pilot
+                </div>
+<div class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  Nilai parameter numerik disiapkan untuk kalibrasi dinamis selama masa implementasi lapangan terpadu.
+                </div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-start gap-space-md bg-surface-container-lowest p-space-md rounded-lg shadow-sm">
+<div class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-primary-container">science</span>
+</div>
+<div class="space-y-space-xs">
+<div class="font-body-base text-body-base text-primary font-bold">
+                  Efektivitas belum teruji di Indonesia
+                </div>
+<div class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  Skema penahanan preventif pra-pencairan berjenjang merupakan pendekatan baru yang membutuhkan verifikasi empiris di tingkat satuan kerja.
+                </div>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="flex items-start gap-space-md bg-surface-container-lowest p-space-md rounded-lg shadow-sm">
+<div class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-primary-container">hub</span>
+</div>
+<div class="space-y-space-xs">
+<div class="font-body-base text-body-base text-primary font-bold">
+                  Rancangan pilot: satu wilayah, pembanding wilayah gelombang berikutnya
+                </div>
+<div class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  Hanya red flag tahap 1 (R1, R2, R4a, R5). Metodologi evaluasi quasi-experimental berfokus pada aturan inti untuk meminimalkan friksi operasional logistik gizi.
+                </div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between text-outline font-body-sm text-body-sm">
+<span>Protokol Eksperimen: Permen MBG No. 04/2025</span>
+<span class="font-semibold text-primary">Tahap: Uji Laboratorium Terbatas</span>
+</div>
+</div>
+</div>
+<!-- Bottom Governance Institutional Mandate Banner -->
+<div class="bg-primary text-on-primary p-space-xl rounded-xl shadow-md relative overflow-hidden">
+<div class="absolute -right-8 -bottom-8 opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[200px]">verified</span>
+</div>
+<div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-space-lg">
+<div class="flex items-start gap-space-lg">
+<div class="w-12 h-12 rounded-lg bg-surface-container-lowest/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary-container text-[28px]">policy</span>
+</div>
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-secondary-container font-bold">KOMITMEN PENGAWASAN MBG</span>
+<span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+<span class="font-body-sm text-body-sm text-white/80">INSPEKTORAT &amp; BPKP</span>
+</div>
+<p class="font-body-base text-body-base text-on-primary font-medium max-w-4xl leading-relaxed">
+              "Evaluasi berkala indikator ini dilakukan bersama BPKP dan Tim Tata Kelola BGN untuk memastikan akuntabilitas fiskal tanpa mengorbankan hak gizi 1 porsi pun bagi anak sekolah."
+            </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0 self-end md:self-center">
+<div class="px-space-md py-space-xs rounded bg-white/10 text-white font-table-header text-table-header uppercase tracking-wider">
+            SLA Verifikasi: Aktif
+          </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function copyParameters() {
+    const textData = `SARING-MBG: Parameter Indikator Pilot
+1. Proporsi top-up dibaca sebelum SPP: 100%
+2. Presisi (dana ditahan bermasalah): 38%
+3. Tingkat positif palsu: 62%
+4. Perkiraan negatif palsu: 1,1%
+5. Rasio pembatalan oleh verifikator: 6%
+6. Median hari verifikasi: 2,1 / 3,8 hari kerja
+7. Hari layanan makan terganggu per dapur: 0,4 hari
+8. Sisa dana akhir tahun: Diukur dari IHPS, tidak disimulasikan
+
+Batas Simulasi:
+- Data sintetis, bukan data BGN
+- Ambang, batas hari, dan proporsi dapur ditandai adalah usulan yang diuji di pilot
+- Efektivitas belum teruji di Indonesia
+- Rancangan pilot: satu wilayah, pembanding wilayah berikutnya, red flag tahap 1 (R1, R2, R4a, R5)`;
+
+    navigator.clipboard.writeText(textData).then(() => {
+      const btnText = document.getElementById('copy-text');
+      const originalText = btnText.innerText;
+      btnText.innerText = "Tersalin ke Clipboard!";
+      setTimeout(() => {
+        btnText.innerText = originalText;
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+    });
+  }
+
+  function downloadReport() {
+    const content = `LAPORAN RINGKASAN SIMULASI PILOT SARING-MBG
+Dicetak: ${new Date().toLocaleString('id-ID')}
+Status: Data Sintetis Uji Coba
+
+--------------------------------------------------
+INDIKATOR METRIK PILOT:
+--------------------------------------------------
+1. Proporsi top-up dibaca sebelum SPP : 100%
+2. Presisi (dana ditahan bermasalah) : 38%
+3. Tingkat positif palsu             : 62%
+4. Perkiraan negatif palsu           : 1,1%
+5. Rasio pembatalan verifikator      : 6%
+6. Median hari verifikasi (Kuning/Merah): 2,1 / 3,8 hari kerja
+7. Hari layanan makan terganggu      : 0,4 hari/dapur
+8. Sisa dana akhir tahun             : Berdasarkan audit IHPS BPK
+
+--------------------------------------------------
+BATASAN DAN PROTOKOL:
+--------------------------------------------------
+- Model menggunakan data sintetis murni.
+- Parameter numerik disiapkan untuk kalibrasi dinamis.
+- Evaluasi berkala dilaksanakan bersama BPKP dan Satgas MBG.
+`;
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Ringkasan_Indikator_Pilot_MBG.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+</script></main></div></body></html>

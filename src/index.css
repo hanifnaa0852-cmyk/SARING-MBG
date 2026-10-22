@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #F7F9FE;
+    color: #181C20;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  font-feature-settings: 'liga';
+}
+
+@keyframes roadDashMove {
+  from {
+    stroke-dashoffset: 36;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-road-dash {
+  animation: roadDashMove 1.2s linear infinite;
+}
+
+@keyframes scanLadder {
+  0% {
+    top: -10%;
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0.7;
+  }
+  100% {
+    top: 110%;
+    opacity: 0;
+  }
+}
+
+.animate-scan-line {
+  animation: scanLadder 5s ease-in-out infinite;
+}
+
+@keyframes politeShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.animate-polite-shake {
+  animation: politeShake 0.45s ease-in-out;
+}
+
+@keyframes energyBeamGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 186, 9, 0.4), 0 0 16px rgba(255, 186, 9, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 186, 9, 0.8), 0 0 32px rgba(255, 186, 9, 0.4);
+  }
+}
+
+.animate-energy-glow {
+  animation: energyBeamGlow 2s infinite ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-road-dash,
+  .animate-scan-line,
+  .animate-energy-glow,
+  .animate-ping,
+  .animate-pulse {
+    animation: none !important;
+  }
+}
+

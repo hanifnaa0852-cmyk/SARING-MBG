@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-primary-container": "#798ce9",
+          "on-error-container": "#93000a",
+          "on-primary": "#ffffff",
+          "surface-container-low": "#f1f4f9",
+          "secondary": "#7c5800",
+          "on-secondary-container": "#6a4b00",
+          "on-secondary-fixed-variant": "#5e4200",
+          "on-primary-fixed": "#001356",
+          "on-surface-variant": "#454652",
+          "tertiary": "#091630",
+          "surface-bright": "#f7f9fe",
+          "background": "#f7f9fe",
+          "surface-container": "#eceef3",
+          "primary-fixed": "#dde1ff",
+          "tertiary-fixed-dim": "#bac6e8",
+          "on-tertiary": "#ffffff",
+          "on-tertiary-container": "#8692b2",
+          "error-container": "#ffdad6",
+          "surface-container-highest": "#e0e2e7",
+          "on-error": "#ffffff",
+          "primary-fixed-dim": "#b9c3ff",
+          "inverse-primary": "#b9c3ff",
+          "primary-container": "#011f7b",
+          "on-surface": "#181c20",
+          "on-secondary-fixed": "#271900",
+          "outline": "#757683",
+          "on-primary-fixed-variant": "#2a3f97",
+          "surface": "#f7f9fe",
+          "primary": "#000f4a",
+          "surface-variant": "#e0e2e7",
+          "surface-container-lowest": "#ffffff",
+          "inverse-surface": "#2d3135",
+          "on-tertiary-fixed-variant": "#3a4663",
+          "secondary-container": "#fcb803",
+          "outline-variant": "#c5c5d4",
+          "secondary-fixed-dim": "#ffbb13",
+          "surface-container-high": "#e6e8ed",
+          "tertiary-fixed": "#d9e2ff",
+          "inverse-on-surface": "eff1f6",
+          "surface-tint": "#4457b0",
+          "on-background": "#181c20",
+          "error": "#ba1a1a",
+          "tertiary-container": "#1f2b46",
+          "on-tertiary-fixed": "#0e1b35",
+          "surface-dim": "#d8dadf",
+          "secondary-fixed": "#ffdea6",
+          "on-secondary": "#ffffff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-sm": "0.5rem",
+          "space-md": "0.75rem",
+          "space-xl": "1.5rem",
+          "gutter": "1rem",
+          "space-2xl": "2rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1rem",
+          "gutter-lg": "1.5rem",
+          "margin-lg": "2rem",
+          "margin": "1.5rem"
+        },
+        "fontFamily": {
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "body-base": [
+            "Plus Jakarta Sans"
+          ],
+          "data-metric": [
+            "Plus Jakarta Sans"
+          ],
+          "body-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "table-header": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-xl": [
+            "Plus Jakarta Sans"
+          ],
+          "label-badge": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Plus Jakarta Sans"
+          ]
+        },
+        "fontSize": {
+          "headline-md": [
+            "1.125rem",
+            {
+              "lineHeight": "1.625rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-base": [
+            "0.875rem",
+            {
+              "lineHeight": "1.375rem",
+              "fontWeight": "400"
+            }
+          ],
+          "data-metric": [
+            "1.625rem",
+            {
+              "lineHeight": "2rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-lg": [
+            "1rem",
+            {
+              "lineHeight": "1.5rem",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-lg": [
+            "1.375rem",
+            {
+              "lineHeight": "1.875rem",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "600"
+            }
+          ],
+          "table-header": [
+            "0.75rem",
+            {
+              "lineHeight": "1rem",
+              "letterSpacing": "0.04em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-xl": [
+            "1.75rem",
+            {
+              "lineHeight": "2.25rem",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "label-badge": [
+            "0.6875rem",
+            {
+              "lineHeight": "0.875rem",
+              "letterSpacing": "0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-sm": [
+            "0.75rem",
+            {
+              "lineHeight": "1.125rem",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-surface font-body-base text-body-base text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-[240px] bg-primary-container z-50 flex flex-col justify-between py-space-xl text-on-primary select-none"><div class="flex flex-col"><div class="px-space-xl pb-space-xl border-b border-white/10"><div class="flex items-center gap-space-sm mb-space-xs"><span class="material-symbols-outlined text-[#fcb803] text-[22px]">shield_with_house</span><span class="font-headline-lg text-headline-lg font-bold tracking-tight text-on-primary">SARING-MBG</span></div><p class="font-body-sm text-body-sm text-on-primary/70 leading-snug">Gerbang red flag sebelum top-up mingguan</p></div><div class="px-space-xl pt-space-lg pb-space-xs"><span class="font-label-badge text-label-badge uppercase tracking-wider text-on-primary/50">Pilar Audit MBG</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-white/10 text-on-primary border-l-4 border-secondary-container font-semibold"><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="ringkasan" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span>Ringkasan</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="antrean-mingguan" href="#"><span class="material-symbols-outlined text-[20px]">pending_actions</span><span>Antrean Mingguan</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="simulator-ambang" href="#"><span class="material-symbols-outlined text-[20px]">tune</span><span>Simulator Ambang</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="kamus-red-flag" href="#"><span class="material-symbols-outlined text-[20px]">menu_book</span><span>Kamus Red Flag</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="error-vs-fraud" href="#"><span class="material-symbols-outlined text-[20px]">rule</span><span>Error vs Fraud</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="indikator-pilot" href="#"><span class="material-symbols-outlined text-[20px]">flag_circle</span><span>Indikator Pilot</span></a></nav></div><div class="px-space-xl border-t border-white/10 pt-space-md"><div class="flex items-center justify-between text-on-primary/60 font-body-sm text-body-sm mb-space-xs"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#1E9E6A]"></span>Protokol Aktif</span><span class="font-table-header text-table-header uppercase">v1.4</span></div><p class="font-label-badge text-label-badge text-on-primary/40 uppercase tracking-wider">Kementerian Keuangan RI</p></div></aside><div class="pl-[240px]"><header class="fixed top-0 left-[240px] right-0 h-16 bg-surface-container-lowest z-40 border-b border-outline-variant/40 shadow-[0_1px_8px_rgba(1,31,123,0.04)]"><div class="h-16 w-full px-space-2xl flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded bg-surface border-[1.5px] border-primary-container text-primary-container"><span class="material-symbols-outlined text-[16px] text-primary-container">warning</span><span class="font-label-badge text-label-badge tracking-wider uppercase font-bold">SIMULASI ILUSTRATIF - data sintetis, bukan data BGN</span></div></div><div class="flex items-center gap-space-lg"><div class="hidden lg:flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm"><span class="material-symbols-outlined text-[18px]">schedule</span><span>Pembaruan: Kamis, 08:00 WIB</span></div><div class="w-px h-6 bg-outline-variant/60 hidden sm:block"></div><div class="flex items-center gap-space-md"><div class="text-right hidden sm:block"><p class="font-body-base text-body-base font-semibold text-on-surface leading-tight">Auditor Tim 3 MBG</p><p class="font-label-badge text-label-badge text-on-surface-variant uppercase tracking-wider">Inspektorat Jenderal</p></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="relative pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Interactive Navigation State Fixer for Shell -->
+<script>
+    (function() {
+      // Sync active state in sidebar according to design specification
+      const navLinks = document.querySelectorAll('aside nav a');
+      navLinks.forEach(link => {
+        const path = link.getAttribute('data-path');
+        if (path === 'antrean-mingguan') {
+          link.classList.remove('border-transparent', 'text-on-primary/80');
+          link.classList.add('bg-white/10', 'text-on-primary', 'border-l-4', 'border-secondary-container', 'font-semibold');
+        } else if (path === 'ringkasan') {
+          link.classList.remove('bg-white/10', 'text-on-primary', 'border-l-4', 'border-secondary-container', 'font-semibold');
+          link.classList.add('border-transparent', 'text-on-primary/80');
+        }
+      });
+    })();
+  </script>
+<!-- Workspace Canvas -->
+<div class="p-margin-lg space-y-gutter-lg max-w-[1600px] w-full mx-auto">
+<!-- Page Header & Context -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-lg">
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-badge text-label-badge uppercase tracking-wider">
+<span>PILAR AUDIT MBG</span>
+<span class="text-outline">/</span>
+<span class="text-primary-container font-bold">SIKLUS AUDIT MINGGUAN T+7</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">Antrean Top-up Minggu 4</h1>
+<p class="font-body-base text-body-base text-on-surface-variant max-w-3xl">
+          Daftar antrean verifikasi kepatuhan dan status pelepasan dana operasional SPPG sebelum penerbitan Surat Permintaan Pembayaran (SPP) oleh Pejabat Pembuat Komitmen (PPK).
+        </p>
+</div>
+<!-- Action Group -->
+<div class="flex items-center gap-space-md shrink-0">
+<button class="inline-flex items-center gap-space-xs px-space-lg py-2.5 rounded-lg bg-surface-container-lowest text-primary-container font-body-base text-body-base font-semibold shadow-sm hover:bg-surface-container-low transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span>Ekspor Daftar (XLSX)</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-space-lg py-2.5 rounded-lg bg-secondary-container text-primary font-body-base text-body-base font-bold shadow-md hover:bg-secondary-fixed-dim transition-all focus:ring-4 focus:ring-secondary-container/30" type="button">
+<span class="material-symbols-outlined text-[20px]">send_and_archive</span>
+<span>Kirim Rekomendasi ke PPK</span>
+</button>
+</div>
+</div>
+<!-- Filter & Control Bar -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg space-y-space-md">
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<!-- Segmented Control Triase Filter -->
+<div class="inline-flex p-1 rounded-lg bg-surface-container" id="filterSegmentContainer">
+<button class="triase-tab px-space-md py-1.5 rounded font-body-base text-body-base font-semibold transition-all bg-surface-container-lowest text-primary shadow-sm" data-filter="all" onclick="setTriaseFilter('all')" type="button">
+            Semua (500)
+          </button>
+<button class="triase-tab px-space-md py-1.5 rounded font-body-base text-body-base text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1.5" data-filter="Hijau" onclick="setTriaseFilter('Hijau')" type="button">
+<span class="w-2 h-2 rounded-full bg-[#1E9E6A]"></span>
+<span>Hijau (441)</span>
+</button>
+<button class="triase-tab px-space-md py-1.5 rounded font-body-base text-body-base text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1.5" data-filter="Kuning" onclick="setTriaseFilter('Kuning')" type="button">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Kuning (41)</span>
+</button>
+<button class="triase-tab px-space-md py-1.5 rounded font-body-base text-body-base text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1.5" data-filter="Merah" onclick="setTriaseFilter('Merah')" type="button">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Merah (18)</span>
+</button>
+</div>
+<!-- Quick Summary Metrics Counter Strip -->
+<div class="hidden xl:flex items-center gap-space-lg text-on-surface-variant font-body-sm text-body-sm bg-surface-container-low px-space-md py-1.5 rounded-lg">
+<div class="flex items-center gap-1.5">
+<span class="font-table-header text-table-header uppercase text-outline">Total Usulan:</span>
+<span class="font-bold text-primary tabular-nums">Rp 24,18 Miliar</span>
+</div>
+<span class="text-outline-variant">|</span>
+<div class="flex items-center gap-1.5">
+<span class="font-table-header text-table-header uppercase text-outline">Operasional Ditahan:</span>
+<span class="font-bold text-error tabular-nums">Rp 374,2 Juta</span>
+</div>
+</div>
+</div>
+<!-- Search & Advanced Selectors -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-md pt-space-xs items-center">
+<!-- Search Input -->
+<div class="md:col-span-5 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+<input class="w-full pl-9 pr-space-md py-2 text-body-base font-body-base bg-surface-container-lowest rounded-lg text-primary placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary-container shadow-sm" id="searchInput" oninput="handleSearch(this.value)" placeholder="Cari ID SPPG atau penanggung jawab..." type="text"/>
+</div>
+<!-- Red Flag Dropdown -->
+<div class="md:col-span-3">
+<select class="w-full px-space-md py-2 text-body-base font-body-base bg-surface-container-lowest rounded-lg text-primary focus:outline-none focus:ring-2 focus:ring-primary-container shadow-sm cursor-pointer" id="flagSelector" onchange="handleFlagFilter(this.value)">
+<option value="all">Semua Red Flag</option>
+<option value="R1">R1 (Selisih Porsi)</option>
+<option value="R2">R2 (Anomali Harga Acuan)</option>
+<option value="R4a">R4a (Integritas Nota Logistik)</option>
+<option value="R5">R5 (Absensi Murid Dinamis)</option>
+</select>
+</div>
+<!-- Wilayah Dropdown -->
+<div class="md:col-span-3">
+<select class="w-full px-space-md py-2 text-body-base font-body-base bg-surface-container-lowest rounded-lg text-primary focus:outline-none focus:ring-2 focus:ring-primary-container shadow-sm cursor-pointer" id="regionSelector" onchange="handleRegionFilter(this.value)">
+<option value="all">Semua Wilayah Kerja</option>
+<option value="Wilayah A">Wilayah A (Jawa Barat)</option>
+<option value="Wilayah B">Wilayah B (Jawa Tengah)</option>
+<option value="Wilayah C">Wilayah C (Jawa Timur &amp; Luar Jawa)</option>
+</select>
+</div>
+<!-- Reset Button -->
+<div class="md:col-span-1 flex justify-end">
+<button class="w-full py-2 px-space-xs text-center font-body-sm text-body-sm font-semibold text-outline hover:text-error transition-colors flex items-center justify-center gap-1 rounded hover:bg-surface-container-high" onclick="resetFilters()" title="Reset penyaringan" type="button">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+<span>Reset</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Content Layout (Table ~70% & Detail Drawer ~30%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<!-- Table Section (8 of 12 columns = ~67%) -->
+<div class="lg:col-span-8 flex flex-col space-y-space-md">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+<div class="overflow-x-auto">
+<table class="w-full text-left" id="sppgTable">
+<thead>
+<tr class="bg-primary-container text-on-primary text-table-header font-table-header uppercase">
+<th class="py-2.5 px-3 w-10 text-center">
+<input class="rounded text-primary-container focus:ring-0 cursor-pointer" id="selectAllCheckbox" onchange="toggleSelectAll(this)" type="checkbox"/>
+</th>
+<th class="py-2.5 px-space-md whitespace-nowrap">ID SPPG</th>
+<th class="py-2.5 px-space-md whitespace-nowrap">Wilayah</th>
+<th class="py-2.5 px-space-md whitespace-nowrap">Triase</th>
+<th class="py-2.5 px-space-md whitespace-nowrap">Red Flag</th>
+<th class="py-2.5 px-space-md text-right whitespace-nowrap">Dana Usulan (Rp)</th>
+<th class="py-2.5 px-space-md whitespace-nowrap">Tindakan Rekomendasi</th>
+<th class="py-2.5 px-space-md text-center whitespace-nowrap">Batas Verifikasi</th>
+<th class="py-2.5 px-3 text-center w-12">Detail</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/40 font-body-base text-body-base text-on-surface" id="tableBody">
+<!-- Row 1 (Default Selected) -->
+<tr class="sppg-row cursor-pointer transition-colors bg-surface-container-high/60 shadow-[inset_4px_0_0_#ba1a1a]" data-flags="R4a,R5" data-region="Wilayah B" data-triase="Merah" id="row-087" onclick="selectRow('SPPG Contoh 087')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input checked="" class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 087
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah B
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-error-container text-on-error-container">
+<span class="material-symbols-outlined text-[13px]">dangerous</span>
+<span>Merah</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-badge text-label-badge font-bold">R4a</span>
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-badge text-label-badge font-bold">R5</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 48.200.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface whitespace-nowrap">
+                    Verifikasi lapangan
+                  </td>
+<td class="py-3 px-space-md text-center text-error font-semibold tabular-nums whitespace-nowrap">
+                    5 hari kerja
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-primary-container text-[18px]">chevron_right</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="sppg-row cursor-pointer hover:bg-surface-container-low transition-colors" data-flags="R2" data-region="Wilayah A" data-triase="Merah" id="row-014" onclick="selectRow('SPPG Contoh 014')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 014
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah A
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-error-container text-on-error-container">
+<span class="material-symbols-outlined text-[13px]">dangerous</span>
+<span>Merah</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-badge text-label-badge font-bold">R2</span>
+</td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 51.000.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface whitespace-nowrap">
+                    Cek status dapur
+                  </td>
+<td class="py-3 px-space-md text-center text-error font-semibold tabular-nums whitespace-nowrap">
+                    5 hari kerja
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-outline text-[18px]">chevron_right</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="sppg-row cursor-pointer hover:bg-surface-container-low transition-colors" data-flags="R5" data-region="Wilayah C" data-triase="Kuning" id="row-212" onclick="selectRow('SPPG Contoh 212')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 212
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah C
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-[#FFF4CC] text-[#8A5A00]">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+<span>Kuning</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="px-1.5 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00] font-label-badge text-label-badge font-bold">R5</span>
+</td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 44.750.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface whitespace-nowrap">
+                    Reviu dokumen
+                  </td>
+<td class="py-3 px-space-md text-center text-secondary font-semibold tabular-nums whitespace-nowrap">
+                    3 hari kerja
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-outline text-[18px]">chevron_right</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="sppg-row cursor-pointer hover:bg-surface-container-low transition-colors" data-flags="R4a" data-region="Wilayah A" data-triase="Kuning" id="row-156" onclick="selectRow('SPPG Contoh 156')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 156
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah A
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-[#FFF4CC] text-[#8A5A00]">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+<span>Kuning</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="px-1.5 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00] font-label-badge text-label-badge font-bold">R4a</span>
+</td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 46.300.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface whitespace-nowrap">
+                    Reviu dokumen
+                  </td>
+<td class="py-3 px-space-md text-center text-secondary font-semibold tabular-nums whitespace-nowrap">
+                    3 hari kerja
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-outline text-[18px]">chevron_right</span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="sppg-row cursor-pointer hover:bg-surface-container-low transition-colors" data-flags="R1" data-region="Wilayah B" data-triase="Kuning" id="row-092" onclick="selectRow('SPPG Contoh 092')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 092
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah B
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-[#FFF4CC] text-[#8A5A00]">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+<span>Kuning</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="px-1.5 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00] font-label-badge text-label-badge font-bold">R1</span>
+</td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 49.100.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface whitespace-nowrap">
+                    Konfirmasi porsi
+                  </td>
+<td class="py-3 px-space-md text-center text-secondary font-semibold tabular-nums whitespace-nowrap">
+                    3 hari kerja
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-outline text-[18px]">chevron_right</span>
+</td>
+</tr>
+<!-- Row 6 -->
+<tr class="sppg-row cursor-pointer hover:bg-surface-container-low transition-colors" data-flags="-" data-region="Wilayah B" data-triase="Hijau" id="row-301" onclick="selectRow('SPPG Contoh 301')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 301
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah B
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-[#E8F6F0] text-[#1E9E6A]">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+<span>Hijau</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap text-outline">
+                    -
+                  </td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 47.900.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Top-up penuh
+                  </td>
+<td class="py-3 px-space-md text-center text-outline tabular-nums whitespace-nowrap">
+                    -
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-outline text-[18px]">chevron_right</span>
+</td>
+</tr>
+<!-- Row 7 -->
+<tr class="sppg-row cursor-pointer hover:bg-surface-container-low transition-colors" data-flags="-" data-region="Wilayah A" data-triase="Hijau" id="row-302" onclick="selectRow('SPPG Contoh 302')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 302
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah A
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-[#E8F6F0] text-[#1E9E6A]">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+<span>Hijau</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap text-outline">
+                    -
+                  </td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 52.400.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Top-up penuh
+                  </td>
+<td class="py-3 px-space-md text-center text-outline tabular-nums whitespace-nowrap">
+                    -
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-outline text-[18px]">chevron_right</span>
+</td>
+</tr>
+<!-- Row 8 -->
+<tr class="sppg-row cursor-pointer hover:bg-surface-container-low transition-colors" data-flags="-" data-region="Wilayah C" data-triase="Hijau" id="row-303" onclick="selectRow('SPPG Contoh 303')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 303
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah C
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-[#E8F6F0] text-[#1E9E6A]">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+<span>Hijau</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap text-outline">
+                    -
+                  </td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 45.800.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Top-up penuh
+                  </td>
+<td class="py-3 px-space-md text-center text-outline tabular-nums whitespace-nowrap">
+                    -
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-outline text-[18px]">chevron_right</span>
+</td>
+</tr>
+<!-- Row 9 -->
+<tr class="sppg-row cursor-pointer hover:bg-surface-container-low transition-colors" data-flags="R1,R4a" data-region="Wilayah A" data-triase="Merah" id="row-045" onclick="selectRow('SPPG Contoh 045')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 045
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah A
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-error-container text-on-error-container">
+<span class="material-symbols-outlined text-[13px]">dangerous</span>
+<span>Merah</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-badge text-label-badge font-bold">R1</span>
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-label-badge text-label-badge font-bold">R4a</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 53.600.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface whitespace-nowrap">
+                    Audit fisik ITJEN
+                  </td>
+<td class="py-3 px-space-md text-center text-error font-semibold tabular-nums whitespace-nowrap">
+                    5 hari kerja
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-outline text-[18px]">chevron_right</span>
+</td>
+</tr>
+<!-- Row 10 -->
+<tr class="sppg-row cursor-pointer hover:bg-surface-container-low transition-colors" data-flags="R2" data-region="Wilayah C" data-triase="Kuning" id="row-188" onclick="selectRow('SPPG Contoh 188')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-primary-container focus:ring-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-3 px-space-md font-semibold text-primary whitespace-nowrap">
+                    SPPG Contoh 188
+                  </td>
+<td class="py-3 px-space-md text-on-surface-variant whitespace-nowrap">
+                    Wilayah C
+                  </td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-label-badge text-label-badge bg-[#FFF4CC] text-[#8A5A00]">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+<span>Kuning</span>
+</span>
+</td>
+<td class="py-3 px-space-md whitespace-nowrap">
+<span class="px-1.5 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00] font-label-badge text-label-badge font-bold">R2</span>
+</td>
+<td class="py-3 px-space-md text-right font-bold text-primary tabular-nums whitespace-nowrap">
+                    Rp 43.500.000
+                  </td>
+<td class="py-3 px-space-md text-on-surface whitespace-nowrap">
+                    Validasi invoice pasar
+                  </td>
+<td class="py-3 px-space-md text-center text-secondary font-semibold tabular-nums whitespace-nowrap">
+                    3 hari kerja
+                  </td>
+<td class="py-3 px-3 text-center">
+<span class="material-symbols-outlined text-outline text-[18px]">chevron_right</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="px-space-lg py-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm text-body-sm font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-space-md">
+<span>Menampilkan <strong class="text-primary font-bold">1-10</strong> dari <strong class="text-primary font-bold">500</strong> unit SPPG</span>
+<div class="hidden md:flex items-center gap-1">
+<span>Ukuran:</span>
+<select class="bg-surface-container-lowest rounded px-1.5 py-0.5 text-primary text-body-sm focus:outline-none">
+<option>10 / halaman</option>
+<option>25 / halaman</option>
+<option>50 / halaman</option>
+</select>
+</div>
+</div>
+<!-- Page Buttons -->
+<div class="flex items-center gap-1 select-none">
+<button class="px-2 py-1 rounded hover:bg-surface-container-high text-outline transition-colors disabled:opacity-40" disabled="">
+                &lt; Sebelumnya
+              </button>
+<button class="w-7 h-7 rounded bg-primary text-on-primary font-bold flex items-center justify-center">1</button>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface transition-colors flex items-center justify-center">2</button>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface transition-colors flex items-center justify-center">3</button>
+<span class="px-1 text-outline">...</span>
+<button class="w-7 h-7 rounded hover:bg-surface-container-high text-on-surface transition-colors flex items-center justify-center">50</button>
+<button class="px-2 py-1 rounded hover:bg-surface-container-high text-primary font-semibold transition-colors">
+                Selanjutnya &gt;
+              </button>
+</div>
+</div>
+</div>
+<!-- Legend Box under Table -->
+<div class="bg-surface-container-low rounded-xl p-space-lg space-y-space-sm">
+<div class="flex items-center gap-space-xs text-primary font-headline-md text-headline-md font-bold">
+<span class="material-symbols-outlined text-[20px] text-primary">policy</span>
+<span>Panduan Kebijakan Triase Gerbang Mingguan</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md text-body-sm font-body-sm pt-space-xs">
+<!-- Hijau Legend -->
+<div class="p-space-md rounded-lg bg-surface-container-lowest space-y-1">
+<div class="flex items-center gap-1.5 font-bold text-[#1E9E6A]">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Hijau (Siap Salur)</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed">
+                Top-up penuh dicairkan 100% tanpa hambatan administratif langsung ke rekening operasional SPPG.
+              </p>
+</div>
+<!-- Kuning Legend -->
+<div class="p-space-md rounded-lg bg-surface-container-lowest space-y-1">
+<div class="flex items-center gap-1.5 font-bold text-[#8A5A00]">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span>Kuning (Klarifikasi Dokumen)</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed">
+                Bahan baku tetap cair; komponen operasional ditahan menunggu klarifikasi dokumen (usulan batas: 3 hari kerja).
+              </p>
+</div>
+<!-- Merah Legend -->
+<div class="p-space-md rounded-lg bg-surface-container-lowest space-y-1">
+<div class="flex items-center gap-1.5 font-bold text-error">
+<span class="material-symbols-outlined text-[16px]">dangerous</span>
+<span>Merah (Audit Investigasi)</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed">
+                Bahan baku minimum darurat bila dapur terbukti aktif; verifikasi lapangan ITJEN &amp; penahanan operasional (usulan batas: 5 hari kerja).
+              </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Collapsible Detail Drawer / Side Panel (4 of 12 columns = ~33%) -->
+<div class="lg:col-span-4 flex flex-col space-y-space-md sticky top-20">
+<div class="bg-surface-container-lowest rounded-xl shadow-md overflow-hidden" id="detailCard">
+<!-- Drawer Header -->
+<div class="bg-primary-container p-space-lg text-on-primary flex items-start justify-between">
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-secondary-container">Berkas Pemeriksaan</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg font-bold" id="detailTitle">SPPG Contoh 087</h2>
+<div class="pt-0.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-badge text-label-badge bg-error-container text-on-error-container uppercase font-bold tracking-wider" id="detailBadge">
+<span class="material-symbols-outlined text-[14px]">dangerous</span>
+<span>MERAH - TAHAN OPERASIONAL</span>
+</span>
+</div>
+</div>
+<button class="p-1 rounded-md hover:bg-white/10 text-on-primary transition-colors" onclick="collapseDetailDrawer()" title="Sembunyikan panel" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Drawer Content Body -->
+<div class="p-space-lg space-y-space-lg font-body-base text-body-base">
+<!-- Section 1: Profil Dapur & Penanggung Jawab -->
+<div class="space-y-space-xs">
+<div class="flex items-center gap-1.5 font-table-header text-table-header uppercase text-outline">
+<span class="material-symbols-outlined text-[15px]">soup_kitchen</span>
+<span>1. Profil Dapur &amp; Penanggung Jawab</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-space-md space-y-space-xs">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Nama Dapur:</span>
+<span class="font-semibold text-primary" id="detailKitchenName">SPPG Sentra Mandiri 087</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Lokasi Layanan:</span>
+<span class="font-semibold text-on-surface" id="detailLocation">Kab. Banyumas, Wilayah B</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Kapasitas:</span>
+<span class="font-semibold text-on-surface" id="detailCapacity">2.450 porsi/hari (3 SD)</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Mitra Pengelola:</span>
+<span class="font-semibold text-primary" id="detailPartner">Koperasi Mitra MBG Bersama</span>
+</div>
+</div>
+</div>
+<!-- Section 2: Rincian Anggaran Diajukan -->
+<div class="space-y-space-xs">
+<div class="flex items-center gap-1.5 font-table-header text-table-header uppercase text-outline">
+<span class="material-symbols-outlined text-[15px]">payments</span>
+<span>2. Rincian Anggaran Diajukan</span>
+</div>
+<div class="rounded-lg p-space-md bg-surface-container-low space-y-space-sm">
+<div class="flex justify-between items-baseline">
+<span class="text-body-sm font-body-sm text-on-surface-variant">Total Usulan Top-Up:</span>
+<span class="font-data-metric text-data-metric text-primary tabular-nums font-bold" id="detailTotalBudget">Rp 48.200.000</span>
+</div>
+<div class="space-y-1.5 pt-space-xs">
+<div class="flex justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-[#1E9E6A]"></span>
+<span>Alokasi Bahan Baku (Dilindungi)</span>
+</span>
+<span class="font-bold text-[#1E9E6A] tabular-nums" id="detailFoodBudget">Rp 38.560.000</span>
+</div>
+<div class="flex justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Komponen Ditahan Sementara</span>
+</span>
+<span class="font-bold text-error tabular-nums" id="detailHeldBudget">Rp 9.640.000</span>
+</div>
+</div>
+<!-- Progress visual representation -->
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden flex">
+<div class="bg-[#1E9E6A] h-full" id="detailFoodBar" style="width: 80%"></div>
+<div class="bg-error h-full" id="detailHeldBar" style="width: 20%"></div>
+</div>
+<div class="flex justify-between font-label-badge text-label-badge text-outline">
+<span>Bahan Baku: 80% (Tetap Cair)</span>
+<span>Operasional: 20% (Ditahan)</span>
+</div>
+</div>
+</div>
+<!-- Section 3: Pemicu Red Flag (Flag Triggers) -->
+<div class="space-y-space-xs">
+<div class="flex items-center gap-1.5 font-table-header text-table-header uppercase text-outline">
+<span class="material-symbols-outlined text-[15px]">flag</span>
+<span>3. Indikator Red Flag Terpicu</span>
+</div>
+<div class="space-y-space-xs" id="detailFlagsContainer">
+<!-- Trigger item 1 -->
+<div class="p-space-md rounded-lg bg-surface-container-low space-y-1">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded font-label-badge text-label-badge bg-error-container text-on-error-container font-bold">R4a: Integritas Nota Logistik</span>
+<span class="text-error font-body-sm font-bold">Deviasi 18.4%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+                    Selisih faktur digital peritel beras vs nota manual fisik pasar melebihi toleransi wajar (&gt; 15%).
+                  </p>
+</div>
+<!-- Trigger item 2 -->
+<div class="p-space-md rounded-lg bg-surface-container-low space-y-1">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded font-label-badge text-label-badge bg-error-container text-on-error-container font-bold">R5: Absensi Murid Dinamis</span>
+<span class="text-error font-body-sm font-bold">Anomali Kalender</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+                    Klaim porsi tercatat statis 100% pada hari libur kalender pendidikan Kab. Banyumas (Rabu).
+                  </p>
+</div>
+</div>
+</div>
+<!-- Section 4: Tindakan Auditor & Timeline -->
+<div class="space-y-space-sm pt-space-xs">
+<div class="flex items-center gap-1.5 font-table-header text-table-header uppercase text-outline">
+<span class="material-symbols-outlined text-[15px]">timer</span>
+<span>4. Tindakan Audit &amp; Batas Waktu</span>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container space-y-space-xs">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Rekomendasi Utama:</span>
+<span class="font-semibold text-primary" id="detailRecommendation">Verifikasi Lapangan Tim Audit B</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Sisa Waktu Klarifikasi:</span>
+<span class="font-bold text-error flex items-center gap-1" id="detailDeadline">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>4 hari kerja tersisa</span>
+</span>
+</div>
+<div class="text-label-badge font-label-badge text-outline">
+                  Jatuh tempo SPP: Selasa, 16:00 WIB
+                </div>
+</div>
+<!-- Action Buttons -->
+<div class="space-y-space-xs pt-space-xs">
+<button class="w-full py-2.5 px-space-md rounded-lg bg-primary-container text-on-primary font-body-base text-body-base font-bold shadow-sm hover:bg-primary transition-all flex items-center justify-center gap-2" onclick="alert('Surat Tugas Verifikasi Lapangan sedang disiapkan untuk SPPG terkait.')" type="button">
+<span class="material-symbols-outlined text-[18px]">assignment_turned_in</span>
+<span>Terbitkan Surat Verifikasi</span>
+</button>
+<button class="w-full py-2 px-space-md rounded-lg bg-surface-container-lowest text-primary-container font-body-base text-body-base font-semibold shadow-sm hover:bg-surface-container-low transition-all flex items-center justify-center gap-2" onclick="alert('Membuka arsip dokumen faktur dan log absensi...')" type="button">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+<span>Lihat Berkas Pendukung</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Logic for Filtering & Dynamic Drawer Update -->
+<script>
+    // Database sintetis untuk simulasi drawer
+    const sppgDatabase = {
+      "SPPG Contoh 087": {
+        id: "SPPG Contoh 087",
+        kitchen: "SPPG Sentra Mandiri 087",
+        location: "Kab. Banyumas, Wilayah B",
+        capacity: "2.450 porsi/hari (3 SD)",
+        partner: "Koperasi Mitra MBG Bersama",
+        total: "Rp 48.200.000",
+        food: "Rp 38.560.000",
+        held: "Rp 9.640.000",
+        foodRatio: "80%",
+        heldRatio: "20%",
+        triase: "Merah",
+        badgeText: "MERAH - TAHAN OPERASIONAL",
+        recommendation: "Verifikasi Lapangan Tim Audit B",
+        deadline: "4 hari kerja tersisa",
+        flags: [
+          { code: "R4a: Integritas Nota Logistik", diff: "Deviasi 18.4%", desc: "Selisih faktur digital peritel beras vs nota manual fisik pasar melebihi toleransi wajar (> 15%)." },
+          { code: "R5: Absensi Murid Dinamis", diff: "Anomali Kalender", desc: "Klaim porsi tercatat statis 100% pada hari libur kalender pendidikan Kab. Banyumas (Rabu)." }
+        ]
+      },
+      "SPPG Contoh 014": {
+        id: "SPPG Contoh 014",
+        kitchen: "Dapur Nutrisi Sejahtera 014",
+        location: "Kota Bandung, Wilayah A",
+        capacity: "3.100 porsi/hari (4 SMP)",
+        partner: "PT Pangan Berkah Pasundan",
+        total: "Rp 51.000.000",
+        food: "Rp 40.800.000",
+        held: "Rp 10.200.000",
+        foodRatio: "80%",
+        heldRatio: "20%",
+        triase: "Merah",
+        badgeText: "MERAH - TAHAN OPERASIONAL",
+        recommendation: "Cek Status Dapur Mandiri",
+        deadline: "5 hari kerja tersisa",
+        flags: [
+          { code: "R2: Anomali Harga Acuan", diff: "Deviasi +24%", desc: "Harga beli telur ayam ras per kilogram 24% di atas Harga Eceran Tertinggi (HET) Badan Pangan Nasional." }
+        ]
+      },
+      "SPPG Contoh 212": {
+        id: "SPPG Contoh 212",
+        kitchen: "Dapur Sehat Berkah 212",
+        location: "Kab. Malang, Wilayah C",
+        capacity: "2.200 porsi/hari (3 SD)",
+        partner: "Yayasan Bina Sehat Malang",
+        total: "Rp 44.750.000",
+        food: "Rp 38.037.500",
+        held: "Rp 6.712.500",
+        foodRatio: "85%",
+        heldRatio: "15%",
+        triase: "Kuning",
+        badgeText: "KUNING - VERIFIKASI DOKUMEN",
+        recommendation: "Reviu Dokumen Absensi",
+        deadline: "3 hari kerja tersisa",
+        flags: [
+          { code: "R5: Absensi Murid Dinamis", diff: "Varian 8.2%", desc: "Selisih antara log absensi finger tap dan rekapitulasi manual guru piket memerlukan tanda tangan kepala sekolah." }
+        ]
+      },
+      "SPPG Contoh 156": {
+        id: "SPPG Contoh 156",
+        kitchen: "Sentra Gizi Priangan 156",
+        location: "Kab. Ciamis, Wilayah A",
+        capacity: "2.350 porsi/hari (3 MI)",
+        partner: "Koperasi Unit Desa Priangan",
+        total: "Rp 46.300.000",
+        food: "Rp 39.355.000",
+        held: "Rp 6.945.000",
+        foodRatio: "85%",
+        heldRatio: "15%",
+        triase: "Kuning",
+        badgeText: "KUNING - VERIFIKASI DOKUMEN",
+        recommendation: "Reviu Dokumen Logistik",
+        deadline: "3 hari kerja tersisa",
+        flags: [
+          { code: "R4a: Integritas Nota Logistik", diff: "Nota Belum Bermeterai", desc: "Dokumen pengadaan ayam potong diatas Rp 5 juta belum dilengkapi cap stempel basah suplier terdaftar." }
+        ]
+      },
+      "SPPG Contoh 092": {
+        id: "SPPG Contoh 092",
+        kitchen: "Dapur Makmur 092",
+        location: "Kab. Boyolali, Wilayah B",
+        capacity: "2.500 porsi/hari (4 SD)",
+        partner: "Mitra Gizi Bersama Boyolali",
+        total: "Rp 49.100.000",
+        food: "Rp 41.735.000",
+        held: "Rp 7.365.000",
+        foodRatio: "85%",
+        heldRatio: "15%",
+        triase: "Kuning",
+        badgeText: "KUNING - KONFIRMASI PORSI",
+        recommendation: "Konfirmasi Porsi Penerima",
+        deadline: "2 hari kerja tersisa",
+        flags: [
+          { code: "R1: Selisih Porsi", diff: "Selisih 45 Porsi", desc: "Terdapat perbedaan 45 porsi antara data registrasi Dapodik dan data distribusi harian hari Senin." }
+        ]
+      },
+      "SPPG Contoh 301": {
+        id: "SPPG Contoh 301",
+        kitchen: "Sentra Pangan Solo 301",
+        location: "Kota Surakarta, Wilayah B",
+        capacity: "2.400 porsi/hari (3 SD)",
+        partner: "Koperasi Berkah Bersama Surakarta",
+        total: "Rp 47.900.000",
+        food: "Rp 47.900.000",
+        held: "Rp 0",
+        foodRatio: "100%",
+        heldRatio: "0%",
+        triase: "Hijau",
+        badgeText: "HIJAU - SIAP SALUR PENUH",
+        recommendation: "Top-up Penuh Langsung",
+        deadline: "Tidak ada hambatan",
+        flags: []
+      },
+      "SPPG Contoh 302": {
+        id: "SPPG Contoh 302",
+        kitchen: "Dapur Bersih Bogor 302",
+        location: "Kab. Bogor, Wilayah A",
+        capacity: "2.650 porsi/hari (4 SD)",
+        partner: "PT Bogor Nutrisi Utama",
+        total: "Rp 52.400.000",
+        food: "Rp 52.400.000",
+        held: "Rp 0",
+        foodRatio: "100%",
+        heldRatio: "0%",
+        triase: "Hijau",
+        badgeText: "HIJAU - SIAP SALUR PENUH",
+        recommendation: "Top-up Penuh Langsung",
+        deadline: "Tidak ada hambatan",
+        flags: []
+      },
+      "SPPG Contoh 303": {
+        id: "SPPG Contoh 303",
+        kitchen: "Sentra Gizi Sidoarjo 303",
+        location: "Kab. Sidoarjo, Wilayah C",
+        capacity: "2.300 porsi/hari (3 SD)",
+        partner: "Yayasan Nutrisi Nusantara",
+        total: "Rp 45.800.000",
+        food: "Rp 45.800.000",
+        held: "Rp 0",
+        foodRatio: "100%",
+        heldRatio: "0%",
+        triase: "Hijau",
+        badgeText: "HIJAU - SIAP SALUR PENUH",
+        recommendation: "Top-up Penuh Langsung",
+        deadline: "Tidak ada hambatan",
+        flags: []
+      },
+      "SPPG Contoh 045": {
+        id: "SPPG Contoh 045",
+        kitchen: "Dapur Cemerlang Depok 045",
+        location: "Kota Depok, Wilayah A",
+        capacity: "2.700 porsi/hari (4 SD)",
+        partner: "Koperasi Mandiri Sejahtera",
+        total: "Rp 53.600.000",
+        food: "Rp 42.880.000",
+        held: "Rp 10.720.000",
+        foodRatio: "80%",
+        heldRatio: "20%",
+        triase: "Merah",
+        badgeText: "MERAH - AUDIT FISIK ITJEN",
+        recommendation: "Pemeriksaan Mendalam Pengadaan",
+        deadline: "5 hari kerja tersisa",
+        flags: [
+          { code: "R1: Selisih Porsi", diff: "Selisih 110 Porsi", desc: "Data anak terdaftar berkurang tetapi pesanan makanan diajukan tanpa penyesuaian." },
+          { code: "R4a: Integritas Nota Logistik", diff: "Nota Terduga Fiktif", desc: "Stempel nota pemasok sayur tidak sesuai dengan Nomor Induk Berusaha (NIB) rekanan." }
+        ]
+      },
+      "SPPG Contoh 188": {
+        id: "SPPG Contoh 188",
+        kitchen: "Dapur Barokah Kediri 188",
+        location: "Kab. Kediri, Wilayah C",
+        capacity: "2.200 porsi/hari (3 SD)",
+        partner: "Mitra Tani Sejahtera Kediri",
+        total: "Rp 43.500.000",
+        food: "Rp 36.975.000",
+        held: "Rp 6.525.000",
+        foodRatio: "85%",
+        heldRatio: "15%",
+        triase: "Kuning",
+        badgeText: "KUNING - VALIDASI INVOICE",
+        recommendation: "Validasi Harga Daging Sapi",
+        deadline: "3 hari kerja tersisa",
+        flags: [
+          { code: "R2: Anomali Harga Acuan", diff: "Deviasi +12%", desc: "Harga beli daging sapi lokal sedikit melampaui rata-rata rilis pasar induk Kediri." }
+        ]
+      }
+    };
+
+    let activeTriaseFilter = 'all';
+    let activeRegionFilter = 'all';
+    let activeFlagFilter = 'all';
+    let searchKeyword = '';
+
+    function selectRow(sppgId) {
+      const data = sppgDatabase[sppgId];
+      if (!data) return;
+
+      // Update row selection visuals
+      document.querySelectorAll('.sppg-row').forEach(row => {
+        row.classList.remove('bg-surface-container-high/60', 'shadow-[inset_4px_0_0_#ba1a1a]', 'shadow-[inset_4px_0_0_#fcb803]', 'shadow-[inset_4px_0_0_#1E9E6A]');
+      });
+
+      // Find selected row
+      const targetRow = Array.from(document.querySelectorAll('.sppg-row')).find(r => r.innerText.includes(sppgId));
+      if (targetRow) {
+        targetRow.classList.add('bg-surface-container-high/60');
+        if (data.triase === 'Merah') targetRow.classList.add('shadow-[inset_4px_0_0_#ba1a1a]');
+        else if (data.triase === 'Kuning') targetRow.classList.add('shadow-[inset_4px_0_0_#fcb803]');
+        else targetRow.classList.add('shadow-[inset_4px_0_0_#1E9E6A]');
+      }
+
+      // Update Detail Drawer
+      document.getElementById('detailTitle').textContent = data.id;
+      document.getElementById('detailKitchenName').textContent = data.kitchen;
+      document.getElementById('detailLocation').textContent = data.location;
+      document.getElementById('detailCapacity').textContent = data.capacity;
+      document.getElementById('detailPartner').textContent = data.partner;
+      
+      document.getElementById('detailTotalBudget').textContent = data.total;
+      document.getElementById('detailFoodBudget').textContent = data.food;
+      document.getElementById('detailHeldBudget').textContent = data.held;
+      
+      document.getElementById('detailFoodBar').style.width = data.foodRatio;
+      document.getElementById('detailHeldBar').style.width = data.heldRatio;
+      
+      document.getElementById('detailRecommendation').textContent = data.recommendation;
+      document.getElementById('detailDeadline').textContent = data.deadline;
+
+      // Update Status Badge
+      const badge = document.getElementById('detailBadge');
+      if (data.triase === 'Merah') {
+        badge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-badge text-label-badge bg-error-container text-on-error-container uppercase font-bold tracking-wider";
+        badge.innerHTML = `<span class="material-symbols-outlined text-[14px]">dangerous</span><span>${data.badgeText}</span>`;
+      } else if (data.triase === 'Kuning') {
+        badge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-badge text-label-badge bg-[#FFF4CC] text-[#8A5A00] uppercase font-bold tracking-wider";
+        badge.innerHTML = `<span class="material-symbols-outlined text-[14px]">warning</span><span>${data.badgeText}</span>`;
+      } else {
+        badge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-badge text-label-badge bg-[#E8F6F0] text-[#1E9E6A] uppercase font-bold tracking-wider";
+        badge.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span><span>${data.badgeText}</span>`;
+      }
+
+      // Render Flags
+      const flagsContainer = document.getElementById('detailFlagsContainer');
+      if (data.flags.length === 0) {
+        flagsContainer.innerHTML = `
+          <div class="p-space-md rounded-lg bg-surface-container-low text-body-sm text-[#1E9E6A] flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">verified</span>
+            <span>Tidak ditemukan red flag aktif. Semua parameter kepatuhan terpenuhi.</span>
+          </div>`;
+      } else {
+        let html = '';
+        data.flags.forEach(f => {
+          const isRed = data.triase === 'Merah';
+          const chipColor = isRed ? 'bg-error-container text-on-error-container' : 'bg-[#FFF4CC] text-[#8A5A00]';
+          const diffColor = isRed ? 'text-error' : 'text-secondary';
+          html += `
+            <div class="p-space-md rounded-lg bg-surface-container-low space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded font-label-badge text-label-badge ${chipColor} font-bold">${f.code}</span>
+                <span class="${diffColor} font-body-sm font-bold">${f.diff}</span>
+              </div>
+              <p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+                ${f.desc}
+              </p>
+            </div>
+          `;
+        });
+        flagsContainer.innerHTML = html;
+      }
+    }
+
+    function setTriaseFilter(val) {
+      activeTriaseFilter = val;
+      // update tab visual
+      document.querySelectorAll('.triase-tab').forEach(tab => {
+        const tVal = tab.getAttribute('data-filter');
+        if (tVal === val) {
+          tab.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+          tab.classList.remove('text-on-surface-variant');
+        } else {
+          tab.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+          tab.classList.add('text-on-surface-variant');
+        }
+      });
+      applyFilters();
+    }
+
+    function handleSearch(keyword) {
+      searchKeyword = keyword.toLowerCase();
+      applyFilters();
+    }
+
+    function handleFlagFilter(val) {
+      activeFlagFilter = val;
+      applyFilters();
+    }
+
+    function handleRegionFilter(val) {
+      activeRegionFilter = val;
+      applyFilters();
+    }
+
+    function resetFilters() {
+      activeTriaseFilter = 'all';
+      activeRegionFilter = 'all';
+      activeFlagFilter = 'all';
+      searchKeyword = '';
+      
+      document.getElementById('searchInput').value = '';
+      document.getElementById('flagSelector').value = 'all';
+      document.getElementById('regionSelector').value = 'all';
+      setTriaseFilter('all');
+    }
+
+    function applyFilters() {
+      const rows = document.querySelectorAll('.sppg-row');
+      rows.forEach(row => {
+        const triase = row.getAttribute('data-triase');
+        const region = row.getAttribute('data-region');
+        const flags = row.getAttribute('data-flags');
+        const textContent = row.textContent.toLowerCase();
+
+        let show = true;
+
+        if (activeTriaseFilter !== 'all' && triase !== activeTriaseFilter) {
+          show = false;
+        }
+
+        if (activeRegionFilter !== 'all' && region !== activeRegionFilter) {
+          show = false;
+        }
+
+        if (activeFlagFilter !== 'all') {
+          if (!flags.includes(activeFlagFilter)) show = false;
+        }
+
+        if (searchKeyword && !textContent.includes(searchKeyword)) {
+          show = false;
+        }
+
+        row.style.display = show ? '' : 'none';
+      });
+    }
+
+    function toggleSelectAll(masterCheckbox) {
+      const isChecked = masterCheckbox.checked;
+      document.querySelectorAll('.row-checkbox').forEach(cb => {
+        cb.checked = isChecked;
+      });
+    }
+
+    function collapseDetailDrawer() {
+      const card = document.getElementById('detailCard');
+      card.classList.toggle('opacity-50');
+      alert('Panel detail ditutup. Klik baris pada tabel untuk membukanya kembali.');
+    }
+  </script>
+</div></main></div></body></html>

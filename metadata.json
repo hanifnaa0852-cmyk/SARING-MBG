@@ -1,0 +1,6 @@
+{
+  "name": "SARING-MBG",
+  "description": "Simulasi Ilustratif Gerbang Red Flag Sebelum Top-up Mingguan Dana Makan Bergizi Gratis (MBG)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-primary-container": "#798ce9",
+          "on-error-container": "#93000a",
+          "on-primary": "#ffffff",
+          "surface-container-low": "#f1f4f9",
+          "secondary": "#7c5800",
+          "on-secondary-container": "#6a4b00",
+          "on-secondary-fixed-variant": "#5e4200",
+          "on-primary-fixed": "#001356",
+          "on-surface-variant": "#454652",
+          "tertiary": "#091630",
+          "surface-bright": "#f7f9fe",
+          "background": "#f7f9fe",
+          "surface-container": "#eceef3",
+          "primary-fixed": "#dde1ff",
+          "tertiary-fixed-dim": "#bac6e8",
+          "on-tertiary": "#ffffff",
+          "on-tertiary-container": "#8692b2",
+          "error-container": "#ffdad6",
+          "surface-container-highest": "#e0e2e7",
+          "on-error": "#ffffff",
+          "primary-fixed-dim": "#b9c3ff",
+          "inverse-primary": "#b9c3ff",
+          "primary-container": "#011f7b",
+          "on-surface": "#181c20",
+          "on-secondary-fixed": "#271900",
+          "outline": "#757683",
+          "on-primary-fixed-variant": "#2a3f97",
+          "surface": "#f7f9fe",
+          "primary": "#000f4a",
+          "surface-variant": "#e0e2e7",
+          "surface-container-lowest": "#ffffff",
+          "inverse-surface": "#2d3135",
+          "on-tertiary-fixed-variant": "#3a4663",
+          "secondary-container": "#fcb803",
+          "outline-variant": "#c5c5d4",
+          "secondary-fixed-dim": "#ffbb13",
+          "surface-container-high": "#e6e8ed",
+          "tertiary-fixed": "#d9e2ff",
+          "inverse-on-surface": "eff1f6",
+          "surface-tint": "#4457b0",
+          "on-background": "#181c20",
+          "error": "#ba1a1a",
+          "tertiary-container": "#1f2b46",
+          "on-tertiary-fixed": "#0e1b35",
+          "surface-dim": "#d8dadf",
+          "secondary-fixed": "#ffdea6",
+          "on-secondary": "#ffffff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-sm": "0.5rem",
+          "space-md": "0.75rem",
+          "space-xl": "1.5rem",
+          "gutter": "1rem",
+          "space-2xl": "2rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1rem",
+          "gutter-lg": "1.5rem",
+          "margin-lg": "2rem",
+          "margin": "1.5rem"
+        },
+        "fontFamily": {
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "body-base": [
+            "Plus Jakarta Sans"
+          ],
+          "data-metric": [
+            "Plus Jakarta Sans"
+          ],
+          "body-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "table-header": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-xl": [
+            "Plus Jakarta Sans"
+          ],
+          "label-badge": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Plus Jakarta Sans"
+          ]
+        },
+        "fontSize": {
+          "headline-md": [
+            "1.125rem",
+            {
+              "lineHeight": "1.625rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-base": [
+            "0.875rem",
+            {
+              "lineHeight": "1.375rem",
+              "fontWeight": "400"
+            }
+          ],
+          "data-metric": [
+            "1.625rem",
+            {
+              "lineHeight": "2rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-lg": [
+            "1rem",
+            {
+              "lineHeight": "1.5rem",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-lg": [
+            "1.375rem",
+            {
+              "lineHeight": "1.875rem",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "600"
+            }
+          ],
+          "table-header": [
+            "0.75rem",
+            {
+              "lineHeight": "1rem",
+              "letterSpacing": "0.04em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-xl": [
+            "1.75rem",
+            {
+              "lineHeight": "2.25rem",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "label-badge": [
+            "0.6875rem",
+            {
+              "lineHeight": "0.875rem",
+              "letterSpacing": "0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-sm": [
+            "0.75rem",
+            {
+              "lineHeight": "1.125rem",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-surface font-body-base text-body-base text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-[240px] bg-primary-container z-50 flex flex-col justify-between py-space-xl text-on-primary select-none"><div class="flex flex-col"><div class="px-space-xl pb-space-xl border-b border-white/10"><div class="flex items-center gap-space-sm mb-space-xs"><span class="material-symbols-outlined text-[#fcb803] text-[22px]">shield_with_house</span><span class="font-headline-lg text-headline-lg font-bold tracking-tight text-on-primary">SARING-MBG</span></div><p class="font-body-sm text-body-sm text-on-primary/70 leading-snug">Gerbang red flag sebelum top-up mingguan</p></div><div class="px-space-xl pt-space-lg pb-space-xs"><span class="font-label-badge text-label-badge uppercase tracking-wider text-on-primary/50">Pilar Audit MBG</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-white/10 text-on-primary border-l-4 border-secondary-container font-semibold"><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="ringkasan" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span>Ringkasan</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="antrean-mingguan" href="#"><span class="material-symbols-outlined text-[20px]">pending_actions</span><span>Antrean Mingguan</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="simulator-ambang" href="#"><span class="material-symbols-outlined text-[20px]">tune</span><span>Simulator Ambang</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="kamus-red-flag" href="#"><span class="material-symbols-outlined text-[20px]">menu_book</span><span>Kamus Red Flag</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="error-vs-fraud" href="#"><span class="material-symbols-outlined text-[20px]">rule</span><span>Error vs Fraud</span></a><a class="flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent" data-path="indikator-pilot" href="#"><span class="material-symbols-outlined text-[20px]">flag_circle</span><span>Indikator Pilot</span></a></nav></div><div class="px-space-xl border-t border-white/10 pt-space-md"><div class="flex items-center justify-between text-on-primary/60 font-body-sm text-body-sm mb-space-xs"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#1E9E6A]"></span>Protokol Aktif</span><span class="font-table-header text-table-header uppercase">v1.4</span></div><p class="font-label-badge text-label-badge text-on-primary/40 uppercase tracking-wider">Kementerian Keuangan RI</p></div></aside><div class="pl-[240px]"><header class="fixed top-0 left-[240px] right-0 h-16 bg-surface-container-lowest z-40 border-b border-outline-variant/40 shadow-[0_1px_8px_rgba(1,31,123,0.04)]"><div class="h-16 w-full px-space-2xl flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded bg-surface border-[1.5px] border-primary-container text-primary-container"><span class="material-symbols-outlined text-[16px] text-primary-container">warning</span><span class="font-label-badge text-label-badge tracking-wider uppercase font-bold">SIMULASI ILUSTRATIF - data sintetis, bukan data BGN</span></div></div><div class="flex items-center gap-space-lg"><div class="hidden lg:flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm"><span class="material-symbols-outlined text-[18px]">schedule</span><span>Pembaruan: Kamis, 08:00 WIB</span></div><div class="w-px h-6 bg-outline-variant/60 hidden sm:block"></div><div class="flex items-center gap-space-md"><div class="text-right hidden sm:block"><p class="font-body-base text-body-base font-semibold text-on-surface leading-tight">Auditor Tim 3 MBG</p><p class="font-label-badge text-label-badge text-on-surface-variant uppercase tracking-wider">Inspektorat Jenderal</p></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="relative pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<script>
+    (function highlightActiveNav() {
+      const activeLink = document.querySelector('aside nav a[data-path="simulator-ambang"]');
+      if (activeLink) {
+        document.querySelectorAll('aside nav a').forEach(a => {
+          a.className = "flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary/80 hover:bg-white/5 hover:text-on-primary transition-colors border-l-4 border-transparent";
+        });
+        activeLink.className = "flex items-center gap-space-md px-space-xl py-space-sm font-body-base text-body-base text-on-primary border-l-4 border-secondary-container bg-white/10 font-semibold";
+      }
+    })();
+  </script>
+<div class="w-full px-space-2xl py-space-xl">
+<!-- Breadcrumb & Top Bar Action -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-lg">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span>Pilar Audit MBG</span>
+<span class="material-symbols-outlined text-[16px] text-outline">chevron_right</span>
+<span class="font-semibold text-primary-container">Simulator Ambang</span>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs px-space-md py-1.5 bg-surface-container-lowest rounded-lg shadow-sm text-primary-container text-body-sm font-body-base">
+<span class="material-symbols-outlined text-[18px] text-primary-container">tune</span>
+<span class="font-semibold">Preset:</span>
+<select class="bg-transparent border-0 text-primary-container font-semibold focus:outline-none cursor-pointer pr-space-xs" id="presetSelector">
+<option value="kalibrasi_awal">Kalibrasi Awal Tahap 1</option>
+<option value="ketat">Pemeriksaan Ketat (Zero-Leakage)</option>
+<option value="longgar">Fasilitasi Kelancaran Salur</option>
+</select>
+</div>
+<button class="inline-flex items-center gap-space-xs px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-primary-container font-body-base text-body-base font-semibold shadow-sm hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Unduh Skenario (CSV)</span>
+</button>
+</div>
+</div>
+<!-- Header Row -->
+<div class="mb-space-2xl">
+<h1 class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">Simulator Ambang dan Trade-off</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-1">
+        Geser ambang untuk melihat dana tertahan, positif palsu, dan beban verifikasi. Semua angka sintetis.
+      </p>
+</div>
+<!-- Main Grid: 2-column split (35% Left Panel, 65% Right Area) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-lg items-start">
+<!-- LEFT PANEL (Parameter Kalibrasi Ambang) ~35% (lg:col-span-4 / col-span-5) -->
+<div class="lg:col-span-5 xl:col-span-4 bg-surface-container-lowest rounded-xl p-space-xl shadow-sm flex flex-col gap-space-xl">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">Parameter Kalibrasi</span>
+</div>
+<span class="font-label-badge text-label-badge px-space-sm py-0.5 rounded bg-surface-container text-on-surface-variant uppercase tracking-wider font-semibold">
+            5 Parameter
+          </span>
+</div>
+<div class="flex flex-col gap-space-xl">
+<!-- Slider 1 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-body-base text-body-base font-semibold text-primary" for="slider-r5">Toleransi selisih rekonsiliasi R5</label>
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded-full bg-primary text-on-primary font-bold" id="badge-r5">10%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Batas toleransi deviasi antara laporan dapur vs arus keluar VA BGN sebelum terpicu R5.
+            </p>
+<div class="relative pt-2">
+<input class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-[#fcb803]" id="slider-r5" max="30" min="5" step="1" type="range" value="10"/>
+<div class="flex justify-between font-label-badge text-label-badge text-outline mt-1 font-mono">
+<span>5% (Ketat)</span>
+<span>30% (Longgar)</span>
+</div>
+</div>
+</div>
+<!-- Slider 2 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-body-base text-body-base font-semibold text-primary" for="slider-r4a">Toleransi biaya bahan di atas pagu (R4a)</label>
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-bold" id="badge-r4a">0% - Pagu Ketat</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Toleransi kenaikan harga pasar lokal terhadap pagu regional (Rp 8.000/porsi).
+            </p>
+<div class="relative pt-2">
+<input class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-[#fcb803]" id="slider-r4a" max="15" min="0" step="1" type="range" value="0"/>
+<div class="flex justify-between font-label-badge text-label-badge text-outline mt-1 font-mono">
+<span>0% (Rp 8.000)</span>
+<span>15% (+Rp 1.200)</span>
+</div>
+</div>
+</div>
+<!-- Slider 3 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-body-base text-body-base font-semibold text-primary" for="slider-fraud">Proporsi dapur bermasalah riil</label>
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-bold" id="badge-fraud">4% (~20 dapur)</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Estimasi proporsi dapur dengan indikasi penyimpangan tata kelola nyata (asumsi data sintetis).
+            </p>
+<div class="relative pt-2">
+<input class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-[#fcb803]" id="slider-fraud" max="10" min="2" step="0.5" type="range" value="4"/>
+<div class="flex justify-between font-label-badge text-label-badge text-outline mt-1 font-mono">
+<span>2% (10 unit)</span>
+<span>10% (50 unit)</span>
+</div>
+</div>
+</div>
+<!-- Slider 4 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-body-base text-body-base font-semibold text-primary" for="slider-error">Proporsi kesalahan input jujur</label>
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-bold" id="badge-error">8% (~40 dapur)</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Human error administratif, salah input koma desimal, atau nota terlambat unggah.
+            </p>
+<div class="relative pt-2">
+<input class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-[#fcb803]" id="slider-error" max="15" min="3" step="1" type="range" value="8"/>
+<div class="flex justify-between font-label-badge text-label-badge text-outline mt-1 font-mono">
+<span>3% (15 unit)</span>
+<span>15% (75 unit)</span>
+</div>
+</div>
+</div>
+<!-- Slider 5 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-body-base text-body-base font-semibold text-primary" for="slider-kapasitas">Kapasitas verifikasi lapangan/minggu</label>
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-bold" id="badge-kapasitas">150 Dapur</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Jumlah maksimal SPPG yang dapat diverifikasi fisik oleh tim auditor &amp; PPK per siklus.
+            </p>
+<div class="relative pt-2">
+<input class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-[#fcb803]" id="slider-kapasitas" max="500" min="50" step="10" type="range" value="150"/>
+<div class="flex justify-between font-label-badge text-label-badge text-outline mt-1 font-mono">
+<span>50 SPPG</span>
+<span>500 SPPG</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="pt-space-md flex flex-col gap-space-sm">
+<button class="w-full flex items-center justify-center gap-space-sm px-space-xl py-3 rounded-lg bg-secondary-container text-primary font-body-base text-body-base font-bold shadow-sm hover:brightness-95 transition-all" id="btn-recalculate" type="button">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+<span>Jalankan Ulang Simulasi</span>
+</button>
+<button class="w-full flex items-center justify-center gap-space-xs py-2 text-primary font-body-base text-body-base font-semibold hover:bg-surface-container rounded-lg transition-colors" id="btn-reset" type="button">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+<span>Reset ke Default</span>
+</button>
+</div>
+</div>
+<!-- RIGHT AREA ~65% (lg:col-span-7 / col-span-8) -->
+<div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-space-xl">
+<!-- Section Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[22px] text-primary">query_stats</span>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Hasil Simulasi Dampak &amp; Beban Operasional</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Model probabilitas bersyarat dengan perataan top-up mingguan</p>
+</div>
+</div>
+<div class="inline-flex items-center gap-1.5 px-space-md py-1 rounded-full bg-surface-container-high text-primary font-label-badge text-label-badge uppercase font-bold tracking-wider self-start sm:self-auto">
+<span class="w-2 h-2 rounded-full bg-[#1E9E6A]"></span>
+<span>Siklus Mingguan N=500 Dapur</span>
+</div>
+</div>
+<!-- Grid of 6 KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+<!-- Card 1: Dapur Merah -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-space-xs mb-space-sm">
+<span class="font-table-header text-table-header uppercase text-on-surface-variant tracking-wider font-semibold">Dapur Merah (Audit Lapangan)</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-badge text-label-badge font-bold">
+<span class="material-symbols-outlined text-[13px]">block</span>
+                  Tahan
+                </span>
+</div>
+<div class="font-data-metric text-data-metric text-error font-mono font-bold tracking-tight" id="kpi-merah">18 dapur (3,6%)</div>
+</div>
+<div class="mt-space-md pt-space-xs">
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Bahan darurat cair, operasional ditahan penuh</p>
+</div>
+</div>
+<!-- Card 2: Dapur Kuning -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-space-xs mb-space-sm">
+<span class="font-table-header text-table-header uppercase text-on-surface-variant tracking-wider font-semibold">Dapur Kuning (Klarifikasi Dokumen)</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed-variant font-label-badge text-label-badge font-bold">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+                  Verifikasi
+                </span>
+</div>
+<div class="font-data-metric text-data-metric text-secondary font-mono font-bold tracking-tight" id="kpi-kuning">41 dapur (8,2%)</div>
+</div>
+<div class="mt-space-md pt-space-xs">
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Bahan cair, operasional ditahan 3 hari</p>
+</div>
+</div>
+<!-- Card 3: Dana Tertahan Sementara -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-space-xs mb-space-sm">
+<span class="font-table-header text-table-header uppercase text-on-surface-variant tracking-wider font-semibold">Dana Tertahan Sementara</span>
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded bg-surface-container text-primary font-bold">Ilustrasi</span>
+</div>
+<div class="font-data-metric text-data-metric text-primary font-mono font-bold tracking-tight" id="kpi-dana">Rp 2,41 Miliar</div>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span id="kpi-dana-sub">Porsi operasional 59 dapur</span>
+<span class="font-mono text-outline font-semibold">dari Rp 4,82 M</span>
+</div>
+</div>
+<!-- Card 4: Positif Palsu -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-space-xs mb-space-sm">
+<span class="font-table-header text-table-header uppercase text-on-surface-variant tracking-wider font-semibold">Positif Palsu (% Ditandai)</span>
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded bg-error-container/60 text-error font-bold">Beban Dapur Jujur</span>
+</div>
+<div class="font-data-metric text-data-metric text-primary font-mono font-bold tracking-tight" id="kpi-positif-palsu">37,3%</div>
+</div>
+<div class="mt-space-md pt-space-xs">
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight" id="kpi-positif-palsu-sub">22 dari 59 dapur ditandai adalah kesalahan input jujur</p>
+</div>
+</div>
+<!-- Card 5: Negatif Palsu -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-space-xs mb-space-sm">
+<span class="font-table-header text-table-header uppercase text-on-surface-variant tracking-wider font-semibold">Negatif Palsu (Bermasalah Lolos)</span>
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded bg-secondary-fixed/50 text-secondary font-bold">Risiko Kebocoran</span>
+</div>
+<div class="font-data-metric text-data-metric text-primary font-mono font-bold tracking-tight" id="kpi-negatif-palsu">2 dapur (0,4%)</div>
+</div>
+<div class="mt-space-md pt-space-xs">
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Dapur berisiko tinggi yang terlewat &amp; lolos top-up 100%</p>
+</div>
+</div>
+<!-- Card 6: Beban Lapangan vs Kapasitas -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-space-xs mb-space-sm">
+<span class="font-table-header text-table-header uppercase text-on-surface-variant tracking-wider font-semibold">Beban Lapangan vs Kapasitas</span>
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded bg-[#E8F6F0] text-[#1E9E6A] font-bold" id="badge-status-kapasitas">Aman</span>
+</div>
+<div class="font-data-metric text-data-metric text-primary font-mono font-bold tracking-tight" id="kpi-beban">59 / 150 Dapur (39,3%)</div>
+</div>
+<div class="mt-space-md pt-space-xs">
+<div class="w-full bg-surface-container-highest rounded-full h-2.5 overflow-hidden">
+<div class="bg-primary h-2.5 rounded-full transition-all duration-300" id="bar-kapasitas" style="width: 39.3%"></div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2 leading-tight" id="kpi-beban-sub">
+                Aman: Kapasitas tim verifikasi mencukupi (+91 kuota tersisa)
+              </p>
+</div>
+</div>
+</div>
+<!-- Visual Trade-off Chart Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-xl shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">show_chart</span>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">Analisis Trade-off Ambang Sensitivitas (R5 vs Akurasi)</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                Hubungan invers antara Dapur Jujur Tertahan (Tipe I) dan Risiko Kebocoran Lolos (Tipe II)
+              </p>
+</div>
+<!-- Legend -->
+<div class="flex flex-wrap items-center gap-space-md text-body-sm font-body-base">
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-1 bg-primary rounded-full"></span>
+<span class="font-semibold text-primary">Positif Palsu (Jujur Tertahan)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3.5 h-1 bg-secondary-container rounded-full"></span>
+<span class="font-semibold text-secondary">Negatif Palsu (Risiko Lolos)</span>
+</div>
+</div>
+</div>
+<!-- Inline Scalable SVG Curve Chart -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-lg">
+<div class="relative w-full aspect-[21/9] min-h-[220px]">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 760 220">
+<!-- Grid Lines -->
+<line stroke="#E0E2E7" stroke-dasharray="4" x1="60" x2="720" y1="20" y2="20"></line>
+<line stroke="#E0E2E7" stroke-dasharray="4" x1="60" x2="720" y1="60" y2="60"></line>
+<line stroke="#E0E2E7" stroke-dasharray="4" x1="60" x2="720" y1="100" y2="100"></line>
+<line stroke="#E0E2E7" stroke-dasharray="4" x1="60" x2="720" y1="140" y2="140"></line>
+<line stroke="#DDE3F0" stroke-width="1.5" x1="60" x2="720" y1="180" y2="180"></line>
+<!-- Y Axis Labels -->
+<text fill="#757683" font-family="Plus Jakarta Sans" font-size="11" text-anchor="end" x="45" y="24">60%</text>
+<text fill="#757683" font-family="Plus Jakarta Sans" font-size="11" text-anchor="end" x="45" y="64">45%</text>
+<text fill="#757683" font-family="Plus Jakarta Sans" font-size="11" text-anchor="end" x="45" y="104">30%</text>
+<text fill="#757683" font-family="Plus Jakarta Sans" font-size="11" text-anchor="end" x="45" y="144">15%</text>
+<text fill="#757683" font-family="Plus Jakarta Sans" font-size="11" text-anchor="end" x="45" y="184">0%</text>
+<!-- Current Setting Indicator Zone (10% ambang -> x=192) -->
+<rect fill="#011F7B" fill-opacity="0.06" height="165" id="chart-threshold-zone" rx="4" width="24" x="180" y="15"></rect>
+<line id="chart-threshold-line" stroke="#011F7B" stroke-dasharray="4 2" stroke-width="2" x1="192" x2="192" y1="15" y2="180"></line>
+<!-- Curve 1: Positif Palsu (Navy #011F7B)
+                     Points: (5%, 55%) -> (60, 33), (10%, 37%) -> (192, 81), (15%, 24%) -> (324, 116),
+                             (20%, 14%) -> (456, 142), (25%, 8%) -> (588, 158), (30%, 4%) -> (720, 169)
+                -->
+<path d="M 60 33 C 120 50, 150 75, 192 81 C 240 88, 280 110, 324 116 C 380 124, 420 138, 456 142 C 510 148, 550 156, 588 158 C 640 161, 680 167, 720 169" fill="none" stroke="#011f7b" stroke-linecap="round" stroke-width="3"></path>
+<!-- Curve 2: Negatif Palsu (Yellow #fcb803)
+                     Points: (5%, 1%) -> (60, 177), (10%, 3%) -> (192, 172), (15%, 8%) -> (324, 158),
+                             (20%, 16%) -> (456, 137), (25%, 26%) -> (588, 110), (30%, 38%) -> (720, 78)
+                -->
+<path d="M 60 177 C 110 176, 150 174, 192 172 C 240 170, 280 163, 324 158 C 380 152, 420 143, 456 137 C 510 128, 550 120, 588 110 C 640 98, 680 84, 720 78" fill="none" stroke="#fcb803" stroke-linecap="round" stroke-width="3"></path>
+<!-- Data Points Positif Palsu -->
+<circle cx="60" cy="33" fill="#011f7b" r="4.5"></circle>
+<circle cx="192" cy="81" fill="#011f7b" id="pt-fp-active" r="7" stroke="#ffffff" stroke-width="2.5"></circle>
+<circle cx="324" cy="116" fill="#011f7b" r="4.5"></circle>
+<circle cx="456" cy="142" fill="#011f7b" r="4.5"></circle>
+<circle cx="588" cy="158" fill="#011f7b" r="4.5"></circle>
+<circle cx="720" cy="169" fill="#011f7b" r="4.5"></circle>
+<!-- Data Points Negatif Palsu -->
+<circle cx="60" cy="177" fill="#fcb803" r="4.5"></circle>
+<circle cx="192" cy="172" fill="#fcb803" id="pt-fn-active" r="7" stroke="#ffffff" stroke-width="2.5"></circle>
+<circle cx="324" cy="158" fill="#fcb803" r="4.5"></circle>
+<circle cx="456" cy="137" fill="#fcb803" r="4.5"></circle>
+<circle cx="588" cy="110" fill="#fcb803" r="4.5"></circle>
+<circle cx="720" cy="78" fill="#fcb803" r="4.5"></circle>
+<!-- Current Point Callout Pin -->
+<g id="chart-marker-tag" transform="translate(192, 45)">
+<rect fill="#011f7b" height="24" rx="4" width="190" x="-95" y="-28"></rect>
+<text fill="#ffffff" font-family="Plus Jakarta Sans" font-size="11" font-weight="700" text-anchor="middle" x="0" y="-12">Titik Aktif: Ambang 10%</text>
+<polygon fill="#011f7b" points="-4,-4 4,-4 0,0"></polygon>
+</g>
+<!-- X Axis Labels -->
+<text fill="#454652" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="60" y="202">5%</text>
+<text fill="#011f7b" font-family="Plus Jakarta Sans" font-size="12" font-weight="700" text-anchor="middle" x="192" y="202">10%</text>
+<text fill="#454652" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="324" y="202">15%</text>
+<text fill="#454652" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="456" y="202">20%</text>
+<text fill="#454652" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="588" y="202">25%</text>
+<text fill="#454652" font-family="Plus Jakarta Sans" font-size="12" font-weight="600" text-anchor="middle" x="720" y="202">30%</text>
+</svg>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-base text-on-surface-variant px-space-md pt-2">
+<span class="font-medium">← Zona Pengawasan Ketat</span>
+<span class="font-semibold text-primary">Toleransi Selisih R5 (%)</span>
+<span class="font-medium">Zona Akselerasi Salur →</span>
+</div>
+</div>
+<!-- Trade-off Explanation Callout -->
+<div class="flex items-start gap-space-sm p-space-md rounded-lg bg-surface-container border-l-4 border-primary">
+<span class="material-symbols-outlined text-[20px] text-primary shrink-0 mt-0.5">balance</span>
+<div class="font-body-base text-body-base text-on-surface">
+<span class="font-bold text-primary">Prinsip Ekuilibrium Audit:</span>
+<span class="text-on-surface-variant"> Ambang yang ketat (&lt; 10%) menangkap lebih banyak potensi fraud namun menahan puluhan dapur jujur (risiko disrupsi makanan anak). Ambang yang terlalu longgar (&gt; 20%) memperlancar likuiditas tetapi meningkatkan risiko kebocoran kas negara tanpa verifikasi.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Muted Footer Note Card -->
+<div class="mt-space-xl p-space-lg rounded-xl bg-surface-container-low shadow-sm flex items-start gap-space-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[22px] text-primary shrink-0 mt-0.5">info</span>
+<p class="font-body-base text-body-base leading-relaxed">
+<strong class="text-primary font-semibold">Catatan Metodologi Audit:</strong> Simulasi ini menunjukkan cara kerja mekanisme pertukaran risiko (trade-off), bukan membuktikan efektivitas statis. Ambang batas adalah usulan dinamis yang dikalibrasi berkala pada uji coba lapangan untuk menyeimbangkan pelindungan integritas APBN dan kepastian pemenuhan nutrisi anak sekolah tanpa jeda pasokan.
+      </p>
+</div>
+</div>
+<!-- Interactive Simulator Engine JS -->
+<script>
+    (function initSimulator() {
+      const sliderR5 = document.getElementById('slider-r5');
+      const sliderR4a = document.getElementById('slider-r4a');
+      const sliderFraud = document.getElementById('slider-fraud');
+      const sliderError = document.getElementById('slider-error');
+      const sliderKapasitas = document.getElementById('slider-kapasitas');
+
+      const badgeR5 = document.getElementById('badge-r5');
+      const badgeR4a = document.getElementById('badge-r4a');
+      const badgeFraud = document.getElementById('badge-fraud');
+      const badgeError = document.getElementById('badge-error');
+      const badgeKapasitas = document.getElementById('badge-kapasitas');
+
+      const kpiMerah = document.getElementById('kpi-merah');
+      const kpiKuning = document.getElementById('kpi-kuning');
+      const kpiDana = document.getElementById('kpi-dana');
+      const kpiDanaSub = document.getElementById('kpi-dana-sub');
+      const kpiPositifPalsu = document.getElementById('kpi-positif-palsu');
+      const kpiPositifPalsuSub = document.getElementById('kpi-positif-palsu-sub');
+      const kpiNegatifPalsu = document.getElementById('kpi-negatif-palsu');
+      const kpiBeban = document.getElementById('kpi-beban');
+      const kpiBebanSub = document.getElementById('kpi-beban-sub');
+      const barKapasitas = document.getElementById('bar-kapasitas');
+      const badgeStatusKapasitas = document.getElementById('badge-status-kapasitas');
+
+      const btnReset = document.getElementById('btn-reset');
+      const btnRecalculate = document.getElementById('btn-recalculate');
+      const presetSelector = document.getElementById('presetSelector');
+
+      const chartMarkerTag = document.getElementById('chart-marker-tag');
+      const chartThresholdLine = document.getElementById('chart-threshold-line');
+      const chartThresholdZone = document.getElementById('chart-threshold-zone');
+
+      const N = 500; // Total Dapur per Siklus
+
+      function updateSim() {
+        const r5 = parseFloat(sliderR5.value);
+        const r4a = parseFloat(sliderR4a.value);
+        const fraudProp = parseFloat(sliderFraud.value) / 100;
+        const errorProp = parseFloat(sliderError.value) / 100;
+        const kapasitas = parseInt(sliderKapasitas.value, 10);
+
+        // Update Badges
+        badgeR5.textContent = `${r5}%`;
+        badgeR4a.textContent = r4a === 0 ? '0% - Pagu Ketat' : `${r4a}% (+Rp ${(r4a * 80).toFixed(0)})`;
+        const estFraudCount = Math.round(N * fraudProp);
+        badgeFraud.textContent = `${sliderFraud.value}% (~${estFraudCount} dapur)`;
+        const estErrorCount = Math.round(N * errorProp);
+        badgeError.textContent = `${sliderError.value}% (~${estErrorCount} dapur)`;
+        badgeKapasitas.textContent = `${kapasitas} Dapur`;
+
+        // Sensitivitas deteksi berdasarkan ambang R5
+        // Ambang 5% menangkap ~95% fraud dan 60% error
+        // Ambang 30% menangkap ~50% fraud dan 8% error
+        const factorR5 = (30 - r5) / 25; // 1 pada r5=5%, 0 pada r5=30%
+        const fraudCatchRate = 0.50 + (0.45 * factorR5);
+        const errorCatchRate = 0.06 + (0.50 * Math.pow(factorR5, 1.3));
+
+        // Pengaruh R4a
+        const r4aPenalty = (15 - r4a) / 15 * 0.05;
+
+        const trueFraudCaught = Math.round(estFraudCount * Math.min(0.99, fraudCatchRate + r4aPenalty));
+        const falseAlarm = Math.round(estErrorCount * Math.min(0.95, errorCatchRate + r4aPenalty));
+        const missedFraud = Math.max(0, estFraudCount - trueFraudCaught);
+
+        // Alokasi Merah vs Kuning
+        const merahCount = Math.min(N, Math.round(trueFraudCaught * 0.75 + falseAlarm * 0.15));
+        const kuningCount = Math.min(N - merahCount, Math.round(trueFraudCaught * 0.25 + falseAlarm * 0.85));
+        const totalDitandai = merahCount + kuningCount;
+
+        const pctMerah = ((merahCount / N) * 100).toFixed(1).replace('.', ',');
+        const pctKuning = ((kuningCount / N) * 100).toFixed(1).replace('.', ',');
+
+        kpiMerah.textContent = `${merahCount} dapur (${pctMerah}%)`;
+        kpiKuning.textContent = `${kuningCount} dapur (${pctKuning}%)`;
+
+        // Estimasi dana tertahan (asumsi rata-rata Rp 40,8 juta operasional per dapur)
+        const avgDanaPerDapur = 40.85; // Juta
+        const danaTertahanJuta = (merahCount * avgDanaPerDapur) + (kuningCount * avgDanaPerDapur * 0.7);
+        const danaMiliar = (danaTertahanJuta / 1000).toFixed(2).replace('.', ',');
+        kpiDana.textContent = `Rp ${danaMiliar} Miliar`;
+        kpiDanaSub.textContent = `Porsi operasional ${totalDitandai} dapur`;
+
+        // Positif Palsu
+        const pctFP = totalDitandai > 0 ? ((falseAlarm / totalDitandai) * 100).toFixed(1).replace('.', ',') : '0,0';
+        kpiPositifPalsu.textContent = `${pctFP}%`;
+        kpiPositifPalsuSub.textContent = `${falseAlarm} dari ${totalDitandai} dapur ditandai adalah kesalahan input jujur`;
+
+        // Negatif Palsu
+        const pctFN = ((missedFraud / N) * 100).toFixed(1).replace('.', ',');
+        kpiNegatifPalsu.textContent = `${missedFraud} dapur (${pctFN}%)`;
+
+        // Kapasitas Verifikasi
+        const bebanPct = Math.min(200, ((totalDitandai / kapasitas) * 100));
+        kpiBeban.textContent = `${totalDitandai} / ${kapasitas} Dapur (${bebanPct.toFixed(1).replace('.', ',')}%)`;
+        barKapasitas.style.width = `${Math.min(100, bebanPct)}%`;
+
+        if (totalDitandai <= kapasitas) {
+          const sisa = kapasitas - totalDitandai;
+          kpiBebanSub.textContent = `Aman: Kapasitas tim verifikasi mencukupi (+${sisa} kuota tersisa)`;
+          kpiBebanSub.className = "font-body-sm text-body-sm text-[#1E9E6A] mt-2 leading-tight font-medium";
+          barKapasitas.className = "bg-[#1E9E6A] h-2.5 rounded-full transition-all duration-300";
+          badgeStatusKapasitas.textContent = "Aman";
+          badgeStatusKapasitas.className = "font-label-badge text-label-badge px-2 py-0.5 rounded bg-[#E8F6F0] text-[#1E9E6A] font-bold";
+        } else {
+          const defisit = totalDitandai - kapasitas;
+          kpiBebanSub.textContent = `Kelebihan Beban: ${defisit} SPPG berisiko tertunda auditnya`;
+          kpiBebanSub.className = "font-body-sm text-body-sm text-error mt-2 leading-tight font-semibold";
+          barKapasitas.className = "bg-error h-2.5 rounded-full transition-all duration-300";
+          badgeStatusKapasitas.textContent = "Kelebihan Beban";
+          badgeStatusKapasitas.className = "font-label-badge text-label-badge px-2 py-0.5 rounded bg-error-container text-on-error-container font-bold";
+        }
+
+        // Sinkronisasi posisi marker chart X
+        // Range 5% -> 30% mapped to SVG X: 60 -> 720
+        const chartX = 60 + ((r5 - 5) / 25) * (720 - 60);
+        chartMarkerTag.setAttribute('transform', `translate(${chartX}, 45)`);
+        chartMarkerTag.querySelector('text').textContent = `Titik Aktif: Ambang ${r5}%`;
+        chartThresholdLine.setAttribute('x1', chartX);
+        chartThresholdLine.setAttribute('x2', chartX);
+        chartThresholdZone.setAttribute('x', chartX - 12);
+      }
+
+      // Event Listeners
+      [sliderR5, sliderR4a, sliderFraud, sliderError, sliderKapasitas].forEach(el => {
+        el.addEventListener('input', updateSim);
+      });
+
+      btnRecalculate.addEventListener('click', () => {
+        btnRecalculate.classList.add('scale-95');
+        setTimeout(() => btnRecalculate.classList.remove('scale-95'), 150);
+        updateSim();
+      });
+
+      btnReset.addEventListener('click', () => {
+        sliderR5.value = 10;
+        sliderR4a.value = 0;
+        sliderFraud.value = 4;
+        sliderError.value = 8;
+        sliderKapasitas.value = 150;
+        presetSelector.value = "kalibrasi_awal";
+        updateSim();
+      });
+
+      presetSelector.addEventListener('change', (e) => {
+        if (e.target.value === 'ketat') {
+          sliderR5.value = 5;
+          sliderR4a.value = 0;
+          sliderFraud.value = 5;
+          sliderError.value = 6;
+          sliderKapasitas.value = 200;
+        } else if (e.target.value === 'longgar') {
+          sliderR5.value = 20;
+          sliderR4a.value = 5;
+          sliderFraud.value = 3;
+          sliderError.value = 10;
+          sliderKapasitas.value = 100;
+        } else {
+          sliderR5.value = 10;
+          sliderR4a.value = 0;
+          sliderFraud.value = 4;
+          sliderError.value = 8;
+          sliderKapasitas.value = 150;
+        }
+        updateSim();
+      });
+
+      updateSim();
+    })();
+  </script>
+</div></main></div></body></html>
