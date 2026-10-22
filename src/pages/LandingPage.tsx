@@ -9,7 +9,6 @@ import { SaringLogoSvg } from '../components/SaringLogoSvg';
 import { AiLoginModal } from '../components/AiLoginModal';
 import { AnimatedNumber } from '../components/AnimatedNumber';
 import { soundFx } from '../utils/soundEffects';
-import { MascotCharacter } from '../components/MascotCharacter';
 
 interface LandingPageProps {
   onNavigateToApp: (targetPage?: PageId) => void;
@@ -22,7 +21,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [targetDestination, setTargetDestination] = useState<PageId>('ringkasan');
-  const [heroTab, setHeroTab] = useState<'mascot' | 'control'>('mascot');
 
   // Interactive quick simulator preview state
   const [simR5, setSimR5] = useState<number>(10);
@@ -286,17 +284,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <span>Animasi Logo</span>
                 </button>
               )}
-
-              <button
-                onClick={() => {
-                  soundFx.playClickBlip();
-                  setHeroTab('mascot');
-                }}
-                className="inline-flex items-center gap-1.5 px-4 py-3.5 rounded-xl bg-[#FFBA09]/15 hover:bg-[#FFBA09]/25 text-[#FFBA09] text-xs font-bold border border-[#FFBA09]/50 transition-all cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">face</span>
-                <span>Karakter Inspektur Saring</span>
-              </button>
             </div>
 
             {/* Mini stats row under buttons (mono-font with animated count-up!) */}
@@ -325,54 +312,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
-          {/* Right Column: Switcher between Mascot Character and Glassmorphism Control Center */}
-          <div className="lg:col-span-5 flex flex-col gap-3">
-            {/* Tab Selector */}
-            <div className="flex items-center p-1 rounded-2xl bg-[#000F4A]/80 border border-[#FFBA09]/40 backdrop-blur-md shadow-md">
-              <button
-                onClick={() => {
-                  soundFx.playClickBlip();
-                  setHeroTab('mascot');
-                }}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  heroTab === 'mascot'
-                    ? 'bg-[#FFBA09] text-[#011F7B] shadow-md'
-                    : 'text-[#B8C4E6] hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[16px]">face</span>
-                <span>Auditor Muda (3D HD)</span>
-                <span className="px-1.5 py-0.2 rounded text-[8px] font-mono bg-[#011F7B] text-[#FFBA09] font-bold">
-                  KARAKTER
-                </span>
-              </button>
-              <button
-                onClick={() => {
-                  soundFx.playClickBlip();
-                  setHeroTab('control');
-                }}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  heroTab === 'control'
-                    ? 'bg-[#011F7B] text-white border border-[#FFBA09]/40 shadow-md'
-                    : 'text-[#B8C4E6] hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[16px]">dashboard</span>
-                <span>Pusat Kendali</span>
-              </button>
-            </div>
-
-            {/* Tab 1: HD 3D Mascot Character Component */}
-            {heroTab === 'mascot' ? (
-              <MascotCharacter
-                variant="card"
-                onNavigateToApp={() => handleLaunchLogin('ringkasan')}
-              />
-            ) : (
-              /* Tab 2: Glassmorphism Control Center Card */
-              <div className="relative bg-[#000F4A]/80 backdrop-blur-xl border border-[#FFBA09]/40 rounded-[28px] p-6 sm:p-7 shadow-[0_20px_60px_rgba(1,15,61,0.7)] text-white overflow-hidden group">
-                {/* Subtle yellow-tinted border glow reflection */}
-                <div className="absolute -top-24 -right-24 w-52 h-52 bg-[#FFBA09]/20 rounded-full blur-3xl pointer-events-none"></div>
+          {/* Right Column: Glassmorphism Control Center */}
+          <div className="lg:col-span-5">
+            <div className="relative bg-[#000F4A]/80 backdrop-blur-xl border border-[#FFBA09]/40 rounded-[28px] p-6 sm:p-7 shadow-[0_20px_60px_rgba(1,15,61,0.7)] text-white overflow-hidden group">
+              {/* Subtle yellow-tinted border glow reflection */}
+              <div className="absolute -top-24 -right-24 w-52 h-52 bg-[#FFBA09]/20 rounded-full blur-3xl pointer-events-none"></div>
 
                 {/* Moving scanning wave across the card header */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#FFBA09] to-transparent opacity-75 animate-pulse"></div>
@@ -533,7 +477,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <span className="material-symbols-outlined text-[18px] font-bold">arrow_forward</span>
                 </button>
               </div>
-            )}
           </div>
         </div>
       </section>
@@ -1378,12 +1321,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
         </div>
       </footer>
-
-      {/* Interactive Floating Mascot Companion (Inspektur Saring HD) */}
-      <MascotCharacter
-        variant="floating"
-        onNavigateToApp={() => handleLaunchLogin('ringkasan')}
-      />
     </div>
   );
 };
