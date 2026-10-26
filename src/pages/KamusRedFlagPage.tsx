@@ -200,14 +200,14 @@ Catatan: Bendera yang berbagi sumber yang sama (laporan harian SPPG) yang aktif 
             {/* Execution Schedule Badge */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#F1F4F9] border border-[#E0E2E7] text-[#454652] text-xs">
               <span className="material-symbols-outlined text-[16px] text-[#011F7B]">update</span>
-              <span>Batch Eksekusi: <strong className="text-[#181C20] font-semibold">Kamis, 08:00 WIB</strong> otomatis pra-SPP</span>
+              <span>Batch Eksekusi: <strong className="text-[#181C20] font-semibold">Senin–Selasa</strong> (sebelum penerbitan SPP oleh PPK)</span>
             </div>
           </div>
 
           <p className="text-xs text-[#454652] mt-3">
-            {activeStage === 1 && 'Indikator Tahap 1 dijalankan otomatis setiap Kamis pukul 08:00 WIB terhadap seluruh berkas SPPG mingguan untuk menentukan isolasi likuiditas belanja operasional vs bahan baku.'}
+            {activeStage === 1 && 'SPPG menginput laporan harian Senin–Sabtu; gerbang berjalan otomatis sebelum PPK menerbitkan SPP (Senin–Selasa) terhadap berkas SPPG mingguan untuk menentukan isolasi likuiditas belanja operasional dan insentif vs bahan baku.'}
             {activeStage === 2 && 'Indikator Tahap 2 disiapkan untuk integrasi API tingkat lanjut (mutasi perbankan Himbara, presensi sidik jari Dapodik, dan basis data NIB OSS).'}
-            {activeStage === 3 && 'Indikator Tahap 3 merupakan model eksploratif forensik digital masa depan yang diuji coba secara laboratoris di bawah supervisi tim riset ITJEN.'}
+            {activeStage === 3 && 'Indikator Tahap 3 merupakan model eksploratif forensik digital masa depan yang diuji coba secara laboratoris di bawah supervisi tim riset Inspektorat Utama BGN.'}
           </p>
         </div>
 

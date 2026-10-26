@@ -4,17 +4,26 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Kitchen, PageId } from '../types';
-import { getHistoricalWeeksSummary } from '../utils/syntheticData';
+import { Kitchen, PageId, SimulationParameters } from '../types';
+import { getHistoricalWeeksSummary, computeSimulationMetrics } from '../utils/syntheticData';
 import { AnimatedNumber } from '../components/AnimatedNumber';
 import { soundFx } from '../utils/soundEffects';
 
 interface RingkasanPageProps {
   kitchens: Kitchen[];
+  params?: SimulationParameters;
+  metrics?: ReturnType<typeof computeSimulationMetrics>;
+  trendData?: ReturnType<typeof getHistoricalWeeksSummary>;
   onNavigate: (page: PageId) => void;
 }
 
-export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNavigate }) => {
+export const RingkasanPage: React.FC<RingkasanPageProps> = ({
+  kitchens,
+  params,
+  metrics,
+  trendData,
+  onNavigate,
+}) => {
   const [selectedWeek, setSelectedWeek] = useState<'w4' | 'w3' | 'w2' | 'w1'>('w4');
   const [activeRoadStep, setActiveRoadStep] = useState<number>(3);
   const [isAutoPlayingRoad, setIsAutoPlayingRoad] = useState<boolean>(false);
@@ -27,7 +36,6 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
     return () => clearInterval(timer);
   }, [isAutoPlayingRoad]);
 
-
   const total = kitchens.length;
   const hijauCount = kitchens.filter((k) => k.triase === 'Hijau').length;
   const kuningCount = kitchens.filter((k) => k.triase === 'Kuning').length;
@@ -37,14 +45,14 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
   const kuningPct = ((kuningCount / total) * 100).toFixed(1).replace('.', ',');
   const merahPct = ((merahCount / total) * 100).toFixed(1).replace('.', ',');
 
-  // Withheld operational funds for Yellow and Red
+  // Withheld funds for Yellow and Red
   const withheldTotal = kitchens
     .filter((k) => k.triase !== 'Hijau')
     .reduce((acc, k) => acc + k.heldBudget, 0);
 
   const withheldBillions = (withheldTotal / 1000000000).toFixed(1).replace('.', ',');
 
-  const historicalData = getHistoricalWeeksSummary(kitchens);
+  const historicalData = trendData || getHistoricalWeeksSummary(kitchens);
 
   return (
     <div className="px-8 py-6 flex flex-col gap-6 max-w-[1600px] w-full mx-auto">
@@ -56,7 +64,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
               Ringkasan Gerbang Minggu Ini
             </h1>
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-[#ECEEF3] text-[#454652] text-xs font-semibold uppercase tracking-wider">
-              Siklus Audit T+7
+              Siklus Top-Up Mingguan
             </span>
           </div>
           <p className="text-sm text-[#454652]">
@@ -126,7 +134,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             <span className="material-symbols-outlined text-[16px] text-[#011F7B]">
               verified_user
             </span>
-            <span className="text-xs font-semibold">100% tervalidasi sebelum SPP</span>
+            <span className="text-xs font-semibold">100% dibaca sebelum SPP</span>
           </div>
         </div>
 
@@ -163,7 +171,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             <div className="flex items-center justify-between mb-2">
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FFF4CC] text-[#8A5A00] text-[11px] font-bold uppercase tracking-wide">
                 <span className="material-symbols-outlined text-[14px]">warning</span>
-                <span>Verifikasi Lapangan</span>
+                <span>KLARIFIKASI DOKUMEN</span>
               </span>
               <span className="text-xs text-[#454652] font-bold tabular-nums">
                 <AnimatedNumber value={(kuningCount / total) * 100} decimals={1} suffix="%" />
@@ -177,7 +185,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             </div>
           </div>
           <p className="mt-4 text-xs text-[#454652] leading-relaxed">
-            Bahan baku tetap cair; operasional ditahan pending klarifikasi nota
+            Bahan baku tetap cair; operasional &amp; insentif ditahan pending klarifikasi tertulis (usulan 3 hari)
           </p>
         </div>
 
@@ -188,7 +196,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             <div className="flex items-center justify-between mb-2">
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FCEBEB] text-[#B02A2A] text-[11px] font-bold uppercase tracking-wide">
                 <span className="material-symbols-outlined text-[14px]">dangerous</span>
-                <span>Red Flag - Tahan Salur</span>
+                <span>RED FLAG - BAHAN BAKU MINIMUM</span>
               </span>
               <span className="text-xs text-[#454652] font-bold tabular-nums">
                 <AnimatedNumber value={(merahCount / total) * 100} decimals={1} suffix="%" />
@@ -202,7 +210,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             </div>
           </div>
           <p className="mt-4 text-xs text-[#454652] leading-relaxed">
-            Penyaluran bahan baku minimum darurat &amp; investigasi langsung ITJEN
+            Hanya bahan baku minimum dicairkan &amp; verifikasi lapangan oleh Verifikator BGN (usulan 5 hari kerja); Inspektorat Utama BGN hanya mereviu eksepsi dan menerima rujukan untuk audit investigatif
           </p>
         </div>
       </div>
@@ -217,9 +225,9 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-lg font-bold text-[#000F4A]">Tren 4 Minggu Terakhir</h2>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FCEBEB] text-[#D64545] border border-[#F5C2C2] text-[10px] font-bold uppercase tracking-wider animate-pulse">
-                    <span className="material-symbols-outlined text-[13px]">emergency</span>
-                    Urgensi Tinggi (Merah Dominan &gt;70%)
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EBF0FF] text-[#011F7B] border border-[#C5D3F5] text-[10px] font-bold uppercase tracking-wider">
+                    <span className="material-symbols-outlined text-[13px]">analytics</span>
+                    Dinamis Berdasarkan Kalibrasi
                   </span>
                 </div>
                 <p className="text-xs text-[#454652] mt-0.5">
@@ -304,9 +312,13 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
                         style={{ width: `${mPct}%` }}
                         title={`Merah (Urgensi Kritis): ${item.merah} unit (${mPct}%)`}
                       >
-                        <div className="flex items-center gap-1.5 px-2 truncate">
-                          <span className="material-symbols-outlined text-[15px] animate-pulse">dangerous</span>
-                          <span>Merah: {item.merah} Unit ({mPct.replace('.', ',')}%)</span>
+                        <div className="flex items-center gap-1 px-1 truncate">
+                          {Number(mPct) >= 3.5 && (
+                            <span className="material-symbols-outlined text-[14px] animate-pulse shrink-0">dangerous</span>
+                          )}
+                          <span className="truncate text-[10px] sm:text-xs">
+                            {Number(mPct) >= 5 ? `Merah: ${item.merah} Unit (${mPct.replace('.', ',')}%)` : item.merah}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -316,20 +328,25 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             </div>
           </div>
 
-          {/* Metric comparison footnote */}
-          <div className="mt-3 pt-3 border-t border-[#ECEEF3] flex flex-wrap items-center justify-between gap-2 text-xs text-[#454652]">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#FCEBEB] text-[#B02A2A] text-xs font-bold border border-[#F5C2C2]">
-                <span className="material-symbols-outlined text-[15px]">report</span>
-                Status Merah Dominan: &gt;75% Dapur Wajib Audit Lapangan
-              </span>
-              <span className="text-xs text-[#525363]">
-                Tren eskalasi red flag memuncak di M4 (376 dapur terindikasi risiko)
+          {/* Metric comparison footnote & Trend Explainer Note */}
+          <div className="mt-3 pt-3 border-t border-[#ECEEF3] flex flex-col gap-2 text-xs text-[#454652]">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#EBF0FF] text-[#011F7B] text-xs font-bold border border-[#C5D3F5]">
+                  <span className="material-symbols-outlined text-[15px]">info</span>
+                  Triase Berjalan Sebelum Penerbitan SPP
+                </span>
+                <span className="text-xs text-[#525363]">
+                  Tren pembacaan risiko Minggu 4 ({merahCount + kuningCount} dapur terindikasi tanda)
+                </span>
+              </div>
+              <span className="text-[11px] uppercase tracking-wider font-bold text-[#011F7B] bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
+                PROTEKSI LIKUIDITAS: OPERASIONAL &amp; INSENTIF DITAHAN
               </span>
             </div>
-            <span className="text-[11px] uppercase tracking-wider font-bold text-[#D64545] bg-rose-50 px-2.5 py-1 rounded border border-rose-200">
-              URGENSI TERTINGGI: DANA OPERASIONAL DITAHAN
-            </span>
+            <p className="text-[11px] text-[#757683] italic border-t border-[#F0F2F6] pt-1.5">
+              Catatan: Minggu 1-3 adalah data sintetis terpisah; tren tidak menunjukkan efektivitas.
+            </p>
           </div>
         </div>
 
@@ -354,7 +371,10 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
               <div className="text-3xl font-extrabold text-[#000F4A] tracking-tight tabular-nums">
                 <AnimatedNumber value={withheldTotal / 1000000000} decimals={2} prefix="Rp " suffix=" miliar" />
               </div>
-              <p className="mt-1.5 text-xs italic text-[#454652]">
+              <p className="mt-2 text-[11px] text-[#011F7B] font-medium bg-[#EBF0FF] p-2 rounded-lg border border-[#CCD8FC] text-left leading-snug">
+                <strong>Formula &amp; Periode:</strong> Operasional + insentif yang ditahan pada Minggu 4 untuk dapur Merah dan Kuning (atau top-up penuh bila belum beroperasi/suspend).
+              </p>
+              <p className="mt-1.5 text-[10px] italic text-[#757683]">
                 *bukan klaim kebocoran riil, bagian dari skenario simulasi
               </p>
             </div>
@@ -366,7 +386,12 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
                   <span className="w-2.5 h-2.5 rounded-full bg-[#fcb803]"></span>
                   <span className="text-xs text-[#181C20] font-medium">Median verifikasi kuning</span>
                 </div>
-                <span className="text-sm font-bold text-[#000F4A] tabular-nums font-mono">2,1 hari kerja</span>
+                <div className="text-right">
+                  <span className="text-sm font-bold text-[#000F4A] tabular-nums font-mono">
+                    {metrics?.medianDaysKuning ?? 2.1} hari kerja
+                  </span>
+                  <span className="block text-[9px] text-[#757683]">asumsi simulasi (SLA 3 hari)</span>
+                </div>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-lg bg-white border border-[#E0E2E7] shadow-xs">
@@ -374,7 +399,12 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
                   <span className="w-2.5 h-2.5 rounded-full bg-[#D64545]"></span>
                   <span className="text-xs text-[#181C20] font-medium">Median verifikasi merah</span>
                 </div>
-                <span className="text-sm font-bold text-[#000F4A] tabular-nums font-mono">3,8 hari kerja</span>
+                <div className="text-right">
+                  <span className="text-sm font-bold text-[#000F4A] tabular-nums font-mono">
+                    {metrics?.medianDaysMerah ?? 3.8} hari kerja
+                  </span>
+                  <span className="block text-[9px] text-[#757683]">asumsi simulasi (SLA 5 hari)</span>
+                </div>
               </div>
             </div>
           </div>
@@ -466,10 +496,10 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {[
             { id: 1, km: 'KM 01', label: 'Laporan SPPG', time: 'Senin–Sabtu' },
-            { id: 2, km: 'KM 02', label: 'Mesin Red Flag', time: 'Kamis 07:59' },
-            { id: 3, km: 'KM 03', label: 'Gerbang Triase', time: 'Kamis 08:00' },
-            { id: 4, km: 'KM 04', label: 'Penerbitan SPP', time: 'Kamis 10:00' },
-            { id: 5, km: 'KM 05', label: 'Verifikasi', time: 'T+3 Hari' }
+            { id: 2, km: 'KM 02', label: 'Mesin Red Flag', time: 'Sebelum SPP' },
+            { id: 3, km: 'KM 03', label: 'Gerbang Triase', time: 'Sebelum SPP' },
+            { id: 4, km: 'KM 04', label: 'Penerbitan SPP', time: 'Senin–Selasa' },
+            { id: 5, km: 'KM 05', label: 'Verifikasi', time: '3–5 Hari Kerja' }
           ].map((item) => {
             const isActive = activeRoadStep === item.id;
             return (
@@ -651,7 +681,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
                 {
                   id: 2,
                   km: 'KM 02',
-                  time: 'Kamis 07:59',
+                  time: 'Sebelum SPP',
                   title: 'Mesin Red Flag',
                   x: 325,
                   y: 95,
@@ -661,7 +691,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
                 {
                   id: 3,
                   km: 'KM 03',
-                  time: 'Kamis 08:00',
+                  time: 'Sebelum SPP',
                   title: 'Gerbang Triase',
                   x: 550,
                   y: 175,
@@ -671,7 +701,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
                 {
                   id: 4,
                   km: 'KM 04',
-                  time: 'Kamis 10:00',
+                  time: 'Senin–Selasa',
                   title: 'Penerbitan SPP',
                   x: 775,
                   y: 95,
@@ -681,7 +711,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
                 {
                   id: 5,
                   km: 'KM 05',
-                  time: 'T+3 Hari',
+                  time: '3–5 Hari',
                   title: 'Verifikasi Fisik',
                   x: 1000,
                   y: 160,
@@ -833,13 +863,13 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             {
               id: 1,
               km: 'KM 01',
-              waktu: 'Senin – Sabtu (Cut-off Rabu 23:59 WIB)',
+              waktu: 'Senin – Sabtu (Input Harian SPPG)',
               judul: 'Laporan Harian & Absensi SPPG',
-              subjudul: 'Pencatatan realisasi porsi, menu gizi 4 sehat 5 sempurna, & nota logistik pasar',
+              subjudul: 'Pencatatan realisasi porsi, menu gizi, & nota logistik pasar',
               tahap: 'TAHAP 01 · INPUT & AGREGASI DATA',
               icon: 'assignment',
               pic: 'Operator SPPG & Kepala Dapur Wilayah',
-              sla: 'Harian s/d 18:00 WIB (Cut-off Rabu 23:59 WIB)',
+              sla: 'Harian s/d 18:00 WIB (Senin–Sabtu)',
               statusKesiapan: '100% Data Teragregasi di Server BGN',
               inputData: [
                 'Absensi porsi riil siswa penerima manfaat makan bergizi',
@@ -850,7 +880,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
               outputAksi: [
                 'Data harian diagregasi menjadi total realisasi mingguan',
                 'Enkripsi berkas laporan dan penguncian tanggal kirim (timestamp BGN)',
-                'Kompilasi paket data siap disaring mesin aturan sebelum Kamis pagi'
+                'Kompilasi paket data siap disaring mesin aturan sebelum SPP terbit'
               ],
               targetPage: 'antrean' as PageId,
               targetLabel: 'Lihat Antrean Dapur'
@@ -858,13 +888,13 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             {
               id: 2,
               km: 'KM 02',
-              waktu: 'Kamis 07:59 WIB (Proses Instan < 3 Detik)',
+              waktu: 'Sebelum Penerbitan SPP (Senin – Selasa per Juknis)',
               judul: 'Mesin Aturan Red Flag',
               subjudul: 'Automasi komparasi harga acuan daerah, porsi, & kepatuhan mutasi rekening koran',
               tahap: 'TAHAP 02 · AUDIT MESIN REAL-TIME',
               icon: 'psychology',
               pic: 'Mesin Audit Otomatis SARING-MBG (BGN Engine)',
-              sla: '< 3 Detik untuk 500 Dapur Nasional',
+              sla: '< 1 Detik untuk 500 Dapur Nasional',
               statusKesiapan: 'Audit Otomatis Selesai Tanpa Intervensi Manual',
               inputData: [
                 'Pagu bahan per porsi (default Rp10.000, perlu dicek ke juknis)',
@@ -884,23 +914,21 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             {
               id: 3,
               km: 'KM 03',
-              waktu: 'Kamis 08:00 WIB (Penerbitan Label Triase)',
+              waktu: 'Sebelum Penerbitan SPP (Penetapan Triase)',
               judul: 'Gerbang Triase Kategori Risiko',
               subjudul: 'Penetapan status protektif berjenjang sebelum Surat Perintah Pembayaran diterbitkan',
               tahap: 'TAHAP 03 · PINTU GERBANG RISIKO',
               icon: 'traffic',
               pic: 'Sistem Penapisan Risiko BGN & Panel Pengawas',
-              sla: 'Tepat Pukul 08:00 WIB Setiap Hari Kamis',
-              statusKesiapan: 'Triase Diterbitkan: Hijau 392, Kuning 52, Merah 56',
+              sla: 'Sebelum Penerbitan SPP',
+              statusKesiapan: `Triase Diterbitkan: Hijau ${hijauCount}, Kuning ${kuningCount}, Merah ${merahCount}`,
               inputData: [
-                'Hasil komputasi 4 red flag tahap 1 (R1, R2, R4a, R4b)',
-                'Skor risiko komposit per unit SPPG',
-                'Riwayat performa kepatuhan dan reputasi pekan sebelumnya'
+                'Hasil komputasi 4 red flag tahap 1 (R1, R2, R4a, R5)'
               ],
               outputAksi: [
-                'HIJAU: Lolos bersih 100%, rekomendasi top-up penuh langsung cair',
-                'KUNING: Anomali moderat, top-up bahan pangan cair, dana operasional ditahan',
-                'MERAH: Anomali kritis, seluruh top-up ditahan sementara ke antrean audit prioritas'
+                'HIJAU: Tidak ada tanda aktif, rekomendasi top-up penuh langsung cair (bahan baku, operasional, insentif)',
+                'KUNING: R4a atau R5 aktif sendirian; bahan baku dicairkan, operasional dan insentif ditahan sementara (usulan 3 hari kerja)',
+                'MERAH: R1 atau R2 aktif, atau R4a dan R5 aktif bersamaan; hanya bahan baku minimum dicairkan bila dapur beroperasi, operasional dan insentif ditahan, verifikasi lapangan (usulan 5 hari kerja)'
               ],
               targetPage: 'simulator' as PageId,
               targetLabel: 'Uji di Simulator Ambang'
@@ -908,13 +936,13 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             {
               id: 4,
               km: 'KM 04',
-              waktu: 'Kamis 10:00 – 12:00 WIB (Penerbitan SPP)',
+              waktu: 'Senin – Selasa (Penerbitan SPP oleh PPK)',
               judul: 'PPK Menerbitkan SPP Berjenjang',
               subjudul: 'Eksekusi pencairan terproteksi: menjamin pasokan pangan & mengunci risiko fiskal',
               tahap: 'TAHAP 04 · EKSEKUSI ANGGARAN',
               icon: 'history_edu',
               pic: 'Pejabat Pembuat Komitmen (PPK) BGN & Kas Negara (KPPN)',
-              sla: 'Maksimal 2 Jam Pasca Triase',
+              sla: 'Senin–Selasa per Juknis',
               statusKesiapan: 'SPP Diterbitkan Terproteksi Sesuai Rekomendasi Triase',
               inputData: [
                 'Berita Acara Rekomendasi Triase Gerbang SARING-MBG',
@@ -923,8 +951,8 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
               ],
               outputAksi: [
                 'Top-up penuh ditransfer ke Virtual Account SPPG Hijau',
-                'Top-up parsial (khusus bahan pangan) disalurkan ke SPPG Kuning',
-                'Dana makan siang siswa tetap tiba tepat waktu, risiko kebocoran terisolasi di kas negara'
+                'Bahan baku dicairkan ke SPPG Kuning & Merah yang beroperasi',
+                'Operasional dan insentif ditahan sementara di kas negara'
               ],
               targetPage: 'antrean' as PageId,
               targetLabel: 'Pantau Realisasi Dana'
@@ -932,18 +960,18 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
             {
               id: 5,
               km: 'KM 05',
-              waktu: 'T+3 Hari Kerja (Jumat s/d Selasa Pekan Depan)',
+              waktu: 'Usulan 3 Hari Kerja (Kuning) / 5 Hari Kerja (Merah)',
               judul: 'Pemilahan Verifikasi Lapangan',
               subjudul: 'Audit fisik lapangan, pembuktian sanggahan, & pelepasan sisa dana ditahan',
               tahap: 'TAHAP 05 · RESOLUSI & AKUNTABILITAS',
               icon: 'task_alt',
-              pic: 'Tim Verifikator Wilayah, Auditor BGN & Mitra Perbankan',
-              sla: 'Maksimal 3 Hari Kerja Pasca Penetapan',
+              pic: 'Verifikator BGN & Inspektorat Utama BGN',
+              sla: 'Kuning: usulan 3 hari kerja, Merah: usulan 5 hari kerja',
               statusKesiapan: 'Proses Resolusi Berjalan Berdasarkan Register Keputusan',
               inputData: [
                 'Unggahan dokumen klarifikasi dan bukti nota sah dari pengelola SPPG',
-                'Laporan hasil inspeksi mendadak (sidak) fisik dapur lapangan',
-                'Konfirmasi data penerimaan bahan pangan dari pihak komite sekolah'
+                'Laporan hasil verifikasi fisik dapur lapangan',
+                'Konfirmasi data penerimaan bahan pangan dari pihak sekolah'
               ],
               outputAksi: [
                 'Kesalahan Jujur (Human Error): Diberikan asistensi teknis dan sisa dana ditahan dilepas',

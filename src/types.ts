@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type Region =
-  | 'Jawa Barat'
-  | 'Jawa Tengah'
-  | 'Jawa Timur'
-  | 'DKI Jakarta'
-  | 'Banten'
-  | 'Sumatera Utara';
+export type Region = 'Wilayah A' | 'Wilayah B' | 'Wilayah C';
 
 export type TargetGroup = 'SD' | 'SMP';
 
@@ -23,29 +17,29 @@ export type RedFlagCode = 'R1' | 'R2' | 'R3' | 'R4a' | 'R4b' | 'R5' | 'R6' | 'R7
 
 export interface DailyFinancial {
   dayName: string; // 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
-  dateLabel: string; // 'Senin, 20 Jan'
+  dateLabel: string; // e.g. 'Senin (Minggu 4)'
   reportedSpend: number; // in Rupiah
   vaOutflow: number; // in Rupiah
   isAnomaly: boolean;
 }
 
 export interface Kitchen {
-  id: string; // e.g. "SPPG Banyumas 087"
-  name: string; // e.g. "SPPG Purwokerto Timur 087"
+  id: string; // e.g. "SPPG Contoh 087"
+  name: string; // e.g. "SPPG Contoh 087"
   region: Region;
-  location: string; // e.g. "Kab. Banyumas, Wilayah B"
-  partner: string; // e.g. "Koperasi Mitra MBG Bersama"
+  location: string; // e.g. "Kecamatan 01, Wilayah B"
+  partner: string; // e.g. "Yayasan Contoh"
   capacity: number; // portions/day, e.g. 2450
-  capacityLabel: string; // "2.450 porsi/hari (3 SD)"
+  capacityLabel: string; // "2.450 porsi/hari"
   targetGroup: TargetGroup;
   paguPerPorsi: number; // default Rp 10.000 (perlu dicek ke juknis)
   activeVaCount: number; // 1 for normal, >1 for duplicate
   status: KitchenStatus;
-  reportedCostPerPortion: number; // Rp 7.500 - 11.500
+  reportedCostPerPortion: number; // Rp 8.000 - 11.500
   dailyFinancials: DailyFinancial[];
   reportedSpendTotal: number; // sum of 6 days
   vaOutflowTotal: number; // sum of 6 days
-  vaBalance: number; // e.g. Rp 120.000.000 (cap Rp 500 juta context)
+  vaBalance: number; // e.g. Rp 120.000.000 (context under 500M)
   
   // Weekly Top-Up Components
   weeklyPortions: number; // reported portions in 6 days
@@ -62,7 +56,7 @@ export interface Kitchen {
   // Computed live
   activeFlags: RedFlagCode[];
   triase: TriaseLabel;
-  verificationDeadline: string; // e.g. "3 hari kerja" (Kuning), "5 hari kerja" (Merah)
+  verificationDeadline: string; // e.g. "usulan 3 hari kerja" (Kuning), "usulan 5 hari kerja" (Merah)
   recommendationAction: string; // e.g. "Verifikasi lapangan"
   verificationStatus: 'Mesin Aturan' | 'Menunggu Verifikator' | 'Verifikasi Lapangan' | 'Selesai';
 }
@@ -72,9 +66,34 @@ export interface SimulationParameters {
   tolR4a: number; // 0 - 15%, default 0
   paguBahan: number; // default 10000, label "perlu dicek ke juknis"
   enableR3Tahap1: boolean; // default false: "Pindahkan R3 ke Tahap 1 (bila data penetapan penerima sudah digital)"
-  propProblematic: number; // 2 - 85%, default 75.2
-  propHonestError: number; // 3 - 30%, default 16
-  fieldCapacity: number; // 50 - 500, default 400
+  propProblematic: number; // 2 - 10%, default 4
+  propHonestError: number; // 3 - 15%, default 8
+  fieldCapacity: number; // 50 - 500, default 150
+}
+
+export interface SimulationMetrics {
+  total: number;
+  hijauCount: number;
+  kuningCount: number;
+  merahCount: number;
+  flaggedCount: number;
+  falsePositivesCount: number;
+  falsePositiveRate: number;
+  falseNegativesCount: number;
+  falseNegativeRate: number;
+  falseNegativesOverHijauRate: number;
+  sensitivity: number;
+  specificity: number;
+  precisionBaseRate: number;
+  withheldTotal: number;
+  totalRequested: number;
+  fieldBurden: number; // Beban lapangan (Merah)
+  docReviewBurden: number; // Beban reviu dokumen (Kuning)
+  burdenPercent: number; // Merah / fieldCapacity * 100
+  isOverCapacity: boolean; // Merah > fieldCapacity
+  capacity: number;
+  medianDaysKuning: number;
+  medianDaysMerah: number;
 }
 
 export interface DecisionLogEntry {

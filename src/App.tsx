@@ -16,30 +16,36 @@ import { ErrorVsFraudPage } from './pages/ErrorVsFraudPage';
 import { IndikatorPilotPage } from './pages/IndikatorPilotPage';
 import { LogoShowcasePage } from './pages/LogoShowcasePage';
 import { LandingPage } from './pages/LandingPage';
-import { generateSyntheticKitchens } from './utils/syntheticData';
+import {
+  generateSyntheticKitchens,
+  computeSimulationMetrics,
+  getHistoricalWeeksSummary,
+  DEFAULT_SIMULATION_PARAMETERS
+} from './utils/syntheticData';
 import { INITIAL_DECISION_LOGS } from './utils/decisionStore';
 
 export default function App() {
   const [activePage, setActivePage] = useState<PageId>('landing');
-  const [params, setParams] = useState<SimulationParameters>({
-    tolR5: 10,
-    tolR4a: 0,
-    paguBahan: 10000,
-    enableR3Tahap1: false,
-    propProblematic: 75.2,
-    propHonestError: 16,
-    fieldCapacity: 400,
-  });
-
+  const [params, setParams] = useState<SimulationParameters>(DEFAULT_SIMULATION_PARAMETERS);
   const [decisionLogs, setDecisionLogs] = useState<DecisionLogEntry[]>(INITIAL_DECISION_LOGS);
 
-  // Generate 500 kitchens live based on current parameters
+  // Single Source of Truth: 500 kitchens generated deterministically from params
   const kitchens = useMemo(() => {
     return generateSyntheticKitchens(params, 4);
   }, [params]);
 
+  // Derived simulation metrics (FP, FN, Presisi, Withheld Funds, etc.)
+  const metrics = useMemo(() => {
+    return computeSimulationMetrics(kitchens, params);
+  }, [kitchens, params]);
+
+  // Historical 4-week trend (Minggu 1-4 strictly sum to 500)
+  const trendData = useMemo(() => {
+    return getHistoricalWeeksSummary(kitchens, params);
+  }, [kitchens, params]);
+
   // Selected kitchen for Detail Kasus
-  const [selectedKitchenId, setSelectedKitchenId] = useState<string>('SPPG Banyumas 087');
+  const [selectedKitchenId, setSelectedKitchenId] = useState<string>('SPPG Contoh 087');
 
   const selectedKitchen = useMemo(() => {
     return kitchens.find((k) => k.id === selectedKitchenId) || kitchens[0];
@@ -57,14 +63,14 @@ export default function App() {
   const handleSendRecommendationToPPK = () => {
     const newLog: DecisionLogEntry = {
       id: `log-${Date.now()}`,
-      time: 'Hari Ini, ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
+      time: 'Hari Ini, ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB (Minggu 4)',
       sppgId: 'Batch SPP M4',
       kitchenName: 'Seluruh Antrean Triase Minggu 4 (N=500)',
-      region: 'Jawa Barat',
+      region: 'Wilayah A',
       label: 'Kuning',
       tingkat: 'Tingkat 2',
       keputusan: 'Rekomendasi Berkas Diteruskan ke Meja PPK',
-      verifikator: 'Auditor Tim 3 MBG',
+      verifikator: 'Verifikator BGN',
       alasan: 'Penerusan triase otomatis: top-up penuh untuk Hijau, top-up bahan baku untuk Kuning/Merah guna proteksi likuiditas',
       hasilDiubah: false
     };
@@ -75,6 +81,9 @@ export default function App() {
   if (activePage === 'landing') {
     return (
       <LandingPage
+        kitchens={kitchens}
+        params={params}
+        metrics={metrics}
         onNavigateToApp={(target) => setActivePage(target || 'ringkasan')}
         onOpenLogoShowcase={() => setActivePage('logo-showcase')}
       />
@@ -110,6 +119,9 @@ export default function App() {
           {activePage === 'ringkasan' && (
             <RingkasanPage
               kitchens={kitchens}
+              params={params}
+              metrics={metrics}
+              trendData={trendData}
               onNavigate={(p) => setActivePage(p)}
             />
           )}
@@ -125,6 +137,7 @@ export default function App() {
           {activePage === 'detail-kasus' && (
             <DetailKasusPage
               kitchen={selectedKitchen}
+              params={params}
               onBack={() => setActivePage('antrean-mingguan')}
               onAddDecisionLog={handleAddDecisionLog}
             />
@@ -141,7 +154,7 @@ export default function App() {
             <KamusRedFlagPage
               onNavigate={(p) => setActivePage(p)}
               enableR3Tahap1={params.enableR3Tahap1}
-              onToggleR3={(enabled) => setParams(prev => ({ ...prev, enableR3Tahap1: enabled }))}
+              onToggleR3={(enabled) => setParams((prev) => ({ ...prev, enableR3Tahap1: enabled }))}
             />
           )}
 

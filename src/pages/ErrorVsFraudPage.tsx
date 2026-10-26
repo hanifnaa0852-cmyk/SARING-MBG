@@ -36,7 +36,7 @@ const SCENARIOS: ScenarioPreset[] = [
     title: 'Salah input laporan',
     icon: 'edit_document',
     desc: 'Operator salah ketik biaya bahan baku Rp11.500 (melebihi pagu acuan Rp10.000). Nota fisik pasar basah diverifikasi sah.',
-    sppgDefault: 'SPPG Ciamis 156 (SPPG Ciamis Kota 156)',
+    sppgDefault: 'SPPG Contoh 156 (Wilayah A)',
     alasanDefault: 'Kekeliruan ketik kolom biaya bahan; faktur fisik pedagang pasar sah dan pagu dikoreksi administratif.',
     toggles: {
       redFlag: true,
@@ -50,8 +50,8 @@ const SCENARIOS: ScenarioPreset[] = [
     id: 'laporan-terlambat',
     title: 'Laporan terlambat',
     icon: 'pending_actions',
-    desc: 'Dapur berada di blank spot wilayah pegunungan; unggahan nota tertunda saat cut-off Rabu 23:59 WIB.',
-    sppgDefault: 'SPPG Malang 212 (SPPG Klojen Malang 212)',
+    desc: 'Dapur berada di blank spot wilayah pegunungan; unggahan nota tertunda saat cut-off sistem.',
+    sppgDefault: 'SPPG Contoh 212 (Wilayah B)',
     alasanDefault: 'Transmisi nota terlambat akibat pemadaman jaringan telekomunikasi; fisik berkas lengkap dan sah.',
     toggles: {
       redFlag: true,
@@ -66,7 +66,7 @@ const SCENARIOS: ScenarioPreset[] = [
     title: 'Selisih berulang 3 minggu',
     icon: 'history',
     desc: 'Deviasi arus kas VA vs nota berulang di minggu 2, 3, dan 4 tanpa perbaikan bukti pembukuan.',
-    sppgDefault: 'SPPG Banyumas 087 (SPPG Purwokerto Timur 087)',
+    sppgDefault: 'SPPG Contoh 087 (Wilayah A)',
     alasanDefault: 'Selisih pengeluaran berulang selama 3 pekan berturut-turut; bukti pembukuan tidak dapat dipertanggungjawabkan.',
     toggles: {
       redFlag: true,
@@ -81,7 +81,7 @@ const SCENARIOS: ScenarioPreset[] = [
     title: 'Dokumen direkayasa + pemasok terafiliasi',
     icon: 'warning',
     desc: 'Nota belanja dicetak ulang dengan stempel buatan dan rekening toko pemasok atas nama pengurus dapur.',
-    sppgDefault: 'SPPG Garut 319 (SPPG Tarogong Garut 319)',
+    sppgDefault: 'SPPG Contoh 319 (Wilayah C)',
     alasanDefault: 'Ditemukan nota pasar direkayasa dan rekening penyedia logistik terindikasi terafiliasi pengurus dapur.',
     toggles: {
       redFlag: true,
@@ -123,7 +123,7 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
     contohDiSaring:
       'R4a aktif karena biaya bahan per porsi dilaporkan Rp10.800 (melebihi pagu Rp10.000), atau R5 selisih pelaporan vs arus keluar VA.',
     tindakan:
-      'Penetapan label Kuning atau Merah; penahanan porsi cadangan operasional (20%) atau penahanan total; belum ada tuduhan kepada pihak manapun.',
+      'Penetapan label Kuning (bahan baku cair, operasional dan insentif ditahan) atau Merah (hanya bahan minimum darurat bila beroperasi); verifikasi lapangan.',
     batasDijaga:
       'Indikator risiko adalah pemicu pemeriksaan awal, bukan bukti kesalahan dan bukan penetapan kerugian.',
     mengapaBegini:
@@ -133,7 +133,7 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
     levelNumber: 2,
     title: 'Bukti Salah Saji',
     tagline: 'Selisih terkonfirmasi antara laporan dan bukti faktual.',
-    disimpulkanOleh: 'Verifikator Wilayah BGN',
+    disimpulkanOleh: 'Verifikator BGN',
     disimpulkanIcon: 'fact_check',
     buktiMinimal: [
       'Pemeriksaan dokumen fisik faktur/nota pasar basah',
@@ -153,7 +153,7 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
     levelNumber: 3,
     title: 'Indikasi Kesengajaan',
     tagline: 'Salah saji disertai tanda penyembunyian atau pola berulang.',
-    disimpulkanOleh: 'Inspektorat Utama BGN / APIP (termasuk BPKP)',
+    disimpulkanOleh: 'Inspektorat Utama BGN',
     disimpulkanIcon: 'policy',
     buktiMinimal: [
       'Dokumen sengaja direkayasa atau nota fiktif berturut-turut',
@@ -163,7 +163,7 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
     contohDiSaring:
       'Ditemukan stempel toko palsu pada nota belanja, selisih anggaran terjadi selama 3 minggu berturut-turut, atau mutasi dana mengalir ke rekening pribadi pengurus.',
     tindakan:
-      'Rujukan resmi ke audit investigatif mendalam, pembekuan Virtual Account sementara, dan penahanan penuh alokasi dana operasional.',
+      'Rujukan ke Inspektorat Utama untuk audit investigatif, serta penahanan komponen operasional dan insentif.',
     batasDijaga:
       'Hanya menyatakan ada cukup petunjuk awal untuk diteruskan ke audit investigatif; bukan vonis bersalah pidana.',
     mengapaBegini:
@@ -215,7 +215,7 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
     polaBerulang: false,
     pemasokTerafiliasi: false,
   });
-  const [customSppg, setCustomSppg] = useState<string>('SPPG Ciamis 156 (SPPG Ciamis Kota 156)');
+  const [customSppg, setCustomSppg] = useState<string>('SPPG Contoh 156 (Wilayah A)');
   const [customAlasan, setCustomAlasan] = useState<string>(
     'Kekeliruan ketik kolom biaya bahan; faktur fisik pedagang pasar sah dan pagu dikoreksi administratif.'
   );
@@ -342,7 +342,7 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
       assignedAction = 'Selesai Administratif & Pembinaan';
     } else if (reachedLevel === 3) {
       assignedLabel = 'Merah';
-      assignedAction = 'Rujukan Investigasi & Penahanan Penuh';
+      assignedAction = 'Rujukan ke Inspektorat Utama untuk audit investigatif';
     }
 
     const sppgCleanId = customSppg.includes('(')
@@ -352,9 +352,9 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
       ? customSppg.split('(')[1].replace(')', '').trim()
       : customSppg;
 
-    let regionDetermined: any = 'Jawa Barat';
-    if (customSppg.includes('Banyumas')) regionDetermined = 'Jawa Tengah';
-    else if (customSppg.includes('Malang')) regionDetermined = 'Jawa Timur';
+    let regionDetermined: any = 'Wilayah A';
+    if (customSppg.includes('Wilayah B')) regionDetermined = 'Wilayah B';
+    else if (customSppg.includes('Wilayah C')) regionDetermined = 'Wilayah C';
 
     const newEntry: DecisionLogEntry = {
       id: newLogId,
@@ -365,7 +365,7 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
       label: assignedLabel,
       tingkat: `Tingkat ${reachedLevel}` as 'Tingkat 1' | 'Tingkat 2' | 'Tingkat 3',
       keputusan: assignedAction,
-      verifikator: 'Auditor Tim Satgas BGN',
+      verifikator: 'Verifikator BGN',
       alasan: customAlasan.trim(),
       hasilDiubah: reachedLevel === 2, // If level 2 without concealment, machine flag is corrected administratively
     };
@@ -515,7 +515,7 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
               </span>
             </div>
             <h3 className="text-xs font-semibold text-[#454652]">
-              Rasio pembatalan oleh verifikator
+              Rasio pembatalan oleh verifikator (n = {totalLogs})
             </h3>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-3xl font-extrabold text-[#000F4A] font-mono tracking-tight">
@@ -1586,7 +1586,7 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
                     <span className="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-[#011F7B] text-white flex items-center justify-center text-[9px] font-bold">
                       1
                     </span>
-                    <span className="text-[10px] font-mono text-[#757683]">Kamis 07:59 WIB</span>
+                    <span className="text-[10px] font-mono text-[#757683]">Senin 07:59 WIB</span>
                     <h5 className="text-xs font-bold text-[#000F4A]">Dibaca Mesin Aturan</h5>
                     <p className="text-[11px] text-[#525363]">
                       Komparasi otomatis mendeteksi anomali pada laporan mingguan SPPG.
@@ -1598,7 +1598,7 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
                     <span className="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-[#011F7B] text-white flex items-center justify-center text-[9px] font-bold">
                       2
                     </span>
-                    <span className="text-[10px] font-mono text-[#757683]">Kamis 08:30 WIB</span>
+                    <span className="text-[10px] font-mono text-[#757683]">Senin 08:30 WIB</span>
                     <h5 className="text-xs font-bold text-[#000F4A]">Verifikasi Bukti Faktual</h5>
                     <p className="text-[11px] text-[#525363]">
                       Pemeriksaan faktur nota basah dan konfirmasi pihak sekolah oleh verifikator.

@@ -98,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, onLogo
           </span>
         </div>
         <p className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">
-          Kementerian Keuangan RI
+          Badan Gizi Nasional (BGN)
         </p>
 
         {onLogout && (

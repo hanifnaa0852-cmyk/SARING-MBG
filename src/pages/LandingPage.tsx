@@ -3,28 +3,46 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { PageId } from '../types';
+import React, { useState, useMemo } from 'react';
+import { PageId, Kitchen, SimulationParameters } from '../types';
 import { SaringLogoSvg } from '../components/SaringLogoSvg';
 import { AiLoginModal } from '../components/AiLoginModal';
 import { AnimatedNumber } from '../components/AnimatedNumber';
 import { soundFx } from '../utils/soundEffects';
+import {
+  generateSyntheticKitchens,
+  computeSimulationMetrics,
+  DEFAULT_SIMULATION_PARAMETERS
+} from '../utils/syntheticData';
 
 interface LandingPageProps {
+  kitchens?: Kitchen[];
+  params?: SimulationParameters;
+  metrics?: ReturnType<typeof computeSimulationMetrics>;
   onNavigateToApp: (targetPage?: PageId) => void;
   onOpenLogoShowcase?: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
+  kitchens,
+  params = DEFAULT_SIMULATION_PARAMETERS,
+  metrics,
   onNavigateToApp,
   onOpenLogoShowcase,
 }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [targetDestination, setTargetDestination] = useState<PageId>('ringkasan');
 
+  // Single source of truth live metrics
+  const liveMetrics = useMemo(() => {
+    if (metrics) return metrics;
+    const k = kitchens || generateSyntheticKitchens(params, 4);
+    return computeSimulationMetrics(k, params);
+  }, [kitchens, params, metrics]);
+
   // Interactive quick simulator preview state
-  const [simR5, setSimR5] = useState<number>(10);
-  const [simR4a, setSimR4a] = useState<number>(0);
+  const [simR5, setSimR5] = useState<number>(params.tolR5 || 10);
+  const [simR4a, setSimR4a] = useState<number>(params.tolR4a || 0);
 
   // Active step in "Alur Kerja"
   const [activeStep, setActiveStep] = useState<number>(1);
@@ -38,10 +56,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const [testBahanCost, setTestBahanCost] = useState<number>(7800);
   const [testDisparity, setTestDisparity] = useState<number>(6); // % gap
 
-  // Computed results for the mini preview
-  const previewHijau = Math.max(380, Math.round(442 - (simR5 - 10) * 4 - simR4a * 3));
-  const previewKuning = Math.round(42 + (simR5 - 10) * 2.5 + simR4a * 2);
-  const previewMerah = 500 - previewHijau - previewKuning;
+  // Computed results for the mini preview using actual simulation engine
+  const previewKitchens = useMemo(() => {
+    return generateSyntheticKitchens({ ...params, tolR5: simR5, tolR4a: simR4a }, 4);
+  }, [params, simR5, simR4a]);
+
+  const previewHijau = previewKitchens.filter((k) => k.triase === 'Hijau').length;
+  const previewKuning = previewKitchens.filter((k) => k.triase === 'Kuning').length;
+  const previewMerah = previewKitchens.filter((k) => k.triase === 'Merah').length;
 
   const handleLaunchLogin = (target: PageId = 'ringkasan') => {
     soundFx.playClickBlip();
@@ -71,13 +93,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       desc: 'Setiap hari kerja (Senin–Sabtu), SPPG mencatat porsi disalurkan, nota pembelian bahan pangan dari pasar lokal, dan mutasi virtual account BGN.',
       metrics: '6 Hari / Minggu · 500 Dapur · Rerata 2.450 Porsi/Hari',
       icon: 'receipt_long',
-      highlight: 'Setiap data terkunci pada pukul 23:59 WIB dengan tanda tangan digital.'
+      highlight: 'Setiap data terkunci pada akhir hari operasional dengan tanda tangan digital.'
     },
     {
       num: 2,
       title: 'Mesin Aturan Red Flag',
       tag: 'PEMERIKSAAN OTOMATIS',
-      desc: 'Kamis pukul 08:00 WIB, mesin mengevaluasi 4 indikator deterministik Tahap 1 (R1, R2, R4a, R5) tanpa bobot angka abstrak atau model black-box.',
+      desc: 'Sebelum PPK menerbitkan SPP (Senin–Selasa sesuai juknis), mesin mengevaluasi 4 indikator deterministik Tahap 1 (R1, R2, R4a, R5) tanpa bobot angka abstrak atau model black-box.',
       metrics: '< 1 Detik untuk 500 Dapur · 100% Konsistensi Deterministik',
       icon: 'smart_toy',
       highlight: 'Aturan tertulis resmi yang transparan dan dapat diaudit ulang kapan pun.'
@@ -86,8 +108,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       num: 3,
       title: 'Label Hijau / Kuning / Merah',
       tag: 'KLASIFIKASI TRIASE',
-      desc: 'Hasil pembacaan memisahkan dapur ke dalam 3 antrean penanganan: Hijau (lancar 100%), Kuning (tahan operasional 20%), Merah (hanya bahan baku minimum).',
-      metrics: '442 Hijau (88,4%) · 42 Kuning (8,4%) · 16 Merah (3,2%)',
+      desc: 'Hasil pembacaan memisahkan dapur ke dalam 3 antrean penanganan: Hijau (lancar 100%), Kuning (bahan baku dicairkan, operasional dan insentif ditahan sementara), Merah (hanya bahan baku minimum dicairkan bila dapur beroperasi).',
+      metrics: `${liveMetrics.hijauCount} Hijau (${((liveMetrics.hijauCount / 500) * 100).toFixed(1).replace('.', ',')}%) · ${liveMetrics.kuningCount} Kuning (${((liveMetrics.kuningCount / 500) * 100).toFixed(1).replace('.', ',')}%) · ${liveMetrics.merahCount} Merah (${((liveMetrics.merahCount / 500) * 100).toFixed(1).replace('.', ',')}%)`,
       icon: 'traffic',
       highlight: 'Uang operasional ditahan sementara, hak makan bergizi anak sekolah tetap terjamin.'
     },
@@ -96,7 +118,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       title: 'PPK Menerbitkan SPP Top-up',
       tag: 'PENCAIRAN DANA',
       desc: 'Pejabat Pembuat Komitmen menerbitkan Surat Perintah Pembayaran (SPP) dengan proteksi likuiditas otomatis berbasis rekomendasi triase.',
-      metrics: 'Rp 24,1 Miliar Cair Cepat · Rp 1,1 Miliar Diamankan Sementara',
+      metrics: 'Bahan Baku Diprioritaskan · Dana Tertahan Diamankan Sementara',
       icon: 'payments',
       highlight: 'Mitigasi risiko kebocoran fiskal terjadi SEBELUM dana berpindah ke rekening dapur.'
     },
@@ -104,7 +126,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       num: 5,
       title: 'Pemilahan Hasil Verifikasi',
       tag: 'REGISTER KEPUTUSAN',
-      desc: 'Auditor BGN & Kemenkeu meneliti berkas yang ditahan: memilah kesalahan administratif jujur (*honest error*) dari indikasi kesengajaan (*fraud*).',
+      desc: 'Verifikator BGN meneliti berkas yang ditahan: memilah kesalahan administratif jujur (honest error) dari indikasi kesengajaan (fraud).',
       metrics: '3 Hari Kerja Batas Klarifikasi · 4 Tingkat Keputusan Berjenjang',
       icon: 'gavel',
       highlight: 'SOP bertingkat menjamin keadilan bagi pengelola dapur yang melakukan human error.'
@@ -347,14 +369,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
                 </div>
 
-                {/* Status colors banner inside the card: Hijau, Kuning pale amber, Merah with LIVE Animated Count */}
+                {/* Status colors banner inside the card: Hijau, Kuning, Merah with LIVE Animated Count */}
                 <div className="my-4 grid grid-cols-3 gap-2.5 p-2.5 bg-[#010F3D]/90 rounded-2xl border border-white/10">
                   <div className="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-[#1E9E6A]/20 border border-[#1E9E6A]/40 transition-transform hover:scale-105">
                     <span className="material-symbols-outlined text-[18px] text-[#1E9E6A] shrink-0">check_circle</span>
                     <div className="flex flex-col">
                       <span className="text-[10px] font-bold text-[#1E9E6A] leading-none uppercase">Hijau</span>
                       <span className="text-xs font-mono font-extrabold text-white mt-0.5">
-                        <AnimatedNumber value={442} /> SPPG
+                        <AnimatedNumber value={liveMetrics.hijauCount} /> SPPG
                       </span>
                       <span className="text-[9px] font-mono text-[#1E9E6A] font-semibold">100% Penuh</span>
                     </div>
@@ -365,9 +387,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <div className="flex flex-col">
                       <span className="text-[10px] font-bold text-[#8A5A00] leading-none uppercase">Kuning</span>
                       <span className="text-xs font-mono font-extrabold text-[#8A5A00] mt-0.5">
-                        <AnimatedNumber value={42} /> SPPG
+                        <AnimatedNumber value={liveMetrics.kuningCount} /> SPPG
                       </span>
-                      <span className="text-[9px] font-mono text-[#8A5A00]/90 font-semibold">Tahan 20%</span>
+                      <span className="text-[9px] font-mono text-[#8A5A00]/90 font-semibold">Bahan Cair</span>
                     </div>
                   </div>
 
@@ -376,7 +398,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <div className="flex flex-col">
                       <span className="text-[10px] font-bold text-[#D64545] leading-none uppercase">Merah</span>
                       <span className="text-xs font-mono font-extrabold text-white mt-0.5">
-                        <AnimatedNumber value={16} /> SPPG
+                        <AnimatedNumber value={liveMetrics.merahCount} /> SPPG
                       </span>
                       <span className="text-[9px] font-mono text-[#D64545] font-semibold">Bahan Min</span>
                     </div>
@@ -387,19 +409,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="mb-4">
                   <div className="flex justify-between text-[10px] font-mono text-[#B8C4E6] mb-1">
                     <span>RASIO SALUR LIKUIDITAS MINGGUAN (N=500)</span>
-                    <span className="text-white font-bold">88,4% Lancar</span>
+                    <span className="text-white font-bold">{((liveMetrics.hijauCount / 500) * 100).toFixed(1).replace('.', ',')}% Lancar</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden flex">
-                    <div className="h-full bg-[#1E9E6A] transition-all duration-700" style={{ width: '88.4%' }}></div>
-                    <div className="h-full bg-[#FFBA09] transition-all duration-700" style={{ width: '8.4%' }}></div>
-                    <div className="h-full bg-[#D64545] transition-all duration-700" style={{ width: '3.2%' }}></div>
+                    <div className="h-full bg-[#1E9E6A] transition-all duration-700" style={{ width: `${(liveMetrics.hijauCount / 500) * 100}%` }}></div>
+                    <div className="h-full bg-[#FFBA09] transition-all duration-700" style={{ width: `${(liveMetrics.kuningCount / 500) * 100}%` }}></div>
+                    <div className="h-full bg-[#D64545] transition-all duration-700" style={{ width: `${(liveMetrics.merahCount / 500) * 100}%` }}></div>
                   </div>
                 </div>
 
                 {/* Mono-font Section Label */}
                 <div className="text-[10px] font-mono font-bold tracking-widest text-[#FFBA09] uppercase mb-3 flex items-center justify-between">
                   <span>STATUS 3 LAPIS GERBANG (ILUSTRATIF):</span>
-                  <span className="text-[9px] font-mono text-[#B8C4E6] bg-white/10 px-1.5 py-0.5 rounded">T+7 AUDIT</span>
+                  <span className="text-[9px] font-mono text-[#B8C4E6] bg-white/10 px-1.5 py-0.5 rounded">SIKLUS TOP-UP MINGGUAN</span>
                 </div>
 
                 {/* Three Rows: SARING, JENJANG, UMPAN */}
@@ -528,7 +550,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 }`}
               >
                 <span className="w-2 h-2 rounded-full bg-[#FFBA09] animate-pulse"></span>
-                <span>Model SARING-MBG (Pre-Audit T+7)</span>
+                <span>Model SARING-MBG (Pra-SPP)</span>
               </button>
             </div>
           </div>
@@ -539,8 +561,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <span className="text-[11px] font-mono uppercase text-[#5B6785] font-bold block mb-1">
                 Waktu Deteksi Anomali
               </span>
-              <div className="text-2xl font-extrabold font-mono text-[#011F7B]">
-                {comparisonTab === 'sebelum' ? '30–90 Hari' : '< 1 Jam (Pra-SPP)'}
+              <div className="text-xl font-extrabold font-mono text-[#011F7B]">
+                {comparisonTab === 'sebelum' ? '30–90 Hari' : 'Dibaca sebelum SPP'}
               </div>
               <span className="text-[11px] text-[#5B6785] mt-1 block">
                 {comparisonTab === 'sebelum' ? 'Uang terlanjur ditarik tunai' : 'Uang ditahan sebelum berpindah'}
@@ -551,8 +573,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <span className="text-[11px] font-mono uppercase text-[#5B6785] font-bold block mb-1">
                 Potensi Pemulihan Anggaran
               </span>
-              <div className="text-2xl font-extrabold font-mono text-[#1E9E6A]">
-                {comparisonTab === 'sebelum' ? '12% – 25%' : '100% Likuiditas Aman'}
+              <div className="text-xl font-extrabold font-mono text-[#1E9E6A]">
+                {comparisonTab === 'sebelum' ? '12% – 25%' : 'Bahan baku tetap diprioritaskan'}
               </div>
               <span className="text-[11px] text-[#5B6785] mt-1 block">
                 {comparisonTab === 'sebelum' ? 'Proses TGR / hukum panjang' : 'Hak bayar ditangguhkan sementara'}
@@ -563,8 +585,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <span className="text-[11px] font-mono uppercase text-[#5B6785] font-bold block mb-1">
                 Kepastian Gizi Anak Sekolah
               </span>
-              <div className="text-2xl font-extrabold font-mono text-[#8A5A00]">
-                {comparisonTab === 'sebelum' ? 'Dapur Tutup Total' : '100% Porsi Makan Tetap Cair'}
+              <div className="text-xl font-extrabold font-mono text-[#8A5A00]">
+                {comparisonTab === 'sebelum' ? 'Dapur Tutup Total' : 'Efektivitas diuji di pilot'}
               </div>
               <span className="text-[11px] text-[#5B6785] mt-1 block">
                 Pencairan berjenjang lindungi bahan baku
@@ -632,7 +654,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   Skala keputusan mingguan terlalu besar untuk diperiksa manual
                 </h3>
                 <p className="mt-3 text-sm text-[#5B6785] leading-relaxed">
-                  Dengan ribuan SPPG di seluruh Nusantara yang mengajukan top-up serentak setiap Kamis, tim verifikator manusia akan kewalahan (*bottleneck*) jika harus memeriksa ratusan berkas tanpa triase cerdas.
+                  Dengan ribuan SPPG di seluruh Nusantara yang mengajukan top-up serentak setiap siklus top-up mingguan, tim verifikator manusia akan kewalahan (kemacetan antrean) jika harus memeriksa ratusan berkas tanpa triase cerdas.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-[#E0E2E7] flex items-center justify-between text-xs font-mono">
@@ -1002,7 +1024,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 Simulator Kalibrasi Ambang Kebijakan
               </h2>
               <p className="mt-3 text-base text-[#5B6785]">
-                Sesuaikan toleransi R5 dan R4a untuk melihat langsung kompromi (*trade-off*) antara risiko beban verifikasi lapangan dan potensi kebocoran anggaran negara.
+                Sesuaikan toleransi R5 dan R4a untuk melihat langsung kompromi (trade-off) antara risiko beban verifikasi lapangan dan potensi kebocoran anggaran negara.
               </p>
 
               {/* Interactive Sliders */}
@@ -1118,7 +1140,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <div className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/5 transition-all hover:bg-white/10">
                     <div className="flex items-center gap-2.5">
                       <span className="w-3 h-3 rounded-full bg-[#FFBA09]"></span>
-                      <span className="text-sm font-bold">Label Kuning (Tahan 20%)</span>
+                      <span className="text-sm font-bold">Label Kuning (Bahan Cair)</span>
                     </div>
                     <div className="text-xl font-mono font-extrabold text-[#FFBA09]">
                       <AnimatedNumber value={previewKuning} suffix=" SPPG" />
@@ -1128,7 +1150,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <div className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/5 transition-all hover:bg-white/10">
                     <div className="flex items-center gap-2.5">
                       <span className="w-3 h-3 rounded-full bg-[#D64545]"></span>
-                      <span className="text-sm font-bold">Label Merah (Bahan Min)</span>
+                      <span className="text-sm font-bold">Label Merah (Bahan Baku Min)</span>
                     </div>
                     <div className="text-xl font-mono font-extrabold text-[#D64545]">
                       <AnimatedNumber value={previewMerah} suffix=" SPPG" />
@@ -1313,7 +1335,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           {/* Bottom Footer Note */}
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#B8C4E6]/60 gap-4">
             <div>
-              © 2026 Kementerian Keuangan RI · Badan Gizi Nasional (BGN) · Tata Kelola MBG
+              © 2026 Badan Gizi Nasional (BGN) · Tata Kelola MBG
             </div>
             <div className="font-mono">
               Protokol Riset SARING-MBG v1.4

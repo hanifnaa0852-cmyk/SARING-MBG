@@ -32,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
         <div className="flex items-center gap-4">
           <div className="hidden lg:flex items-center gap-1.5 text-[#454652] text-xs">
             <span className="material-symbols-outlined text-[18px]">schedule</span>
-            <span>Pembaruan: Kamis, 08:00 WIB</span>
+            <span>Pembaruan: Senin, sebelum penerbitan SPP (Minggu 4)</span>
           </div>
 
           <div className="w-px h-6 bg-[#C5C5D4]/60 hidden sm:block"></div>
@@ -40,10 +40,10 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <p className="text-sm font-semibold text-[#181C20] leading-tight">
-                Auditor Tim 3 MBG
+                Verifikator BGN
               </p>
               <p className="text-[11px] text-[#454652] uppercase tracking-wider font-semibold">
-                Inspektorat Jenderal
+                Badan Gizi Nasional
               </p>
             </div>
             <div className="w-8 h-8 rounded-full bg-[#000F4A] flex items-center justify-center text-white shadow-sm">

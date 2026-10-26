@@ -54,9 +54,9 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
         tolR4a: 0,
         paguBahan: 10000,
         enableR3Tahap1: false,
-        propProblematic: 78,
-        propHonestError: 14,
-        fieldCapacity: 450,
+        propProblematic: 6,
+        propHonestError: 10,
+        fieldCapacity: 200,
       };
     } else if (presetKey === 'longgar') {
       updated = {
@@ -64,9 +64,9 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
         tolR4a: 5,
         paguBahan: 10000,
         enableR3Tahap1: false,
-        propProblematic: 35,
-        propHonestError: 20,
-        fieldCapacity: 250,
+        propProblematic: 3,
+        propHonestError: 5,
+        fieldCapacity: 100,
       };
     } else {
       updated = {
@@ -74,14 +74,14 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
         tolR4a: 0,
         paguBahan: 10000,
         enableR3Tahap1: false,
-        propProblematic: 75.2,
-        propHonestError: 16,
-        fieldCapacity: 400,
+        propProblematic: 4,
+        propHonestError: 8,
+        fieldCapacity: 150,
       };
     }
     setParams(updated);
     onUpdateParams(updated);
-    showToast(`Preset "${presetKey === 'ketat' ? 'Pemeriksaan Ketat' : presetKey === 'longgar' ? 'Fasilitasi Kelancaran Salur' : 'Kalibrasi Awal (Urgensi Tinggi)'}" diterapkan.`);
+    showToast(`Preset "${presetKey === 'ketat' ? 'Pemeriksaan Ketat' : presetKey === 'longgar' ? 'Fasilitasi Kelancaran Salur' : 'Kalibrasi Awal Tahap 1'}" diterapkan.`);
   };
 
   const handleReset = () => {
@@ -90,9 +90,9 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
       tolR4a: 0,
       paguBahan: 10000,
       enableR3Tahap1: false,
-      propProblematic: 75.2,
-      propHonestError: 16,
-      fieldCapacity: 400,
+      propProblematic: 4,
+      propHonestError: 8,
+      fieldCapacity: 150,
     };
     setPreset('kalibrasi_awal');
     setParams(defaultParams);
@@ -117,6 +117,18 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
   // SVG Chart Dimensions & Dynamic Marker Position
   // R5 range 5% - 30% mapped to SVG X: 60 - 720
   const chartX = 60 + ((params.tolR5 - 5) / 25) * (720 - 60);
+
+  const getY = (val: number) => 180 - (Math.min(100, Math.max(0, val)) / 100) * 160;
+  const getX = (tol: number) => 60 + ((tol - 5) / 25) * 660;
+
+  const fpPoints = tradeOffData.map(d => ({ x: getX(d.tolR5), y: getY(d.falsePositiveRate), tol: d.tolR5, val: d.falsePositiveRate }));
+  const fnPoints = tradeOffData.map(d => ({ x: getX(d.tolR5), y: getY(d.falseNegativeRate), tol: d.tolR5, val: d.falseNegativeRate }));
+
+  const fpPath = fpPoints.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`, '');
+  const fnPath = fnPoints.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`, '');
+
+  const activeFpY = getY(metrics.falsePositiveRate);
+  const activeFnY = getY(metrics.falseNegativeRate);
 
   return (
     <div className="w-full px-8 py-6 max-w-[1600px] mx-auto space-y-6">
@@ -324,7 +336,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 <input
                   type="range"
                   min="2"
-                  max="85"
+                  max="10"
                   step="0.5"
                   value={params.propProblematic}
                   onChange={(e) => handleSliderChange('propProblematic', Number(e.target.value))}
@@ -332,7 +344,8 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 />
                 <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
                   <span>2% (10 unit)</span>
-                  <span>85% (425 unit)</span>
+                  <span>4% (Default)</span>
+                  <span>10% (50 unit)</span>
                 </div>
               </div>
             </div>
@@ -354,15 +367,16 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 <input
                   type="range"
                   min="3"
-                  max="30"
-                  step="1"
+                  max="15"
+                  step="0.5"
                   value={params.propHonestError}
                   onChange={(e) => handleSliderChange('propHonestError', Number(e.target.value))}
                   className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
                 />
                 <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
                   <span>3% (15 unit)</span>
-                  <span>30% (150 unit)</span>
+                  <span>8% (Default)</span>
+                  <span>15% (75 unit)</span>
                 </div>
               </div>
             </div>
@@ -392,6 +406,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 />
                 <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
                   <span>50 SPPG</span>
+                  <span>150 (Default)</span>
                   <span>500 SPPG</span>
                 </div>
               </div>
@@ -442,11 +457,12 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
           {/* Grid of 6 KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {/* Card 1: Dapur Merah */}
+            {/* Card 1: Dapur Merah */}
             <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between">
               <div>
                 <div className="flex items-start justify-between gap-1 mb-2">
                   <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
-                    Dapur Merah (Audit Lapangan)
+                    Dapur Merah (Bahan Baku Minimum)
                   </span>
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#FCEBEB] text-[#B02A2A] text-[10px] font-bold">
                     <span className="material-symbols-outlined text-[12px]">block</span>
@@ -458,7 +474,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 </div>
               </div>
               <p className="text-xs text-[#454652] mt-3 leading-snug">
-                Bahan darurat cair, operasional ditahan penuh
+                Bahan baku minimum cair, operasional ditahan; verifikasi lapangan oleh Verifikator BGN (usulan 5 hari kerja); Inspektorat Utama BGN hanya mereviu eksepsi &amp; menerima rujukan audit investigatif.
               </p>
             </div>
 
@@ -471,7 +487,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                   </span>
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00] text-[10px] font-bold">
                     <span className="material-symbols-outlined text-[12px]">warning</span>
-                    Verifikasi
+                    Klarifikasi
                   </span>
                 </div>
                 <div className="text-xl font-bold text-[#8A5A00] font-mono tabular-nums">
@@ -479,7 +495,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 </div>
               </div>
               <p className="text-xs text-[#454652] mt-3 leading-snug">
-                Bahan cair, operasional ditahan 3 hari
+                Bahan cair penuh, operasional &amp; insentif ditahan sementara menunggu klarifikasi tertulis (usulan 3 hari kerja).
               </p>
             </div>
 
@@ -499,7 +515,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 </div>
               </div>
               <div className="mt-3 flex items-center justify-between text-xs text-[#454652]">
-                <span>Porsi operasional <AnimatedNumber value={metrics.flaggedCount} /> dapur</span>
+                <span>Porsi operasional + insentif <AnimatedNumber value={metrics.flaggedCount} /> dapur</span>
                 <span className="font-mono text-[#757683] text-[11px]">
                   dari Rp {(metrics.totalRequested / 1000000000).toFixed(2).replace('.', ',')} M
                 </span>
@@ -521,9 +537,14 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                   <AnimatedNumber value={metrics.falsePositiveRate} decimals={1} suffix="%" />
                 </div>
               </div>
-              <p className="text-xs text-[#454652] mt-3 leading-snug">
-                <AnimatedNumber value={metrics.falsePositivesCount} /> dari {metrics.flaggedCount} dapur ditandai adalah kesalahan input jujur
-              </p>
+              <div className="mt-3 text-xs text-[#454652] leading-snug space-y-1">
+                <p>
+                  <AnimatedNumber value={metrics.falsePositivesCount} /> dari {metrics.flaggedCount} dapur ditandai adalah kesalahan input jujur.
+                </p>
+                <p className="text-[10px] text-[#757683] font-mono pt-1 border-t border-[#ECEEF3]">
+                  Penyebut: ditandai tapi tidak bermasalah / semua ditandai ({metrics.falsePositivesCount}/{metrics.flaggedCount})
+                </p>
+              </div>
             </div>
 
             {/* Card 5: Negatif Palsu */}
@@ -541,9 +562,14 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                   <AnimatedNumber value={metrics.falseNegativesCount} suffix=" dapur" /> (<AnimatedNumber value={metrics.falseNegativeRate} decimals={1} suffix="%" />)
                 </div>
               </div>
-              <p className="text-xs text-[#454652] mt-3 leading-snug">
-                Dapur berisiko tinggi yang terlewat &amp; lolos top-up 100%
-              </p>
+              <div className="mt-3 text-xs text-[#454652] leading-snug space-y-1">
+                <p>
+                  Bermasalah berlabel Hijau / semua dapur: <strong>{metrics.falseNegativesCount} / {metrics.total} ({metrics.falseNegativeRate.toFixed(1)}%)</strong>
+                </p>
+                <p className="text-[10px] text-[#757683] pt-1 border-t border-[#ECEEF3]">
+                  Versi atas dapur Hijau: <strong>{metrics.falseNegativesCount} / {metrics.hijauCount} ({metrics.falseNegativesOverHijauRate.toFixed(1)}%)</strong>
+                </p>
+              </div>
             </div>
 
             {/* Card 6: Presisi (Base Rate) */}
@@ -561,17 +587,22 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                   <AnimatedNumber value={metrics.precisionBaseRate} decimals={1} suffix="%" />
                 </div>
               </div>
-              <p className="text-xs text-[#454652] mt-3 leading-snug">
-                Bila dapur yang benar-benar bermasalah jarang, sebagian besar tanda jatuh pada dapur yang sah. Karena itu kuning tetap mencairkan bahan baku dan ambang dikalibrasi di pilot.
-              </p>
+              <div className="mt-3 text-xs text-[#454652] leading-snug space-y-1.5">
+                <p>
+                  Bila dapur yang benar-benar bermasalah jarang, sebagian besar tanda jatuh pada dapur yang sah. Karena itu kuning tetap mencairkan bahan baku dan ambang dikalibrasi di pilot.
+                </p>
+                <p className="text-[10px] text-[#757683] italic border-t border-[#ECEEF3] pt-1">
+                  Presisi dihasilkan oleh asumsi simulasi (proporsi bermasalah dan kesalahan jujur), bukan temuan.
+                </p>
+              </div>
             </div>
 
-            {/* Card 6: Beban Lapangan vs Kapasitas */}
+            {/* Card 7: Beban Lapangan (Merah) vs Kapasitas */}
             <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between hover:shadow-md transition-shadow">
               <div>
                 <div className="flex items-start justify-between gap-1 mb-2">
                   <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
-                    Beban Lapangan vs Kapasitas
+                    Beban Lapangan (Merah) vs Kapasitas
                   </span>
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                     metrics.isOverCapacity ? 'bg-[#FCEBEB] text-[#B02A2A]' : 'bg-[#E8F6F0] text-[#1E9E6A]'
@@ -582,7 +613,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                 <div className={`text-xl font-bold font-mono tabular-nums ${
                   metrics.isOverCapacity ? 'text-[#D64545]' : 'text-[#000F4A]'
                 }`}>
-                  <AnimatedNumber value={metrics.flaggedCount} /> / {metrics.capacity} Dapur (<AnimatedNumber value={metrics.burdenPercent} decimals={1} suffix="%" />)
+                  <AnimatedNumber value={metrics.fieldBurden} /> / {metrics.capacity} Dapur (<AnimatedNumber value={metrics.burdenPercent} decimals={1} suffix="%" />)
                 </div>
               </div>
               <div className="mt-3 space-y-1.5">
@@ -598,10 +629,30 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                   metrics.isOverCapacity ? 'text-[#D64545] font-semibold' : 'text-[#1E9E6A] font-medium'
                 }`}>
                   {metrics.isOverCapacity
-                    ? `melebihi kapasitas verifikasi (+${metrics.fieldBurden - metrics.capacity} unit tertunda)`
-                    : `Aman: Kapasitas tim verifikasi mencukupi (+${metrics.capacity - metrics.fieldBurden} kuota tersisa)`}
+                    ? `Melebihi kapasitas audit fisik (+${metrics.fieldBurden - metrics.capacity} unit tertunda)`
+                    : `Aman: Kapasitas tim lapangan mencukupi (+${metrics.capacity - metrics.fieldBurden} kuota tersisa)`}
                 </p>
               </div>
+            </div>
+
+            {/* Card 8: Beban Reviu Dokumen (Kuning) */}
+            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div className="flex items-start justify-between gap-1 mb-2">
+                  <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
+                    Beban Reviu Dokumen (Kuning)
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00]">
+                    Klarifikasi 3 Hari
+                  </span>
+                </div>
+                <div className="text-xl font-bold text-[#000F4A] font-mono tabular-nums">
+                  <AnimatedNumber value={metrics.docReviewBurden} suffix=" dapur" />
+                </div>
+              </div>
+              <p className="text-xs text-[#454652] mt-3 leading-snug">
+                Pemeriksaan nota faktur &amp; klarifikasi tertulis secara administratif oleh Verifikator BGN sebelum penerbitan SPP.
+              </p>
             </div>
           </div>
 
@@ -669,11 +720,11 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                   <line x1="60" y1="140" x2="720" y2="140" stroke="#E0E2E7" strokeDasharray="4" />
                   <line x1="60" y1="180" x2="720" y2="180" stroke="#C5C5D4" strokeWidth="1.5" />
 
-                  {/* Y Axis Labels */}
-                  <text x="45" y="24" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">60%</text>
-                  <text x="45" y="64" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">45%</text>
-                  <text x="45" y="104" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">30%</text>
-                  <text x="45" y="144" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">15%</text>
+                  {/* Y Axis Labels (0-100% no clipping) */}
+                  <text x="45" y="24" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">100%</text>
+                  <text x="45" y="64" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">75%</text>
+                  <text x="45" y="104" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">50%</text>
+                  <text x="45" y="144" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">25%</text>
                   <text x="45" y="184" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">0%</text>
 
                   {/* Active Setting Indicator Zone */}
@@ -698,7 +749,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
 
                   {/* Curve 1: Positif Palsu (Navy #011F7B with Moving Flow) */}
                   <path
-                    d="M 60 33 C 120 50, 150 75, 192 81 C 240 88, 280 110, 324 116 C 380 124, 420 138, 456 142 C 510 148, 550 156, 588 158 C 640 161, 680 167, 720 169"
+                    d={fpPath}
                     fill="none"
                     stroke="#011F7B"
                     strokeWidth="3.5"
@@ -708,7 +759,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
 
                   {/* Curve 2: Negatif Palsu (Yellow #fcb803 with Moving Flow) */}
                   <path
-                    d="M 60 177 C 110 176, 150 174, 192 172 C 240 170, 280 163, 324 158 C 380 152, 420 143, 456 137 C 510 128, 550 120, 588 110 C 640 98, 680 84, 720 78"
+                    d={fnPath}
                     fill="none"
                     stroke="#fcb803"
                     strokeWidth="3.5"
@@ -717,27 +768,25 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                   />
 
                   {/* Data Points Positif Palsu */}
-                  <circle cx="60" cy="33" r="4" fill="#011F7B" />
-                  <circle cx="192" cy="81" r="5.5" fill="#011F7B" stroke="#ffffff" strokeWidth="2" />
-                  <circle cx="324" cy="116" r="4" fill="#011F7B" />
-                  <circle cx="456" cy="142" r="4" fill="#011F7B" />
-                  <circle cx="588" cy="158" r="4" fill="#011F7B" />
-                  <circle cx="720" cy="169" r="4" fill="#011F7B" />
+                  {fpPoints.map((pt, i) => (
+                    <circle key={`fp-${i}`} cx={pt.x} cy={pt.y} r={pt.tol === params.tolR5 ? 6 : 4} fill="#011F7B" stroke="#ffffff" strokeWidth={pt.tol === params.tolR5 ? 2 : 1} />
+                  ))}
 
                   {/* Data Points Negatif Palsu */}
-                  <circle cx="60" cy="177" r="4" fill="#fcb803" />
-                  <circle cx="192" cy="172" r="5.5" fill="#fcb803" stroke="#ffffff" strokeWidth="2" />
-                  <circle cx="324" cy="158" r="4" fill="#fcb803" />
-                  <circle cx="456" cy="137" r="4" fill="#fcb803" />
-                  <circle cx="588" cy="110" r="4" fill="#fcb803" />
-                  <circle cx="720" cy="78" r="4" fill="#fcb803" />
+                  {fnPoints.map((pt, i) => (
+                    <circle key={`fn-${i}`} cx={pt.x} cy={pt.y} r={pt.tol === params.tolR5 ? 6 : 4} fill="#fcb803" stroke="#ffffff" strokeWidth={pt.tol === params.tolR5 ? 2 : 1} />
+                  ))}
+
+                  {/* Active Point Markers (exactly equal to card values) */}
+                  <circle cx={chartX} cy={activeFpY} r="7" fill="#011F7B" stroke="#ffffff" strokeWidth="2.5" className="animate-pulse" />
+                  <circle cx={chartX} cy={activeFnY} r="7" fill="#fcb803" stroke="#ffffff" strokeWidth="2.5" className="animate-pulse" />
 
                   {/* Interactive Pin Marker with Animated Beacon */}
                   <g transform={`translate(${chartX}, 45)`}>
                     <circle cx="0" cy="0" r="8" fill="#FFBA09" opacity="0.3" className="animate-ping" />
-                    <rect x="-80" y="-26" width="160" height="22" rx="4" fill="#011F7B" />
-                    <text x="0" y="-11" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="700" fontFamily="Plus Jakarta Sans">
-                      Titik Aktif: Ambang {params.tolR5}%
+                    <rect x="-95" y="-26" width="190" height="22" rx="4" fill="#011F7B" />
+                    <text x="0" y="-11" textAnchor="middle" fill="#ffffff" fontSize="9.5" fontWeight="700" fontFamily="Plus Jakarta Sans">
+                      Ambang {params.tolR5}%: PP {metrics.falsePositiveRate.toFixed(1)}% | NP {metrics.falseNegativeRate.toFixed(1)}%
                     </text>
                     <polygon points="-4,-4 4,-4 0,0" fill="#011F7B" />
                   </g>
@@ -765,7 +814,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
               <div>
                 <span className="font-bold text-[#000F4A]">Prinsip Ekuilibrium Audit:</span>
                 <span className="text-[#454652] ml-1">
-                  Ambang yang ketat (&lt; 10%) menangkap lebih banyak potensi fraud namun menahan puluhan dapur jujur (risiko disrupsi makanan anak). Ambang yang terlalu longgar (&gt; 20%) memperlancar likuiditas tetapi meningkatkan risiko kebocoran kas negara tanpa verifikasi.
+                  Hubungan invers antara Dapur Jujur Tertahan (Tipe I) dan Risiko Kebocoran Lolos (Tipe II). Semakin longgar toleransi R5, semakin sedikit dapur jujur yang tertahan (positif palsu turun), namun semakin banyak dapur bermasalah yang lolos (negatif palsu naik). Ambang dikalibrasi berkala pada pilot untuk menemukan titik ekuilibrium yang optimal.
                 </span>
               </div>
             </div>

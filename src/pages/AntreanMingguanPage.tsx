@@ -18,14 +18,14 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
   onSelectKitchenForDetail,
   onSendRecommendationToPPK,
 }) => {
-  const [selectedKitchenId, setSelectedKitchenId] = useState<string>('SPPG Banyumas 087');
+  const [selectedKitchenId, setSelectedKitchenId] = useState<string>('SPPG Contoh 087');
   const [triaseFilter, setTriaseFilter] = useState<'all' | TriaseLabel>('all');
   const [regionFilter, setRegionFilter] = useState<'all' | Region>('all');
   const [flagFilter, setFlagFilter] = useState<'all' | RedFlagCode>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set(['SPPG Banyumas 087']));
+  const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set(['SPPG Contoh 087']));
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -101,7 +101,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
   };
 
   const handleExportCSV = () => {
-    const headers = ['ID SPPG', 'Nama Dapur', 'Wilayah', 'Triase', 'Red Flags', 'Dana Usulan', 'Alokasi Bahan (80%)', 'Operasional Ditahan (20%)', 'Rekomendasi'];
+    const headers = ['ID SPPG', 'Nama Dapur', 'Wilayah', 'Triase', 'Red Flags', 'Dana Usulan', 'Bahan Baku', 'Operasional', 'Insentif (Usulan)', 'Dana Tertahan', 'Rekomendasi'];
     const rows = filteredKitchens.map((k) => [
       k.id,
       k.name,
@@ -109,7 +109,9 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
       k.triase,
       k.activeFlags.join(';') || '-',
       k.topUpRequested,
-      k.foodBudget,
+      k.bahanBakuBudget || k.foodBudget,
+      k.operasionalBudget,
+      k.insentifBudget,
       k.heldBudget,
       k.recommendationAction
     ]);
@@ -140,7 +142,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
           <div className="flex items-center gap-2 text-[#454652] text-xs uppercase tracking-wider font-semibold">
             <span>PILAR AUDIT MBG</span>
             <span className="text-[#C5C5D4]">/</span>
-            <span className="text-[#011F7B] font-bold">SIKLUS AUDIT MINGGUAN T+7</span>
+            <span className="text-[#011F7B] font-bold">SIKLUS TOP-UP MINGGUAN</span>
           </div>
           <h1 className="text-2xl font-bold text-[#000F4A] tracking-tight">Antrean Top-up Minggu 4</h1>
           <p className="text-sm text-[#454652] max-w-3xl">
@@ -181,26 +183,23 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-2 py-0.5 rounded bg-[#D64545] text-white text-[10px] font-bold uppercase tracking-wider font-mono">
-                STATUS AUDIT MINGGU 4: TINGKAT URGENSI TINGGI
+                STATUS AUDIT MINGGU 4
               </span>
               <span className="text-xs font-bold text-[#B02A2A] flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-[#D64545] animate-ping"></span>
-                <span>376 SPPG (75,2%) Kategori Merah</span>
+                <span>{merahCount} SPPG ({((merahCount / kitchens.length) * 100).toFixed(1).replace('.', ',')}%) Kategori Merah</span>
               </span>
             </div>
             <p className="text-xs text-[#181C20] leading-relaxed max-w-4xl">
-              Dominasi kategori <strong>Merah</strong> pada siklus berjalan memicu mekanisme pengamanan fiskal otomatis: 
-              pencairan komponen operasional 20% (<strong>Rp {operasionalDitahanJuta} Juta</strong>) ditahan sementara 
-              untuk mencegah potensi kebocoran anggaran negara, sementara alokasi bahan pangan 80% tetap disalurkan penuh 
-              sesuai prinsip <em>"gate holds money, not people"</em>.
+              Mekanisme proteksi likuiditas pra-SPP: untuk Kuning, bahan baku dicairkan, operasional &amp; insentif ditahan sementara (usulan 3 hari kerja). Untuk Merah, hanya bahan baku minimum dicairkan bila dapur terbukti beroperasi, operasional &amp; insentif ditahan (usulan 5 hari kerja). Total dana tertahan sementara: <strong>Rp {operasionalDitahanJuta} Juta</strong>.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
           <div className="bg-white/90 border border-[#D64545]/30 rounded-lg px-3 py-2 text-right">
-            <div className="text-[10px] text-[#757683] uppercase font-bold tracking-wider">Verifikasi Lapangan ITJEN</div>
+            <div className="text-[10px] text-[#757683] uppercase font-bold tracking-wider">Verifikasi Lapangan Inspektorat Utama BGN</div>
             <div className="text-sm font-extrabold text-[#D64545] font-mono">
-              376 Dapur (T+5 Hari)
+              {merahCount} Dapur (usulan 5 hari kerja)
             </div>
           </div>
         </div>
@@ -271,12 +270,12 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
             </div>
             <span className="text-[#C5C5D4]">|</span>
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] uppercase tracking-wider text-[#757683] font-semibold">Operasional Ditahan:</span>
+              <span className="text-[11px] uppercase tracking-wider text-[#757683] font-semibold">Dana Tertahan:</span>
               <span className="font-bold text-[#D64545] tabular-nums font-mono">Rp {operasionalDitahanJuta} Juta</span>
             </div>
             <span className="text-[#C5C5D4]">|</span>
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] uppercase tracking-wider text-[#B02A2A] font-bold">Prioritas Lapangan ITJEN:</span>
+              <span className="text-[11px] uppercase tracking-wider text-[#B02A2A] font-bold">Prioritas Inspektorat Utama BGN:</span>
               <span className="px-2 py-0.5 rounded bg-[#FCEBEB] text-[#D64545] font-bold font-mono text-[11px]">
                 {merahCount} SPPG
               </span>
@@ -309,7 +308,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
             >
               <option value="all">Semua Red Flag</option>
               <option value="R1">R1 (Duplikasi Rekening VA)</option>
-              <option value="R2">R2 (Status Dapur Non-Aktif)</option>
+              <option value="R2">R2 (SPPG Belum Beroperasi / SLHS)</option>
               <option value="R4a">R4a (Biaya Bahan &gt; Pagu)</option>
               <option value="R5">R5 (Rekonsiliasi Lapor vs VA)</option>
             </select>
@@ -322,13 +321,10 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
               onChange={(e) => { setRegionFilter(e.target.value as any); setCurrentPage(1); }}
               className="w-full px-3 py-2 text-sm bg-white border border-[#E0E2E7] rounded-lg text-[#000F4A] focus:outline-none focus:ring-2 focus:ring-[#011F7B]/20 cursor-pointer"
             >
-              <option value="all">Semua Wilayah Kerja (Indonesia)</option>
-              <option value="Jawa Barat">Jawa Barat</option>
-              <option value="Jawa Tengah">Jawa Tengah</option>
-              <option value="Jawa Timur">Jawa Timur</option>
-              <option value="DKI Jakarta">DKI Jakarta</option>
-              <option value="Banten">Banten</option>
-              <option value="Sumatera Utara">Sumatera Utara</option>
+              <option value="all">Semua Wilayah Kerja</option>
+              <option value="Wilayah A">Wilayah A</option>
+              <option value="Wilayah B">Wilayah B</option>
+              <option value="Wilayah C">Wilayah C</option>
             </select>
           </div>
 

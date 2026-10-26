@@ -392,7 +392,7 @@ export const LogoShowcasePage: React.FC<LogoShowcasePageProps> = ({ onGoToApp, o
           </div>
           <div className="p-3 bg-[#010F3D]/60 rounded-xl border border-white/5 space-y-1">
             <span className="text-[#FFBA09] font-bold block">3. Garis Pindai Emas (#FFBA09)</span>
-            <p>Audit otomatisasi cerdas pra-SPP setiap Kamis 08:00 WIB untuk membaca konsistensi data logistik.</p>
+            <p>Audit otomatisasi gerbang sebelum penerbitan SPP (Senin–Selasa) untuk membaca konsistensi data logistik.</p>
           </div>
           <div className="p-3 bg-[#010F3D]/60 rounded-xl border border-white/5 space-y-1">
             <span className="text-[#FFBA09] font-bold block">4. Droplet Terverifikasi</span>
@@ -403,7 +403,7 @@ export const LogoShowcasePage: React.FC<LogoShowcasePageProps> = ({ onGoToApp, o
 
       {/* Footer */}
       <footer className="w-full max-w-5xl pt-8 pb-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#B8C4E6]/60 gap-3">
-        <span>© 2026 Kementerian Keuangan RI · Tata Kelola MBG</span>
+        <span>© 2026 Badan Gizi Nasional (BGN) · Tata Kelola MBG</span>
         <span>SVG Murni + Animasi CSS · Nol Dependensi Eksternal</span>
       </footer>
     </div>

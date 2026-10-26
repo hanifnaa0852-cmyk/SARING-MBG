@@ -4,17 +4,19 @@
  */
 
 import React, { useState } from 'react';
-import { Kitchen, DecisionLogEntry } from '../types';
+import { Kitchen, DecisionLogEntry, SimulationParameters } from '../types';
 import { AnimatedNumber } from '../components/AnimatedNumber';
 
 interface DetailKasusPageProps {
   kitchen: Kitchen;
+  params?: SimulationParameters;
   onBack: () => void;
   onAddDecisionLog: (entry: DecisionLogEntry) => void;
 }
 
 export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
   kitchen,
+  params,
   onBack,
   onAddDecisionLog
 }) => {
@@ -40,7 +42,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
       label: kitchen.triase,
       tingkat: kitchen.triase === 'Merah' ? 'Tingkat 3' : 'Tingkat 2',
       keputusan: 'Verifikasi Lapangan Ditugaskan',
-      verifikator: 'Auditor Tim 3 MBG',
+      verifikator: 'Verifikator BGN',
       alasan: `Penugasan audit lapangan terpadu menindaklanjuti indikator ${kitchen.activeFlags.join(', ')}`,
       hasilDiubah: false
     };
@@ -62,7 +64,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
       label: kitchen.triase,
       tingkat: 'Tingkat 2',
       keputusan: 'Koreksi Administratif & Klarifikasi Disetujui',
-      verifikator: 'Auditor Tim 3 MBG',
+      verifikator: 'Verifikator BGN',
       alasan: clarificationReason,
       hasilDiubah: true
     };
@@ -142,7 +144,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
             </div>
 
             <p className="text-[#454652] text-sm">
-              Top-up diajukan <span className="font-bold text-[#000F4A] font-mono"><AnimatedNumber value={kitchen.topUpRequested} prefix="Rp " /></span>, Minggu 4 (Siklus T+7)
+              Top-up diajukan <span className="font-bold text-[#000F4A] font-mono"><AnimatedNumber value={kitchen.topUpRequested} prefix="Rp " /></span>, Minggu 4 (siklus top-up mingguan)
             </p>
           </div>
 
@@ -169,7 +171,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
           </div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#ECEEF3]">
             <span className="material-symbols-outlined text-[16px] text-[#011F7B]">account_balance_wallet</span>
-            <span>ID Virtual Account: <strong className="text-[#181C20] font-semibold font-mono">VA-BGN-3302-{kitchen.id.replace(/[^0-9]/g, '').slice(-3) || '087'}</strong></span>
+            <span>ID Virtual Account: <strong className="text-[#181C20] font-semibold font-mono">VA-CONTOH-{kitchen.id.replace(/[^0-9]/g, '').slice(-3) || '087'}</strong></span>
           </div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#ECEEF3]">
             <span className="material-symbols-outlined text-[16px] text-[#1E9E6A]">verified</span>
@@ -327,7 +329,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                           </p>
                         </div>
                         <p className="text-xs text-[#454652] leading-relaxed">
-                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Penyaluran top-up ditahan total sampai status dapur beroperasi penuh dan kepemilikan SLHS terverifikasi sah.
+                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Hanya bahan baku minimum dicairkan bila dapur terbukti ada dan beroperasi; operasional dan insentif ditahan; penugasan verifikasi lapangan (usulan 5 hari kerja).
                         </p>
                       </div>
                     );
@@ -485,11 +487,11 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                         <td className="py-2 px-3 text-center">
                           {d.isAnomaly ? (
                             <span className="px-2 py-0.5 rounded bg-[#FCEBEB] text-[10px] font-bold text-[#B02A2A]">
-                              Anomali
+                              Melewati toleransi
                             </span>
                           ) : (
                             <span className="px-2 py-0.5 rounded bg-[#ECEEF3] text-[10px] font-semibold text-[#454652]">
-                              Wajar
+                              Dalam toleransi
                             </span>
                           )}
                         </td>
@@ -727,7 +729,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                   <p className="text-[11px] text-[#454652]">
                     {kitchen.activeFlags.length} red flag terdeteksi otomatis
                   </p>
-                  <p className="text-[10px] text-[#757683] font-mono">Kamis, 08:00 WIB</p>
+                  <p className="text-[10px] text-[#757683] font-mono">Senin pagi (sebelum SPP)</p>
                 </div>
               </div>
 
@@ -750,7 +752,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                     </span>
                   </div>
                   <p className="text-[11px] text-[#454652]">
-                    {verificationStep > 2 ? 'Tim Audit B regional ditugaskan' : 'Menunggu tindakan auditor'}
+                    {verificationStep > 2 ? 'Verifikator BGN ditugaskan' : 'Menunggu tindakan verifikator'}
                   </p>
                 </div>
               </div>

@@ -21,13 +21,12 @@ export const IndikatorPilotPage: React.FC<IndikatorPilotPageProps> = ({ kitchens
   const metrics = computeSimulationMetrics(kitchens, params);
 
   const precisionPct = Number(metrics.precisionBaseRate.toFixed(1));
-  const fpPct = Math.round(metrics.falsePositiveRate);
-  const fnPct = metrics.falseNegativeRate.toFixed(1).replace('.', ',');
+  const fpPct = Number(metrics.falsePositiveRate.toFixed(1));
+  const fnPct = Number(metrics.falseNegativeRate.toFixed(1));
 
-  const cancellationRate =
-    decisionLogs && decisionLogs.length > 0
-      ? Math.round((decisionLogs.filter((d) => d.hasilDiubah).length / decisionLogs.length) * 100)
-      : 6;
+  const modifiedLogs = decisionLogs && decisionLogs.length > 0 ? decisionLogs.filter((d) => d.hasilDiubah).length : 3;
+  const totalLogs = decisionLogs && decisionLogs.length > 0 ? decisionLogs.length : 40;
+  const cancellationRate = Number(((modifiedLogs / totalLogs) * 100).toFixed(1));
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -40,8 +39,8 @@ export const IndikatorPilotPage: React.FC<IndikatorPilotPageProps> = ({ kitchens
 2. Presisi (Base Rate p*s / [p*s+(1-p)(1-k)]): ${precisionPct}%
 3. Tingkat positif palsu: ${fpPct}%
 4. Perkiraan negatif palsu: ${fnPct}%
-5. Rasio pembatalan oleh verifikator: ${cancellationRate}%
-6. Median hari verifikasi: 2,1 / 3,8 hari kerja
+5. Rasio pembatalan oleh verifikator: ${cancellationRate}% (n = ${totalLogs})
+6. Median hari verifikasi: ${metrics.medianDaysKuning} / ${metrics.medianDaysMerah} hari kerja (asumsi simulasi)
 7. Hari layanan makan terganggu per dapur: 0,4 hari
 8. Sisa dana akhir tahun: Diukur dari IHPS, tidak disimulasikan
 
@@ -70,8 +69,8 @@ INDIKATOR METRIK PILOT (Ditetapkan Sebelum Pilot):
 2. Presisi (dana ditahan bermasalah) : ${precisionPct}%
 3. Tingkat positif palsu             : ${fpPct}%
 4. Perkiraan negatif palsu           : ${fnPct}%
-5. Rasio pembatalan verifikator      : 6%
-6. Median hari verifikasi (Kuning/Merah): 2,1 / 3,8 hari kerja
+5. Rasio pembatalan verifikator      : ${cancellationRate}% (n = ${totalLogs})
+6. Median hari verifikasi (Kuning/Merah): ${metrics.medianDaysKuning} / ${metrics.medianDaysMerah} hari kerja (asumsi simulasi)
 7. Hari layanan makan terganggu      : 0,4 hari/dapur
 8. Sisa dana akhir tahun             : Berdasarkan audit IHPS BPK
 
@@ -241,7 +240,7 @@ BATASAN DAN PROTOKOL SIMULASI:
                 Tingkat positif palsu
               </h3>
               <div className="text-2xl font-bold text-[#000F4A] mt-1 tabular-nums font-mono">
-                <AnimatedNumber value={fpPct} suffix="%" />
+                <AnimatedNumber value={fpPct} decimals={1} suffix="%" />
               </div>
             </div>
           </div>
@@ -266,7 +265,7 @@ BATASAN DAN PROTOKOL SIMULASI:
                 Perkiraan negatif palsu
               </h3>
               <div className="text-2xl font-bold text-[#000F4A] mt-1 tabular-nums font-mono">
-                <AnimatedNumber value={metrics.falseNegativeRate} decimals={1} suffix="%" />
+                <AnimatedNumber value={fnPct} decimals={1} suffix="%" />
               </div>
             </div>
           </div>
@@ -288,10 +287,10 @@ BATASAN DAN PROTOKOL SIMULASI:
             </div>
             <div>
               <h3 className="text-[11px] uppercase text-[#757683] tracking-wider font-semibold">
-                Rasio pembatalan oleh verifikator
+                Rasio pembatalan oleh verifikator (n = {totalLogs})
               </h3>
               <div className="text-2xl font-bold text-[#000F4A] mt-1 tabular-nums font-mono">
-                <AnimatedNumber value={cancellationRate} suffix="%" />
+                <AnimatedNumber value={cancellationRate} decimals={1} suffix="%" />
               </div>
             </div>
           </div>
@@ -316,7 +315,10 @@ BATASAN DAN PROTOKOL SIMULASI:
                 Median hari verifikasi (kuning / merah)
               </h3>
               <div className="text-xl font-bold text-[#000F4A] mt-1 tabular-nums font-mono">
-                2,1 / 3,8 <span className="text-xs font-normal text-[#757683]">hari kerja</span>
+                {metrics.medianDaysKuning} / {metrics.medianDaysMerah} <span className="text-xs font-normal text-[#757683]">hari kerja</span>
+              </div>
+              <div className="text-[10px] text-[#757683] italic mt-0.5">
+                asumsi simulasi (SLA 3 & 5 hari)
               </div>
             </div>
           </div>
@@ -439,7 +441,7 @@ BATASAN DAN PROTOKOL SIMULASI:
           <div className="mt-5 p-3 bg-[#F1F4F9] rounded-lg border border-[#E0E2E7] flex items-center gap-2 text-xs">
             <span className="material-symbols-outlined text-[#011F7B] text-[18px]">tune</span>
             <span className="text-[#181C20]">
-              Target evaluasi pilot: Menekan tingkat positif palsu di bawah <strong>45%</strong> tanpa menaikkan negatif palsu di atas <strong>1,5%</strong>.
+              Target evaluasi pilot: <strong>Target ditetapkan sebelum pilot</strong> untuk kalibrasi ambang batas operasional.
             </span>
           </div>
         </div>
@@ -523,7 +525,7 @@ BATASAN DAN PROTOKOL SIMULASI:
           </div>
 
           <div className="mt-4 pt-3 border-t border-[#E0E2E7] flex items-center justify-between text-xs text-[#757683]">
-            <span>Protokol Eksperimen: Permen MBG No. 04/2025</span>
+            <span>Uji Coba Terbatas BGN</span>
             <span className="font-semibold text-[#000F4A]">Tahap: Uji Laboratorium Terbatas</span>
           </div>
         </div>
