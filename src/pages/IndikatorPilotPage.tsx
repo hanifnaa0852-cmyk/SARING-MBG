@@ -20,7 +20,7 @@ export const IndikatorPilotPage: React.FC<IndikatorPilotPageProps> = ({ kitchens
 
   const metrics = computeSimulationMetrics(kitchens, params);
 
-  const precisionPct = Math.round(100 - metrics.falsePositiveRate);
+  const precisionPct = Number(metrics.precisionBaseRate.toFixed(1));
   const fpPct = Math.round(metrics.falsePositiveRate);
   const fnPct = metrics.falseNegativeRate.toFixed(1).replace('.', ',');
 
@@ -37,7 +37,7 @@ export const IndikatorPilotPage: React.FC<IndikatorPilotPageProps> = ({ kitchens
   const copyParameters = () => {
     const textData = `SARING-MBG: Parameter Indikator Pilot (Data Sintetis)
 1. Proporsi top-up dibaca sebelum SPP: 100%
-2. Presisi (dana ditahan bermasalah): ${precisionPct}%
+2. Presisi (Base Rate p*s / [p*s+(1-p)(1-k)]): ${precisionPct}%
 3. Tingkat positif palsu: ${fpPct}%
 4. Perkiraan negatif palsu: ${fnPct}%
 5. Rasio pembatalan oleh verifikator: ${cancellationRate}%
@@ -207,16 +207,21 @@ BATASAN DAN PROTOKOL SIMULASI:
               </span>
             </div>
             <div>
-              <h3 className="text-[11px] uppercase text-[#757683] tracking-wider font-semibold">
-                Presisi (dana ditahan bermasalah)
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-[11px] uppercase text-[#757683] tracking-wider font-semibold">
+                  Presisi (Base Rate)
+                </h3>
+                <span className="text-[8px] font-mono text-[#011F7B] bg-[#011F7B]/10 px-1.5 py-0.5 rounded font-bold">
+                  p·s / [p·s+(1-p)(1-k)]
+                </span>
+              </div>
               <div className="text-2xl font-bold text-[#000F4A] mt-1 tabular-nums font-mono">
-                <AnimatedNumber value={precisionPct} suffix="%" />
+                <AnimatedNumber value={precisionPct} decimals={1} suffix="%" />
               </div>
             </div>
           </div>
           <p className="text-xs text-[#454652] mt-4 leading-relaxed pt-2.5 border-t border-[#ECEEF3]">
-            Akurasi penahanan porsi operasional terhadap temuan salah saji atau deviasi riil.
+            Bila dapur yang benar-benar bermasalah jarang, sebagian besar tanda jatuh pada dapur yang sah. Karena itu kuning tetap mencairkan bahan baku dan ambang dikalibrasi di pilot.
           </p>
         </div>
 

@@ -37,9 +37,9 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
 
   const tradeOffData = useMemo(() => {
     return computeTradeOffCurve(params);
-  }, [params.tolR4a, params.propProblematic, params.propHonestError]);
+  }, [params.tolR4a, params.paguBahan, params.enableR3Tahap1, params.propProblematic, params.propHonestError]);
 
-  const handleSliderChange = (key: keyof SimulationParameters, value: number) => {
+  const handleSliderChange = (key: keyof SimulationParameters, value: number | boolean) => {
     const updated = { ...params, [key]: value };
     setParams(updated);
     onUpdateParams(updated);
@@ -52,6 +52,8 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
       updated = {
         tolR5: 5,
         tolR4a: 0,
+        paguBahan: 10000,
+        enableR3Tahap1: false,
         propProblematic: 78,
         propHonestError: 14,
         fieldCapacity: 450,
@@ -60,6 +62,8 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
       updated = {
         tolR5: 20,
         tolR4a: 5,
+        paguBahan: 10000,
+        enableR3Tahap1: false,
         propProblematic: 35,
         propHonestError: 20,
         fieldCapacity: 250,
@@ -68,6 +72,8 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
       updated = {
         tolR5: 10,
         tolR4a: 0,
+        paguBahan: 10000,
+        enableR3Tahap1: false,
         propProblematic: 75.2,
         propHonestError: 16,
         fieldCapacity: 400,
@@ -82,6 +88,8 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
     const defaultParams: SimulationParameters = {
       tolR5: 10,
       tolR4a: 0,
+      paguBahan: 10000,
+      enableR3Tahap1: false,
       propProblematic: 75.2,
       propHonestError: 16,
       fieldCapacity: 400,
@@ -174,11 +182,71 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
               <span className="text-base font-bold text-[#000F4A]">Parameter Kalibrasi</span>
             </div>
             <span className="text-[10px] px-2 py-0.5 rounded bg-[#ECEEF3] text-[#454652] uppercase tracking-wider font-semibold">
-              5 Parameter
+              6 Parameter &amp; 1 Toggle
             </span>
           </div>
 
           <div className="flex flex-col gap-5">
+            {/* Parameter: Pagu bahan per porsi */}
+            <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[#F7F9FE] border border-[#011F7B]/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-[#000F4A]">
+                    Pagu bahan per porsi
+                  </label>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded font-bold bg-[#ECEEF3] border border-[#C5C5D4] text-[#011F7B]">
+                    perlu dicek ke juknis
+                  </span>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-[#011F7B] text-white font-bold font-mono">
+                  Rp {(params.paguBahan || 10000).toLocaleString('id-ID')}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#454652] leading-relaxed">
+                Nilai dasar batas belanja bahan pangan per porsi. Digunakan R4a bersama toleransi.
+              </p>
+              <div className="relative pt-1">
+                <input
+                  type="range"
+                  min="7000"
+                  max="15000"
+                  step="500"
+                  value={params.paguBahan || 10000}
+                  onChange={(e) => handleSliderChange('paguBahan', Number(e.target.value))}
+                  className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
+                />
+                <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
+                  <span>Rp 7.000</span>
+                  <span>Rp 10.000 (Default)</span>
+                  <span>Rp 15.000</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Toggle: Pindahkan R3 ke Tahap 1 */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7]">
+              <div className="pr-2">
+                <label className="text-xs font-bold text-[#000F4A] block">
+                  Pindahkan R3 ke Tahap 1
+                </label>
+                <span className="text-[10px] text-[#454652] block leading-snug">
+                  (bila data penetapan penerima sudah digital)
+                </span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input
+                  type="checkbox"
+                  checked={params.enableR3Tahap1 || false}
+                  onChange={(e) => {
+                    handleSliderChange('enableR3Tahap1', e.target.checked);
+                    showToast(e.target.checked ? 'R3 dipindahkan ke Tahap 1' : 'R3 dikembalikan ke Tahap 2');
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-10 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#011F7B]"></div>
+              </label>
+            </div>
+
             {/* Slider 1: R5 */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
@@ -216,11 +284,11 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                   Toleransi biaya bahan di atas pagu (R4a)
                 </label>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-[#ECEEF3] text-[#000F4A] font-bold font-mono">
-                  {params.tolR4a === 0 ? '0% - Pagu Ketat' : `${params.tolR4a}% (+Rp ${(params.tolR4a * 80).toFixed(0)})`}
+                  {params.tolR4a === 0 ? '0% - Pagu Ketat' : `${params.tolR4a}% (+Rp ${(((params.paguBahan || 10000) * params.tolR4a) / 100).toFixed(0)})`}
                 </span>
               </div>
               <p className="text-[11px] text-[#454652] leading-relaxed">
-                Toleransi kenaikan harga pasar lokal terhadap pagu regional (Rp 8.000/porsi).
+                Toleransi kenaikan harga pasar lokal terhadap pagu bahan per porsi (Rp {(params.paguBahan || 10000).toLocaleString('id-ID')}).
               </p>
               <div className="relative pt-1">
                 <input
@@ -233,8 +301,8 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
                   className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
                 />
                 <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
-                  <span>0% (Rp 8.000)</span>
-                  <span>15% (+Rp 1.200)</span>
+                  <span>0% (Pagu)</span>
+                  <span>15% (+Rp {(((params.paguBahan || 10000) * 0.15)).toFixed(0)})</span>
                 </div>
               </div>
             </div>
@@ -475,6 +543,26 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
               </div>
               <p className="text-xs text-[#454652] mt-3 leading-snug">
                 Dapur berisiko tinggi yang terlewat &amp; lolos top-up 100%
+              </p>
+            </div>
+
+            {/* Card 6: Presisi (Base Rate) */}
+            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#011F7B]/30 flex flex-col justify-between hover:shadow-md transition-shadow bg-gradient-to-b from-white to-[#F7F9FE]">
+              <div>
+                <div className="flex items-start justify-between gap-1 mb-2">
+                  <span className="text-[10px] uppercase text-[#011F7B] tracking-wider font-bold">
+                    Presisi (Base Rate)
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#011F7B] text-white font-mono">
+                    p·s / [p·s+(1-p)(1-k)]
+                  </span>
+                </div>
+                <div className="text-xl font-bold text-[#011F7B] font-mono tabular-nums">
+                  <AnimatedNumber value={metrics.precisionBaseRate} decimals={1} suffix="%" />
+                </div>
+              </div>
+              <p className="text-xs text-[#454652] mt-3 leading-snug">
+                Bila dapur yang benar-benar bermasalah jarang, sebagian besar tanda jatuh pada dapur yang sah. Karena itu kuning tetap mencairkan bahan baku dan ambang dikalibrasi di pilot.
               </p>
             </div>
 

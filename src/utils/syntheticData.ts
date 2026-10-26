@@ -222,7 +222,8 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
 
     const partner = PARTNER_PREFIXES[Math.floor(rng() * PARTNER_PREFIXES.length)];
     const targetGroup: TargetGroup = rng() > 0.35 ? 'SD' : 'SMP';
-    const paguPerPorsi = targetGroup === 'SD' ? 8000 : 10000;
+    // Pagu bahan per porsi from editable parameter (default Rp 10.000, label: "perlu dicek ke juknis")
+    const paguPerPorsi = params.paguBahan || 10000;
     const capacityPortions = 1800 + Math.floor(rng() * 1400); // 1.800 - 3.200
     const schoolsCount = Math.floor(capacityPortions / 800) + 1;
     const capacityLabel = `${capacityPortions.toLocaleString('id-ID')} porsi/hari (${schoolsCount} ${targetGroup})`;
@@ -230,7 +231,7 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
     // Default healthy state
     let activeVaCount = 1;
     let status: KitchenStatus = 'beroperasi';
-    let baseBahanCost = targetGroup === 'SD' ? (7200 + Math.floor(rng() * 600)) : (9000 + Math.floor(rng() * 800));
+    let baseBahanCost = targetGroup === 'SD' ? (8200 + Math.floor(rng() * 600)) : (9000 + Math.floor(rng() * 800));
 
     // Daily financials
     const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -243,8 +244,8 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
     if (idNum === 87) {
       // Exactly as in Stitch:
       // Dilaporkan Rp 48.200.000 vs VA outflow Rp 31.600.000 (Selisih Rp 16.600.000)
-      // Reported cost per portion: Rp 9.350 vs Rp 8.000 (+16.9%)
-      baseBahanCost = 9350;
+      // Reported cost per portion: Rp 11.200 vs Pagu Rp 10.000 (+12%)
+      baseBahanCost = 11200;
       dailyFinancials = [
         { dayName: 'Senin', dateLabel: 'Senin, 20 Jan', reportedSpend: 8200000, vaOutflow: 7800000, isAnomaly: false },
         { dayName: 'Selasa', dateLabel: 'Selasa, 21 Jan', reportedSpend: 8100000, vaOutflow: 7900000, isAnomaly: false },
@@ -258,7 +259,7 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
       const anomalyType = idNum % 3;
       if (anomalyType === 0) {
         // High R4a + R5
-        baseBahanCost = paguPerPorsi + Math.floor(1200 + rng() * 1500); // 9.200 - 10.500
+        baseBahanCost = paguPerPorsi + Math.floor(1200 + rng() * 1500); // 11.200 - 12.500
         dailyFinancials = days.map((d, dIdx) => {
           const rep = avgDailySpend + Math.floor((rng() - 0.5) * 600000);
           const dropFactor = dIdx >= 2 ? (0.45 + rng() * 0.25) : 0.95;
@@ -272,7 +273,7 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
           };
         });
       } else if (anomalyType === 1) {
-        // R2: Non-operating kitchen requesting topup
+        // R2: Non-operating kitchen requesting topup ("belum beroperasi, disuspend, atau belum ber-SLHS")
         status = rng() > 0.4 ? 'belum beroperasi' : 'suspend';
         dailyFinancials = days.map((d, dIdx) => {
           const rep = avgDailySpend;
@@ -331,10 +332,20 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
 
     const reportedSpendTotal = dailyFinancials.reduce((acc, curr) => acc + curr.reportedSpend, 0);
     const vaOutflowTotal = dailyFinancials.reduce((acc, curr) => acc + curr.vaOutflow, 0);
-    const topUpRequested = Math.round(reportedSpendTotal / 100000) * 100000;
-    const foodBudget = Math.round(topUpRequested * 0.8);
-    const heldBudget = topUpRequested - foodBudget;
     const vaBalance = Math.round(80000000 + rng() * 140000000); // Rp 80M - Rp 220M (context under 500M)
+
+    // Weekly reported portions (6 operating days)
+    const weeklyPortions = capacityPortions * 6;
+
+    // TOP-UP COMPONENTS:
+    // 1. Bahan Baku: cost of ingredients (~75% of reported operational base)
+    // 2. Operasional: operational expenses & cook fees (~25% of reported operational base)
+    // 3. Insentif: Rp 2.000 per reported portion, effective 5 Oktober 2026 (labeled "usulan")
+    const bahanBakuBudget = Math.round((reportedSpendTotal * 0.75) / 100000) * 100000;
+    const operasionalBudget = Math.round((reportedSpendTotal * 0.25) / 100000) * 100000;
+    const insentifBudget = weeklyPortions * 2000; // Rp 2.000 / porsi
+    const topUpRequested = bahanBakuBudget + operasionalBudget + insentifBudget;
+    const foodBudget = bahanBakuBudget;
 
     // Evaluate live rules
     const activeFlags: RedFlagCode[] = [];
@@ -344,12 +355,21 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
       activeFlags.push('R1');
     }
 
-    // R2: Non operating or suspended
+    // R2: Top-up diajukan untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS
     if (status !== 'beroperasi') {
       activeFlags.push('R2');
     }
 
-    // R4a: Cost per portion exceeds pagu + tolerance
+    // R3 (when enabled in Tahap 1 via toggle):
+    // Laporan porsi harian melebihi porsi penetapan dapur atau dilaporkan pada hari non-layanan
+    if (params.enableR3Tahap1) {
+      const hasR3Anomaly = (truth === 'problematic' && (idNum % 2 === 0)) || idNum === 87;
+      if (hasR3Anomaly) {
+        activeFlags.push('R3');
+      }
+    }
+
+    // R4a: Cost per portion exceeds pagu + tolerance (pagu default Rp 10.000, perlu dicek ke juknis)
     const maxAllowedCost = paguPerPorsi * (1 + params.tolR4a / 100);
     if (baseBahanCost > maxAllowedCost) {
       activeFlags.push('R4a');
@@ -361,24 +381,48 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
       activeFlags.push('R5');
     }
 
-    // Decision Logic:
-    // Merah if R1 or R2 active, OR if both R4a and R5 active
-    // Kuning if R4a or R5 active alone
-    // Hijau if none
+    // NEW DECISION RULE:
+    // Merah if R1 or R2 is active, or if two or more of the other active flags are active at the same time.
+    // Kuning if exactly one other flag is active.
+    // Hijau if none.
+    // No numeric weights.
+    // Note: flags sharing the same source (laporan harian SPPG) active together only raise verification priority; they do not prove intent.
+    const hasR1 = activeFlags.includes('R1');
+    const hasR2 = activeFlags.includes('R2');
+    const otherFlags = activeFlags.filter(f => f !== 'R1' && f !== 'R2');
+
     let triase: TriaseLabel = 'Hijau';
-    if (activeFlags.includes('R1') || activeFlags.includes('R2') || (activeFlags.includes('R4a') && activeFlags.includes('R5'))) {
+    if (hasR1 || hasR2 || otherFlags.length >= 2) {
       triase = 'Merah';
-    } else if (activeFlags.includes('R4a') || activeFlags.includes('R5')) {
+    } else if (otherFlags.length === 1) {
       triase = 'Kuning';
+    } else {
+      triase = 'Hijau';
     }
 
-    let recommendationAction = 'Top-up penuh dicairkan';
+    // Treatment of funds and components per triase:
+    // Hijau: all three paid (bahan baku, operasional, insentif)
+    // Kuning: bahan baku paid, operasional and insentif held pending written clarification (usulan 3 hari kerja)
+    // Merah: only minimum bahan baku paid if kitchen is verified to exist and operate; verification usulan 5 hari kerja.
+    let heldBudget = 0;
+    let recommendationAction = 'Top-up penuh dicairkan (bahan baku, operasional, insentif)';
     let verificationDeadline = '-';
+
     if (triase === 'Merah') {
-      recommendationAction = 'Verifikasi lapangan ITJEN';
+      if (status === 'beroperasi') {
+        // Kitchen verified to exist & operate: only minimum bahan baku paid, operasional & insentif held
+        heldBudget = operasionalBudget + insentifBudget;
+        recommendationAction = 'Bahan baku minimum cair; operasional & insentif ditahan (usulan 5 hari kerja)';
+      } else {
+        // Non-operating / suspended / no SLHS: entire top-up held
+        heldBudget = topUpRequested;
+        recommendationAction = 'Top-up ditahan penuh: SPPG belum beroperasi / belum ber-SLHS (usulan 5 hari kerja)';
+      }
       verificationDeadline = '5 hari kerja';
     } else if (triase === 'Kuning') {
-      recommendationAction = 'Reviu dokumen klarifikasi';
+      // Bahan baku paid; operasional & insentif held pending written clarification
+      heldBudget = operasionalBudget + insentifBudget;
+      recommendationAction = 'Bahan baku cair; operasional & insentif ditahan sementara (usulan 3 hari kerja)';
       verificationDeadline = '3 hari kerja';
     }
 
@@ -399,7 +443,11 @@ export function generateSyntheticKitchens(params: SimulationParameters, weekInde
       reportedSpendTotal,
       vaOutflowTotal,
       vaBalance,
+      weeklyPortions,
       topUpRequested,
+      bahanBakuBudget,
+      operasionalBudget,
+      insentifBudget,
       foodBudget,
       heldBudget,
       groundTruth: truth,
@@ -434,7 +482,7 @@ export function getHistoricalWeeksSummary(week4Kitchens: Kitchen[]) {
 }
 
 /**
- * Computes simulation metrics: FP, FN, Capacity, Withheld Funds
+ * Computes simulation metrics: FP, FN, Capacity, Withheld Funds, and Presisi (Base Rate)
  */
 export function computeSimulationMetrics(kitchens: Kitchen[], params: SimulationParameters) {
   const total = kitchens.length;
@@ -444,8 +492,11 @@ export function computeSimulationMetrics(kitchens: Kitchen[], params: Simulation
   const flagged = kitchens.filter(k => k.triase !== 'Hijau');
 
   // Ground truth check:
+  const trulyProblematic = kitchens.filter(k => k.groundTruth === 'problematic');
+  const nonProblematic = kitchens.filter(k => k.groundTruth !== 'problematic');
+
   // Problematic kitchens labeled Hijau = Negatif Palsu (Type II error)
-  const falseNegatives = kitchens.filter(k => k.groundTruth === 'problematic' && k.triase === 'Hijau');
+  const falseNegatives = trulyProblematic.filter(k => k.triase === 'Hijau');
   
   // Flagged kitchens that are NOT problematic (honest_error or normal) = Positif Palsu (Type I error)
   const falsePositives = flagged.filter(k => k.groundTruth !== 'problematic');
@@ -453,9 +504,23 @@ export function computeSimulationMetrics(kitchens: Kitchen[], params: Simulation
   const falsePositiveRate = flagged.length > 0 ? (falsePositives.length / flagged.length) * 100 : 0;
   const falseNegativeRate = total > 0 ? (falseNegatives.length / total) * 100 : 0;
 
-  // Dana tertahan:
-  // Merah: heldBudget (20% operational withheld)
-  // Kuning: heldBudget (20% operational withheld pending clarification)
+  // Sensitivity s: share of truly problematic kitchens flagged (triase !== 'Hijau')
+  const trulyProblematicFlagged = trulyProblematic.filter(k => k.triase !== 'Hijau');
+  const sensitivity = trulyProblematic.length > 0 ? (trulyProblematicFlagged.length / trulyProblematic.length) : 1;
+
+  // Specificity k: share of non-problematic kitchens not flagged (triase === 'Hijau')
+  const nonProblematicNotFlagged = nonProblematic.filter(k => k.triase === 'Hijau');
+  const specificity = nonProblematic.length > 0 ? (nonProblematicNotFlagged.length / nonProblematic.length) : 1;
+
+  // p = proportion of truly problematic kitchens (from slider parameter)
+  const p = params.propProblematic / 100;
+
+  // Presisi (Base Rate): p*s / (p*s + (1-p)*(1-k))
+  const precisionNumerator = p * sensitivity;
+  const precisionDenominator = (p * sensitivity) + ((1 - p) * (1 - specificity));
+  const precisionBaseRate = precisionDenominator > 0 ? (precisionNumerator / precisionDenominator) * 100 : 0;
+
+  // Dana tertahan (termasuk insentif yang ditahan)
   const withheldTotal = flagged.reduce((acc, k) => acc + k.heldBudget, 0);
   const totalRequested = kitchens.reduce((acc, k) => acc + k.topUpRequested, 0);
 
@@ -474,6 +539,9 @@ export function computeSimulationMetrics(kitchens: Kitchen[], params: Simulation
     falsePositiveRate,
     falseNegativesCount: falseNegatives.length,
     falseNegativeRate,
+    sensitivity: sensitivity * 100,
+    specificity: specificity * 100,
+    precisionBaseRate,
     withheldTotal,
     totalRequested,
     fieldBurden,

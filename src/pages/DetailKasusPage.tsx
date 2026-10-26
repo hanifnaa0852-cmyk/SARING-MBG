@@ -314,7 +314,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                               R2
                             </span>
                             <h3 className="text-sm font-semibold text-[#181C20]">
-                              Status Dapur Tidak Beroperasi / Izin Belum Lengkap
+                              Top-up diajukan untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS
                             </h3>
                           </div>
                           <span className="text-[10px] text-[#454652] uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-[#E0E2E7]">
@@ -323,9 +323,40 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                         </div>
                         <div className="p-3 bg-white rounded-lg border border-[#E0E2E7] text-xs">
                           <p className="text-[#181C20]">
-                            Dapur tercatat berstatus <span className="font-bold text-[#D64545] uppercase">{kitchen.status}</span> di pangkalan data SIPGN.
+                            Dapur tercatat berstatus <span className="font-bold text-[#D64545] uppercase">{kitchen.status}</span> di SIPGN atau belum terbit Sertifikat Laik Higiene Sanitasi (SLHS).
                           </p>
                         </div>
+                        <p className="text-xs text-[#454652] leading-relaxed">
+                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Penyaluran top-up ditahan total sampai status dapur beroperasi penuh dan kepemilikan SLHS terverifikasi sah.
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  if (flag === 'R3') {
+                    return (
+                      <div key={flag} className="p-4 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7] space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded bg-[#011F7B] text-white text-[11px] font-bold tracking-wider">
+                              R3
+                            </span>
+                            <h3 className="text-sm font-semibold text-[#181C20]">
+                              Laporan porsi harian melebihi porsi penetapan atau pada hari non-layanan
+                            </h3>
+                          </div>
+                          <span className="text-[10px] text-[#454652] uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-[#E0E2E7]">
+                            Indikator risiko, bukan bukti
+                          </span>
+                        </div>
+                        <div className="p-3 bg-white rounded-lg border border-[#E0E2E7] text-xs">
+                          <p className="text-[#181C20]">
+                            Klaim porsi harian melebihi kapasitas penetapan kuota penerima atau tercatat pada kalender hari non-layanan/libur sekolah.
+                          </p>
+                        </div>
+                        <p className="text-xs text-[#454652] leading-relaxed">
+                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Mengindikasikan potensi penggelembungan porsi atau kesalahan pencatatan kalender operasional.
+                        </p>
                       </div>
                     );
                   }
@@ -480,75 +511,129 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
             </div>
           </div>
 
-          {/* CARD 3: Rincian Alokasi Dana Top-up Diajukan */}
+          {/* CARD 3: Rincian Alokasi Dana Top-up Diajukan (3 Komponen) */}
           <div className="bg-white rounded-xl shadow-sm border border-[#E0E2E7] p-6 space-y-5">
-            <div className="flex items-center justify-between border-b border-[#ECEEF3] pb-3">
-              <h2 className="text-base font-bold text-[#000F4A]">
-                Rincian Alokasi Dana Top-up Diajukan
-              </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#ECEEF3] pb-3 gap-2">
+              <div>
+                <h2 className="text-base font-bold text-[#000F4A]">
+                  Rincian Alokasi Dana Top-up Diajukan (3 Komponen)
+                </h2>
+                <p className="text-xs text-[#454652] mt-0.5">
+                  Bahan baku, belanja operasional dapur, dan insentif per porsi terlapor
+                </p>
+              </div>
               <div className="text-right">
-                <span className="text-[10px] uppercase text-[#454652] font-semibold">Total Pengajuan</span>
+                <span className="text-[10px] uppercase text-[#454652] font-semibold">Total Pengajuan Mingguan</span>
                 <p className="text-xl font-bold text-[#000F4A] font-mono">
                   Rp {kitchen.topUpRequested.toLocaleString('id-ID')}
                 </p>
+                {kitchen.heldBudget > 0 && (
+                  <span className="text-[11px] font-mono font-semibold text-[#D64545]">
+                    Tertahan sementara: Rp {kitchen.heldBudget.toLocaleString('id-ID')}
+                  </span>
+                )}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Komponen Bahan Baku Pokok */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Komponen 1: Bahan Baku Pokok */}
               <div className="p-4 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7] flex flex-col justify-between space-y-3">
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-white text-[#000F4A] font-bold border border-[#E0E2E7]">
-                      Porsi 80%
+                      Komponen 1
                     </span>
-                    <div className="inline-flex items-center gap-1 text-[#1E9E6A] font-semibold text-xs">
-                      <span className="material-symbols-outlined text-[16px]">verified_user</span>
-                      <span>Hak Anak Terlindungi</span>
+                    <div className="inline-flex items-center gap-1 text-[#1E9E6A] font-semibold text-[11px]">
+                      <span className="material-symbols-outlined text-[15px]">verified_user</span>
+                      <span>Hak Anak</span>
                     </div>
                   </div>
                   <h3 className="text-sm font-bold text-[#181C20] pt-1">Bahan Baku Pokok</h3>
-                  <p className="text-xs text-[#454652]">Beras, Lauk Pauk, Sayur Mayur, dan Susu Segar</p>
+                  <p className="text-xs text-[#454652]">Beras, lauk pauk gizi seimbang, sayur &amp; susu</p>
                   <div className="pt-1">
-                    <span className="text-2xl font-bold text-[#000F4A] font-mono">
-                      <AnimatedNumber value={kitchen.foodBudget} prefix="Rp " />
+                    <span className="text-xl font-bold text-[#000F4A] font-mono">
+                      <AnimatedNumber value={kitchen.bahanBakuBudget} prefix="Rp " />
                     </span>
                   </div>
                 </div>
 
                 <div className="p-2 rounded bg-white border border-[#E0E2E7] flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#1E9E6A]"></span>
-                  <p className="text-xs text-[#181C20] font-semibold">
-                    Status: <span className="text-[#1E9E6A]">Dilindungi &amp; Siap Salur Porsi Minimum Darurat</span>
+                  <span className={`w-2.5 h-2.5 rounded-full ${kitchen.triase === 'Merah' && kitchen.status !== 'beroperasi' ? 'bg-[#D64545]' : 'bg-[#1E9E6A]'}`}></span>
+                  <p className="text-[11px] text-[#181C20] font-semibold leading-tight">
+                    {kitchen.triase === 'Hijau' && <span className="text-[#1E9E6A]">Dicairkan Penuh (100%)</span>}
+                    {kitchen.triase === 'Kuning' && <span className="text-[#1E9E6A]">Dicairkan Penuh (Anak Tetap Makan)</span>}
+                    {kitchen.triase === 'Merah' && kitchen.status === 'beroperasi' && <span className="text-[#1E9E6A]">Hanya Bahan Minimum Darurat Cair</span>}
+                    {kitchen.triase === 'Merah' && kitchen.status !== 'beroperasi' && <span className="text-[#D64545]">Ditahan (Unit Belum Beroperasi / SLHS)</span>}
                   </p>
                 </div>
               </div>
 
-              {/* Komponen Operasional & Jasa Pengolah */}
-              <div className="p-4 rounded-xl bg-[#FCEBEB]/30 border border-[#FAC7C7] flex flex-col justify-between space-y-3">
+              {/* Komponen 2: Operasional & Jasa Pengolah */}
+              <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${
+                kitchen.triase === 'Hijau' ? 'bg-[#F1F4F9] border-[#E0E2E7]' : 'bg-[#FCEBEB]/30 border-[#FAC7C7]'
+              }`}>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-white text-[#D64545] font-bold border border-[#FAC7C7]">
-                      Porsi 20%
+                    <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-white text-[#181C20] font-bold border border-[#E0E2E7]">
+                      Komponen 2
                     </span>
-                    <div className="inline-flex items-center gap-1 text-[#D64545] font-semibold text-xs">
-                      <span className="material-symbols-outlined text-[16px]">lock_clock</span>
-                      <span>Tahan Penguncian</span>
-                    </div>
+                    <span className={`text-[10px] font-bold ${kitchen.triase === 'Hijau' ? 'text-[#1E9E6A]' : 'text-[#D64545]'}`}>
+                      {kitchen.triase === 'Hijau' ? 'Cair' : 'Ditahan Sementara'}
+                    </span>
                   </div>
-                  <h3 className="text-sm font-bold text-[#181C20] pt-1">Operasional &amp; Jasa Pengolah</h3>
-                  <p className="text-xs text-[#454652]">Honor Juru Masak, Gas LPG, Listrik, Logistik Distribusi</p>
+                  <h3 className="text-sm font-bold text-[#181C20] pt-1">Operasional Dapur</h3>
+                  <p className="text-xs text-[#454652]">Honor juru masak, gas LPG, listrik, logistik</p>
                   <div className="pt-1">
-                    <span className="text-2xl font-bold text-[#D64545] font-mono">
-                      <AnimatedNumber value={kitchen.heldBudget} prefix="Rp " />
+                    <span className={`text-xl font-bold font-mono ${kitchen.triase === 'Hijau' ? 'text-[#000F4A]' : 'text-[#D64545]'}`}>
+                      <AnimatedNumber value={kitchen.operasionalBudget} prefix="Rp " />
                     </span>
                   </div>
                 </div>
 
-                <div className="p-2 rounded bg-white border border-[#FAC7C7] flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#D64545]"></span>
-                  <p className="text-xs text-[#181C20] font-semibold">
-                    Status: <span className="text-[#D64545]">{kitchen.triase === 'Hijau' ? 'Tidak Ditahan' : 'Ditahan Sementara sampai Klarifikasi Selesai'}</span>
+                <div className="p-2 rounded bg-white border border-[#E0E2E7] flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${kitchen.triase === 'Hijau' ? 'bg-[#1E9E6A]' : 'bg-[#D64545]'}`}></span>
+                  <p className="text-[11px] text-[#181C20] font-semibold leading-tight">
+                    {kitchen.triase === 'Hijau' ? (
+                      <span className="text-[#1E9E6A]">Dicairkan Penuh</span>
+                    ) : (
+                      <span className="text-[#D64545]">Ditahan (klarifikasi {kitchen.triase === 'Kuning' ? '3 hari kerja' : '5 hari kerja'})</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Komponen 3: Insentif Petugas & Pengelola */}
+              <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${
+                kitchen.triase === 'Hijau' ? 'bg-[#F1F4F9] border-[#E0E2E7]' : 'bg-[#FFF4CC]/30 border-[#F0DB85]'
+              }`}>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-white text-[#000F4A] font-bold border border-[#E0E2E7]">
+                      Komponen 3
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#fcb803] text-[#000F4A]">
+                      USULAN
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-bold text-[#181C20] pt-1">Insentif Pengelola</h3>
+                  <p className="text-xs text-[#454652]">
+                    Rp 2.000 / porsi ({kitchen.weeklyPortions.toLocaleString('id-ID')} porsi, efektif 5 Okt 2026)
+                  </p>
+                  <div className="pt-1">
+                    <span className={`text-xl font-bold font-mono ${kitchen.triase === 'Hijau' ? 'text-[#000F4A]' : 'text-[#8A5A00]'}`}>
+                      <AnimatedNumber value={kitchen.insentifBudget} prefix="Rp " />
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-2 rounded bg-white border border-[#E0E2E7] flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${kitchen.triase === 'Hijau' ? 'bg-[#1E9E6A]' : 'bg-[#8A5A00]'}`}></span>
+                  <p className="text-[11px] text-[#181C20] font-semibold leading-tight">
+                    {kitchen.triase === 'Hijau' ? (
+                      <span className="text-[#1E9E6A]">Dicairkan Penuh (Usulan)</span>
+                    ) : (
+                      <span className="text-[#8A5A00]">Ditahan bersama operasional (Usulan)</span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -576,7 +661,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                   <span className="w-2.5 h-2.5 rounded-full bg-[#1E9E6A]"></span>
                   <span className="text-xs font-semibold text-[#181C20]">Tier Hijau</span>
                 </div>
-                <span className="text-xs text-[#454652]">Top-up 100% Otomatis</span>
+                <span className="text-xs text-[#1E9E6A] font-semibold">Top-up 100% (3 Komponen Cair)</span>
               </div>
 
               {/* Tier Kuning */}
@@ -589,7 +674,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                   <span className="w-2.5 h-2.5 rounded-full bg-[#fcb803]"></span>
                   <span className="text-xs font-semibold text-[#181C20]">Tier Kuning</span>
                 </div>
-                <span className="text-xs text-[#454652]">Bahan Cair, Operasional Ditahan</span>
+                <span className="text-xs text-[#8A5A00] font-semibold">Bahan Cair, Operasional &amp; Insentif Ditahan (3 Hari)</span>
               </div>
 
               {/* Tier Merah */}
@@ -610,7 +695,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                   )}
                 </div>
                 <p className="text-xs text-[#181C20] leading-relaxed">
-                  Top-up <strong className="text-[#D64545]">HANYA</strong> bahan baku minimum darurat bila dapur fisik terbukti ada dan tetap memasak; penahanan penuh komponen operasional; penugasan verifikasi lapangan dengan batas usulan 5 hari kerja.
+                  Top-up <strong className="text-[#D64545]">HANYA</strong> bahan baku minimum darurat bila dapur fisik terbukti ada dan beroperasi; operasional dan insentif ditahan (usulan); penugasan verifikasi lapangan batas usulan 5 hari kerja.
                 </p>
               </div>
             </div>
@@ -799,7 +884,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                     rows={4}
                     value={clarificationReason}
                     onChange={(e) => setClarificationReason(e.target.value)}
-                    placeholder="Contoh: Faktur beras asli sesuai pagu Rp 8.000, selisih akibat salah ketik koma desimal pada formulir digital..."
+                    placeholder="Contoh: Faktur beras asli sesuai pagu Rp 10.000, selisih akibat salah ketik koma desimal pada formulir digital..."
                     className="w-full p-3 text-xs bg-white border border-[#E0E2E7] rounded-lg text-[#181C20] placeholder:text-[#757683] focus:outline-none focus:ring-2 focus:ring-[#011F7B]/20"
                   />
                   <p className="text-[10px] text-[#757683]">

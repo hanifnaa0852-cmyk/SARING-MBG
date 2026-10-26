@@ -551,7 +551,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                   <span>Hijau (Siap Salur)</span>
                 </div>
                 <p className="text-[#454652] leading-relaxed text-[11px]">
-                  Top-up penuh dicairkan 100% tanpa hambatan administratif langsung ke rekening operasional SPPG.
+                  Semua 3 komponen dicairkan (bahan baku, operasional, dan insentif) langsung ke rekening operasional SPPG tanpa penahanan.
                 </p>
               </div>
 
@@ -562,7 +562,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                   <span>Kuning (Klarifikasi Dokumen)</span>
                 </div>
                 <p className="text-[#454652] leading-relaxed text-[11px]">
-                  Bahan baku tetap cair; komponen operasional ditahan menunggu klarifikasi dokumen (usulan batas: 3 hari kerja).
+                  Bahan baku tetap cair; operasional dan insentif ditahan sementara menunggu klarifikasi tertulis (usulan 3 hari kerja).
                 </p>
               </div>
 
@@ -573,7 +573,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                   <span>Merah (Audit Investigasi)</span>
                 </div>
                 <p className="text-[#454652] leading-relaxed text-[11px]">
-                  Bahan baku minimum darurat bila dapur terbukti aktif; verifikasi lapangan ITJEN &amp; penahanan operasional (usulan batas: 5 hari kerja).
+                  Hanya bahan baku minimum darurat bila SPPG terbukti ada &amp; beroperasi; operasional &amp; insentif ditahan (usulan); verifikasi lapangan usulan 5 hari kerja.
                 </p>
               </div>
             </div>
@@ -665,20 +665,39 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                       Rp {selectedKitchen.topUpRequested.toLocaleString('id-ID')}
                     </span>
                   </div>
-                  <div className="space-y-1 pt-1">
+                  <div className="space-y-1.5 pt-1 text-xs">
                     <div className="flex justify-between">
                       <span className="text-[#454652] flex items-center gap-1">
                         <span className="w-2 h-2 rounded-full bg-[#1E9E6A]"></span>
-                        <span>Alokasi Bahan Baku (Dilindungi)</span>
+                        <span>Bahan Baku (Pagu Dilindungi)</span>
                       </span>
                       <span className="font-bold text-[#1E9E6A] tabular-nums font-mono">
-                        Rp {selectedKitchen.foodBudget.toLocaleString('id-ID')}
+                        Rp {(selectedKitchen.bahanBakuBudget || selectedKitchen.foodBudget).toLocaleString('id-ID')}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[#454652] flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-[#011F7B]"></span>
+                        <span>Operasional Dapur</span>
+                      </span>
+                      <span className="font-bold text-[#000F4A] tabular-nums font-mono">
+                        Rp {(selectedKitchen.operasionalBudget || Math.round(selectedKitchen.topUpRequested * 0.2)).toLocaleString('id-ID')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#454652] flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-[#FFBA09]"></span>
+                        <span>Insentif (Rp2.000/porsi)</span>
+                        <span className="text-[9px] px-1 py-0.2 bg-[#FFBA09]/20 text-[#8A5A00] font-bold rounded">USULAN</span>
+                      </span>
+                      <span className="font-bold text-[#8A5A00] tabular-nums font-mono">
+                        Rp {(selectedKitchen.insentifBudget || (selectedKitchen.weeklyPortions * 2000)).toLocaleString('id-ID')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between pt-1 border-t border-[#E0E2E7]">
+                      <span className="text-[#454652] flex items-center gap-1 font-semibold">
                         <span className="w-2 h-2 rounded-full bg-[#D64545]"></span>
-                        <span>Komponen Ditahan Sementara</span>
+                        <span>Dana Tertahan (Ilustrasi)</span>
                       </span>
                       <span className={`font-bold tabular-nums font-mono ${
                         selectedKitchen.triase === 'Hijau' ? 'text-[#757683]' : 'text-[#D64545]'
@@ -688,19 +707,9 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                     </div>
                   </div>
 
-                  {/* Progress representation */}
-                  <div className="w-full bg-[#E0E2E7] h-2 rounded-full overflow-hidden flex">
-                    <div
-                      className="bg-[#1E9E6A] h-full"
-                      style={{ width: selectedKitchen.triase === 'Hijau' ? '100%' : '80%' }}
-                    ></div>
-                    {selectedKitchen.triase !== 'Hijau' && (
-                      <div className="bg-[#D64545] h-full" style={{ width: '20%' }}></div>
-                    )}
-                  </div>
-                  <div className="flex justify-between text-[10px] text-[#757683] font-medium">
-                    <span>Bahan Baku: 80% (Tetap Cair)</span>
-                    <span>Operasional: 20% ({selectedKitchen.triase === 'Hijau' ? 'Cair' : 'Ditahan'})</span>
+                  <div className="pt-1 text-[10px] text-[#757683] font-medium flex justify-between">
+                    <span>Perlakuan Insentif: <strong className="text-[#000F4A]">Usulan</strong></span>
+                    <span>Status: <strong className={selectedKitchen.triase === 'Hijau' ? 'text-[#1E9E6A]' : selectedKitchen.triase === 'Kuning' ? 'text-[#8A5A00]' : 'text-[#D64545]'}>{selectedKitchen.triase}</strong></span>
                   </div>
                 </div>
               </div>
@@ -739,9 +748,13 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                         diff = 'VA Ganda';
                         desc = `Ditemukan ${selectedKitchen.activeVaCount} virtual account aktif pada unit dapur dan penanggung jawab yang sama.`;
                       } else if (code === 'R2') {
-                        title = 'R2: Status Operasional Dapur';
+                        title = 'R2: Status Operasional SPPG';
                         diff = `Status: ${selectedKitchen.status}`;
-                        desc = `Top-up diajukan saat dapur belum beroperasi atau izin higienis sanitasi belum lengkap.`;
+                        desc = 'Top-up diajukan untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS.';
+                      } else if (code === 'R3') {
+                        title = 'R3: Penetapan Penerima / Hari Layanan';
+                        diff = 'Anomali Porsi';
+                        desc = 'Porsi harian yang dilaporkan melebihi alokasi penetapan penerima atau dilaporkan pada hari non-layanan.';
                       }
 
                       return (

@@ -8,9 +8,15 @@ import { PageId } from '../types';
 
 interface KamusRedFlagPageProps {
   onNavigate: (page: PageId) => void;
+  enableR3Tahap1?: boolean;
+  onToggleR3?: (enabled: boolean) => void;
 }
 
-export const KamusRedFlagPage: React.FC<KamusRedFlagPageProps> = ({ onNavigate }) => {
+export const KamusRedFlagPage: React.FC<KamusRedFlagPageProps> = ({
+  onNavigate,
+  enableR3Tahap1 = false,
+  onToggleR3,
+}) => {
   const [activeStage, setActiveStage] = useState<1 | 2 | 3>(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -25,16 +31,24 @@ Dicetak: ${new Date().toLocaleDateString('id-ID')}
 
 INDIKATOR TAHAP 1 (INTI - DIJALANKAN OTOMATIS):
 - R1: Satu dapur, alamat, atau penanggung jawab memiliki lebih dari 1 VA aktif.
-- R2: Top-up diajukan untuk SPPG belum beroperasi, disuspensi, atau izin dasar belum lengkap.
-- R4a: Biaya bahan per porsi melebihi pagu kelompok sasaran (Rp8.000 atau Rp10.000).
+- R2: Top-up diajukan untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS.
+- R4a: Biaya bahan per porsi melebihi pagu bahan per porsi (default Rp10.000, perlu dicek ke juknis).
 - R5: Dana dilaporkan terpakai tidak sejalan dengan arus keluar dan saldo VA.
+${enableR3Tahap1 ? '- R3: Laporan porsi harian melebihi porsi penetapan dapur atau dilaporkan pada hari non-layanan (Aktif di Tahap 1).\n' : ''}
+INDIKATOR TAHAP 2 (TERENCANA):
+${!enableR3Tahap1 ? '- R3: Laporan porsi harian melebihi porsi penetapan dapur atau dilaporkan pada hari non-layanan.\n' : ''}- R4b: Deviasi volume bahan baku vs kehadiran siswa Dapodik > 10%.
+- R8: Konsentrasi rekanan suplier tunggal lintas wilayah tanpa perizinan distributor.
 
-ATURAN TRIASE:
-- Merah: R1 atau R2 aktif, atau R4a dan R5 aktif bersamaan.
-- Kuning: R4a atau R5 aktif sendiri.
-- Hijau: Tidak ada red flag aktif.
+INDIKATOR TAHAP 3 (EKSPLORATIF):
+- R6: Anomali konsumsi energi (listrik/LPG) tidak proporsional dengan jumlah porsi masakan.
+- R7: Analisis teks nota pasar manual terindikasi stempel rekayasa.
 
-Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
+ATURAN TRIASE KEPUTUSAN:
+- Merah: R1 atau R2 aktif, atau dua atau lebih bendera aktif lainnya aktif bersamaan. Top-up hanya bahan baku minimum darurat (bila dapur terbukti ada dan beroperasi); operasional dan insentif ditahan (usulan); verifikasi usulan 5 hari kerja.
+- Kuning: Tepat satu bendera aktif lainnya aktif sendiri. Bahan baku cair, operasional dan insentif ditahan sementara menunggu klarifikasi tertulis (usulan 3 hari kerja).
+- Hijau: Tidak ada red flag aktif. Seluruh komponen (bahan baku, operasional, insentif) dicairkan 100%.
+
+Catatan: Bendera yang berbagi sumber yang sama (laporan harian SPPG) yang aktif bersamaan hanya menaikkan prioritas verifikasi; tidak membuktikan kesengajaan. Tanpa pembobotan numerik.
 `;
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -93,6 +107,46 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
         </div>
       </div>
 
+      {/* R3 Toggle Banner */}
+      <div className="p-4 rounded-xl bg-[#F7F9FE] border border-[#011F7B]/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-lg bg-[#011F7B]/10 flex items-center justify-center text-[#011F7B] shrink-0">
+            <span className="material-symbols-outlined text-[20px]">sync_alt</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-bold text-[#000F4A]">
+                Pindahkan R3 ke Tahap 1 (bila data penetapan penerima sudah digital)
+              </h3>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                enableR3Tahap1 ? 'bg-[#1E9E6A]/20 text-[#1E9E6A] border border-[#1E9E6A]/40' : 'bg-gray-200 text-gray-700'
+              }`}>
+                {enableR3Tahap1 ? 'AKTIF DI TAHAP 1' : 'DEFAULT OFF (DI TAHAP 2)'}
+              </span>
+            </div>
+            <p className="text-[11px] text-[#454652] mt-0.5 leading-relaxed">
+              R3: Laporan porsi harian melebihi porsi penetapan dapur atau dilaporkan pada hari non-layanan. Jika diaktifkan, R3 ikut dihitung sebagai bendera aktif Tahap 1.
+            </p>
+          </div>
+        </div>
+
+        <label className="relative inline-flex items-center cursor-pointer shrink-0">
+          <input
+            type="checkbox"
+            checked={enableR3Tahap1}
+            onChange={(e) => {
+              if (onToggleR3) onToggleR3(e.target.checked);
+              showToast(e.target.checked ? 'R3 dipindahkan ke Tahap 1' : 'R3 dikembalikan ke Tahap 2');
+            }}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#011F7B]"></div>
+          <span className="ml-2 text-xs font-bold text-[#000F4A]">
+            {enableR3Tahap1 ? 'Aktif' : 'Non-aktif'}
+          </span>
+        </label>
+      </div>
+
       {/* Section 1: Tab Navigation & Tabel Indikator Red Flag */}
       <div className="bg-white rounded-xl border border-[#E0E2E7] shadow-sm overflow-hidden">
         {/* Tabs Bar */}
@@ -110,7 +164,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
               >
                 <span>Tahap 1 (Inti)</span>
                 <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-[#fcb803] text-[#000F4A] font-bold leading-none">
-                  4 Indikator Aktif
+                  {enableR3Tahap1 ? '5 Indikator Aktif' : '4 Indikator Aktif'}
                 </span>
               </button>
 
@@ -124,7 +178,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
               >
                 <span>Tahap 2</span>
                 <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-[#ECEEF3] text-[#454652] font-semibold leading-none">
-                  3 Terencana
+                  {enableR3Tahap1 ? '2 Terencana (R3 di T1)' : '3 Terencana'}
                 </span>
               </button>
 
@@ -138,7 +192,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
               >
                 <span>Tahap 3 (Hipotesis)</span>
                 <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-[#ECEEF3] text-[#454652] font-semibold leading-none">
-                  Eksploratif
+                  2 Eksploratif
                 </span>
               </button>
             </div>
@@ -213,20 +267,20 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
                     </td>
                     <td className="py-4 px-4 align-top">
                       <p className="text-sm font-semibold text-[#000F4A] leading-snug">
-                        Top-up diajukan untuk SPPG belum beroperasi, disuspensi, atau izin dasar belum lengkap
+                        Top-up diajukan untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS
                       </p>
                       <p className="text-xs text-[#454652] mt-1 leading-relaxed">
-                        Pencegahan pencairan fiktif pada unit layanan non-aktif atau belum laik higienis dan belum terverifikasi secara fisik.
+                        Pencegahan pencairan fiktif pada unit layanan yang belum beroperasi, disuspend, atau belum memiliki Sertifikat Laik Higiene Sanitasi (SLHS).
                       </p>
                     </td>
                     <td className="py-4 px-4 align-top text-[#454652]">
                       <div className="inline-flex items-center gap-1.5 font-medium">
                         <span className="material-symbols-outlined text-[16px] text-[#757683]">shield</span>
-                        <span>Status SPPG di SIPGN</span>
+                        <span>Status SPPG di SIPGN &amp; basis data SLHS</span>
                       </div>
                     </td>
                     <td className="py-4 px-4 align-top">
-                      <span className="font-medium text-[#000F4A]">Temuan BGN Juli 2026</span>
+                      <span className="font-medium text-[#000F4A]">Temuan BGN Juli 2026 &amp; Standar SLHS</span>
                     </td>
                     <td className="py-4 px-4 align-top">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#ECEEF3] border border-[#C5C5D4] text-[#181C20] text-[10px] font-bold">
@@ -245,20 +299,20 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
                     </td>
                     <td className="py-4 px-4 align-top">
                       <p className="text-sm font-semibold text-[#000F4A] leading-snug">
-                        Biaya bahan per porsi melebihi pagu kelompok sasaran (Rp8.000 atau Rp10.000)
+                        Biaya bahan per porsi melebihi pagu bahan per porsi
                       </p>
                       <p className="text-xs text-[#454652] mt-1 leading-relaxed">
-                        Deteksi deviasi belanja bahan makanan melampaui batas standar harga regional yang ditetapkan juknis BGN.
+                        Deteksi deviasi belanja bahan makanan melampaui pagu bahan per porsi (default Rp10.000, perlu dicek ke juknis) ditambah toleransi.
                       </p>
                     </td>
                     <td className="py-4 px-4 align-top text-[#454652]">
                       <div className="inline-flex items-center gap-1.5 font-medium">
                         <span className="material-symbols-outlined text-[16px] text-[#757683]">receipt_long</span>
-                        <span>Laporan harian SIPGN, pagu dalam juknis</span>
+                        <span>Laporan harian SIPGN, pagu bahan dalam juknis</span>
                       </div>
                     </td>
                     <td className="py-4 px-4 align-top">
-                      <span className="font-medium text-[#000F4A]">Pagu tercatat dalam kajian KPK 2026</span>
+                      <span className="font-medium text-[#000F4A]">Pagu tercatat dalam kajian KPK 2026 / Juknis BGN</span>
                     </td>
                     <td className="py-4 px-4 align-top">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#ECEEF3] border border-[#C5C5D4] text-[#181C20] text-[10px] font-bold">
@@ -299,11 +353,51 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
                       </span>
                     </td>
                   </tr>
+
+                  {/* Optional Row 5: R3 when enabled in Tahap 1 */}
+                  {enableR3Tahap1 && (
+                    <tr className="hover:bg-[#F1F4F9]/60 transition-colors bg-[#EBF3FF]/40">
+                      <td className="py-4 px-4 align-top">
+                        <span className="inline-flex items-center justify-center font-bold text-white bg-[#011F7B] px-2 py-0.5 rounded">
+                          R3
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 align-top">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className="text-sm font-semibold text-[#000F4A] leading-snug">
+                            Laporan porsi harian melebihi porsi penetapan dapur atau dilaporkan pada hari non-layanan
+                          </p>
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-[#1E9E6A]/20 text-[#1E9E6A] border border-[#1E9E6A]/40 shrink-0">
+                            DIPINDAHKAN KE TAHAP 1
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#454652] mt-1 leading-relaxed">
+                          Deteksi pelaporan porsi makan bergizi yang melebihi kuota siswa terdaftar hasil penetapan, atau pelaporan klaim pada hari libur sekolah.
+                        </p>
+                      </td>
+                      <td className="py-4 px-4 align-top text-[#454652]">
+                        <div className="inline-flex items-center gap-1.5 font-medium">
+                          <span className="material-symbols-outlined text-[16px] text-[#757683]">school</span>
+                          <span>Data penetapan penerima, laporan porsi, kalender layanan</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 align-top">
+                        <span className="font-medium text-[#000F4A]">Kajian Verifikasi Penerima BGN</span>
+                      </td>
+                      <td className="py-4 px-4 align-top">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1E9E6A]/10 border border-[#1E9E6A]/30 text-[#1E9E6A] text-[10px] font-bold">
+                          <span className="material-symbols-outlined text-[13px]">check</span>
+                          <span>Aktif di Tahap 1</span>
+                        </span>
+                      </td>
+                    </tr>
+                  )}
                 </>
               )}
 
               {activeStage === 2 && (
                 <>
+                  {/* R3 in Tahap 2 (shows status if moved or default) */}
                   <tr className="hover:bg-[#F1F4F9]/60 transition-colors">
                     <td className="py-4 px-4 align-top">
                       <span className="inline-flex items-center justify-center font-bold text-[#757683] bg-[#ECEEF3] px-2 py-0.5 rounded">
@@ -311,22 +405,29 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
                       </span>
                     </td>
                     <td className="py-4 px-4 align-top">
-                      <p className="text-sm font-semibold text-[#000F4A] leading-snug">
-                        Pola penarikan kas tunai mendadak menjelang batas pelaporan mingguan
-                      </p>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="text-sm font-semibold text-[#000F4A] leading-snug">
+                          Laporan porsi harian melebihi porsi penetapan dapur atau dilaporkan pada hari non-layanan
+                        </p>
+                        {enableR3Tahap1 && (
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-[#1E9E6A]/20 text-[#1E9E6A] border border-[#1E9E6A]/40 shrink-0">
+                            SEDANG AKTIF DI TAHAP 1
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-[#454652] mt-1 leading-relaxed">
-                        Deteksi anomali likuiditas penarikan cash ATM di atas batas kewajaran tanpa tanda terima kliring pedagang resmi.
+                        Deteksi pelaporan porsi makan bergizi yang melebihi kuota siswa terdaftar hasil penetapan, atau pelaporan klaim pada hari libur sekolah.
                       </p>
                     </td>
                     <td className="py-4 px-4 align-top text-[#454652]">
-                      <span>Mutasi detail VA Himbara</span>
+                      <span>Data penetapan penerima MBG, laporan porsi, kalender sekolah</span>
                     </td>
                     <td className="py-4 px-4 align-top text-[#000F4A]">
-                      Rujukan Audit Forensik BPKP
+                      Kajian Verifikasi Penerima BGN &amp; Juknis
                     </td>
                     <td className="py-4 px-4 align-top">
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FFF4CC] text-[#8A5A00] text-[10px] font-bold">
-                        <span>Tahap 2 (Terencana)</span>
+                        <span>{enableR3Tahap1 ? 'Dipindahkan ke Tahap 1' : 'Tahap 2 (Terencana)'}</span>
                       </span>
                     </td>
                   </tr>
@@ -487,7 +588,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
               </span>
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-bold text-[#B02A2A] tracking-wider">Kondisi Logika Trigger</span>
-                <span className="text-xs font-semibold text-[#181C20]">R1 atau R2 aktif, ATAU R4a dan R5 aktif bersamaan</span>
+                <span className="text-xs font-semibold text-[#181C20]">R1 atau R2 aktif, ATAU dua atau lebih bendera aktif lainnya aktif bersamaan</span>
               </div>
             </div>
 
@@ -496,7 +597,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
                 Konsekuensi Operasional Gerbang
               </span>
               <p className="text-xs text-[#181C20] leading-snug">
-                Top-up hanya bahan baku minimum darurat (bila dapur terbukti aktif); penahanan penuh porsi operasional; penugasan verifikasi lapangan (SLA 5 hari kerja).
+                Hanya bahan baku minimum darurat yang dicairkan (bila dapur terbukti ada dan beroperasi); operasional dan insentif ditahan (usulan); penugasan verifikasi lapangan (usulan 5 hari kerja). Bila unit belum beroperasi atau disuspend, top-up ditahan penuh.
               </p>
             </div>
           </div>
@@ -510,7 +611,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
               </span>
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-bold text-[#8A5A00] tracking-wider">Kondisi Logika Trigger</span>
-                <span className="text-xs font-semibold text-[#181C20]">R4a ATAU R5 aktif sendiri</span>
+                <span className="text-xs font-semibold text-[#181C20]">Tepat satu bendera aktif lainnya aktif sendiri (misal hanya R4a, hanya R5, atau hanya R3)</span>
               </div>
             </div>
 
@@ -519,7 +620,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
                 Konsekuensi Operasional Gerbang
               </span>
               <p className="text-xs text-[#181C20] leading-snug">
-                Bahan baku dicairkan penuh; porsi operasional ditahan sementara menunggu klarifikasi dokumen &amp; nota (SLA 3 hari kerja).
+                Bahan baku dicairkan penuh; operasional dan insentif ditahan sementara menunggu klarifikasi tertulis (usulan 3 hari kerja).
               </p>
             </div>
           </div>
@@ -533,7 +634,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
               </span>
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-bold text-[#1E9E6A] tracking-wider">Kondisi Logika Trigger</span>
-                <span className="text-xs font-semibold text-[#181C20]">Tidak ada red flag aktif (bersih dari R1, R2, R4a, R5)</span>
+                <span className="text-xs font-semibold text-[#181C20]">Tidak ada red flag aktif (bersih dari seluruh indikator aktif)</span>
               </div>
             </div>
 
@@ -542,7 +643,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
                 Konsekuensi Operasional Gerbang
               </span>
               <p className="text-xs text-[#181C20] leading-snug">
-                Top-up penuh 100% langsung diterbitkan SPP dan dicairkan ke rekening operasional SPPG secara otomatis tanpa hambatan likuiditas.
+                Top-up penuh 100% (bahan baku, operasional, dan insentif) langsung dicairkan ke rekening operasional SPPG secara otomatis tanpa hambatan likuiditas.
               </p>
             </div>
           </div>
@@ -552,7 +653,7 @@ Prinsip Tata Kelola: Gerbang menahan uang, bukan menghukum orang.
         <div className="p-3.5 rounded-lg bg-[#F1F4F9] border border-[#E0E2E7] flex items-start gap-3">
           <span className="material-symbols-outlined text-[20px] text-[#011F7B] shrink-0 mt-0.5">info</span>
           <div className="text-xs text-[#454652] leading-relaxed">
-            <strong className="font-semibold text-[#000F4A]">Catatan Logika Integritas:</strong> Tidak ada pembobotan numerik arbiter. Indikator R4a dan R5 sama-sama bersumber dari laporan harian SPPG, sehingga aktivasi bersamaan hanya menaikkan prioritas verifikasi fisik dan audit kepatuhan, bukan merupakan pembuktian hukum langsung atas kesengajaan fraud.
+            <strong className="font-semibold text-[#000F4A]">Catatan Logika Integritas:</strong> Tidak ada pembobotan numerik. Bendera yang berbagi sumber yang sama (laporan harian SPPG) yang aktif bersamaan hanya menaikkan prioritas verifikasi; tidak membuktikan kesengajaan.
           </div>
         </div>
       </div>

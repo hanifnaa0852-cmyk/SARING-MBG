@@ -29,7 +29,7 @@ export const INITIAL_DECISION_LOGS: DecisionLogEntry[] = [
     tingkat: 'Tingkat 2',
     keputusan: 'Koreksi Administratif Top-up',
     verifikator: 'Verifikator Jawa Barat',
-    alasan: 'Selisih dari salah input pagu R4a, faktur beras asli sesuai pagu Rp 8.000, dikoreksi administratif',
+    alasan: 'Selisih dari salah input pagu R4a, faktur beras asli sesuai pagu Rp 10.000, dikoreksi administratif',
     hasilDiubah: true
   },
   {

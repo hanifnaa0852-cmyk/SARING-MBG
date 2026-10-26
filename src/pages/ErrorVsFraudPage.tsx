@@ -35,7 +35,7 @@ const SCENARIOS: ScenarioPreset[] = [
     id: 'salah-input',
     title: 'Salah input laporan',
     icon: 'edit_document',
-    desc: 'Operator salah ketik pagu bahan baku Rp11.000 (seharusnya Rp8.000). Nota fisik pasar basah diverifikasi sah.',
+    desc: 'Operator salah ketik biaya bahan baku Rp11.500 (melebihi pagu acuan Rp10.000). Nota fisik pasar basah diverifikasi sah.',
     sppgDefault: 'SPPG Ciamis 156 (SPPG Ciamis Kota 156)',
     alasanDefault: 'Kekeliruan ketik kolom biaya bahan; faktur fisik pedagang pasar sah dan pagu dikoreksi administratif.',
     toggles: {
@@ -121,7 +121,7 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
       'Peringatan otomatis sebelum penerbitan SPP',
     ],
     contohDiSaring:
-      'R4a aktif karena biaya bahan per porsi dilaporkan Rp9.200 (melebihi pagu Rp8.000), atau R5 selisih pelaporan vs arus keluar VA.',
+      'R4a aktif karena biaya bahan per porsi dilaporkan Rp10.800 (melebihi pagu Rp10.000), atau R5 selisih pelaporan vs arus keluar VA.',
     tindakan:
       'Penetapan label Kuning atau Merah; penahanan porsi cadangan operasional (20%) atau penahanan total; belum ada tuduhan kepada pihak manapun.',
     batasDijaga:
@@ -171,25 +171,25 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
   },
   {
     levelNumber: 4,
-    title: 'Kesimpulan Hukum & Kerugian Negara',
-    tagline: 'Pernyataan kerugian negara dan penetapan tindak pidana.',
+    title: 'Kesimpulan',
+    tagline: 'Pernyataan kerugian negara dan penetapan tindak pidana. Disimpulkan oleh: BPK (kerugian negara); APH dan pengadilan (unsur pidana). DI LUAR GERBANG.',
     isLocked: true,
     lockedLabel: 'DI LUAR GERBANG',
-    disimpulkanOleh: 'BPK (Kerugian Negara) & APH / Pengadilan (Unsur Pidana)',
+    disimpulkanOleh: 'BPK (kerugian negara); APH dan pengadilan (unsur pidana)',
     disimpulkanIcon: 'account_balance',
     buktiMinimal: [
-      'Laporan Hasil Pemeriksaan Investigatif BPK / BPKP',
+      'Laporan Hasil Pemeriksaan Investigatif BPK (penetapan kerugian negara)',
       'Berita Acara Penyidikan Aparat Penegak Hukum (Polri/Kejaksaan/KPK)',
       'Putusan Pengadilan Tindak Pidana Korupsi berkekuatan hukum tetap',
     ],
     contohDiSaring:
-      'Penetapan vonis bersalah tindak pidana korupsi oleh majelis hakim di Pengadilan Tipikor beserta penetapan uang pengganti kerugian keuangan negara.',
+      'Kesimpulan: pernyataan kerugian negara dan penetapan tindak pidana. Disimpulkan oleh: BPK (kerugian negara); APH dan pengadilan (unsur pidana). DI LUAR GERBANG.',
     tindakan:
-      'Audit investigatif sebagai dasar hitung (BPKP atau Inspektorat), penyidikan APH, eksekusi putusan pengadilan.',
+      'Penetapan kerugian keuangan negara oleh BPK; penyidikan dan penuntutan unsur pidana oleh APH; vonis serta eksekusi putusan pengadilan.',
     batasDijaga:
-      'Gerbang SARING-MBG berhenti di sini. Penetapan kerugian negara dan vonis pidana sepenuhnya berada di luar wewenang gerbang pencegahan.',
+      'Gerbang SARING-MBG berhenti sebelum tingkat ini. Kesimpulan kerugian negara dan penetapan pidana sepenuhnya berada di luar gerbang sistem administratif MBG.',
     mengapaBegini:
-      'Negara hukum membatasi kewenangan administratif. Gerbang MBG adalah instrumen preventif pencairan kas, bukan lembaga yudisial.',
+      'Negara hukum membatasi kewenangan administratif. Gerbang MBG adalah instrumen verifikasi pencairan top-up, bukan lembaga penilai kerugian negara atau peradilan yudisial.',
   },
 ];
 
@@ -757,14 +757,14 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 rounded bg-[#D64545]/30 text-[#FF8585] border border-[#D64545]/60 text-[9px] font-mono font-bold tracking-wider">
-                      LOCKED • DI LUAR GERBANG
+                      DI LUAR GERBANG
                     </span>
                   </div>
                   <h3 className="text-sm font-bold text-white group-hover:text-[#FFBA09] transition-colors mt-0.5">
-                    Tingkat 4: Kesimpulan Hukum
+                    Tingkat 4: Kesimpulan
                   </h3>
-                  <p className="text-[11px] text-[#B8C4E6] truncate mt-0.5">
-                    Pernyataan kerugian negara &amp; putusan pengadilan
+                  <p className="text-[11px] text-[#B8C4E6] leading-snug mt-1">
+                    Kesimpulan: pernyataan kerugian negara dan penetapan tindak pidana. Disimpulkan oleh: BPK (kerugian negara); APH dan pengadilan (unsur pidana). DI LUAR GERBANG.
                   </p>
                 </div>
 

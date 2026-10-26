@@ -861,10 +861,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </span>
                 </div>
                 <h3 className="text-base font-bold text-[#011F7B] mb-2">
-                  Status Dapur Tidak Sah
+                  Status Operasional SPPG
                 </h3>
                 <p className="text-xs text-[#5B6785] leading-relaxed mb-4">
-                  Permintaan top-up diajukan oleh dapur yang berstatus belum beroperasi, disuspend, atau izin dasarnya tidak lengkap.
+                  Top-up diajukan untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS.
                 </p>
 
                 {/* Micro Simulator R2 */}
@@ -896,16 +896,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     R4a
                   </span>
                   <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded transition-colors ${
-                    testBahanCost > 8000 ? 'bg-[#FFBA09] text-[#000F4A]' : 'bg-[#1E9E6A]/20 text-[#1E9E6A]'
+                    testBahanCost > 10000 ? 'bg-[#FFBA09] text-[#000F4A]' : 'bg-[#1E9E6A]/20 text-[#1E9E6A]'
                   }`}>
-                    {testBahanCost > 8000 ? 'Kuning (Aktif!)' : 'Wajar (Aman)'}
+                    {testBahanCost > 10000 ? 'Kuning (Aktif!)' : 'Wajar (Aman)'}
                   </span>
                 </div>
                 <h3 className="text-base font-bold text-[#011F7B] mb-2">
                   Biaya Bahan Melebihi Pagu
                 </h3>
                 <p className="text-xs text-[#5B6785] leading-relaxed mb-4">
-                  Biaya bahan per porsi yang dilaporkan melampaui pagu resmi kelompok sasaran (Rp8.000 SD / Rp10.000 SMP).
+                  Biaya bahan per porsi yang dilaporkan melampaui pagu bahan per porsi (default Rp10.000, perlu dicek ke juknis).
                 </p>
 
                 {/* Micro Simulator R4a */}
@@ -916,17 +916,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
                   <input
                     type="range"
-                    min="7000"
-                    max="9500"
+                    min="8000"
+                    max="12500"
                     step="100"
                     value={testBahanCost}
                     onChange={(e) => setTestBahanCost(Number(e.target.value))}
                     className="w-full h-1.5 bg-[#E0E2E7] rounded-lg appearance-none cursor-pointer accent-[#FFBA09]"
                   />
                   <div className="flex justify-between text-[9px] font-mono text-[#5B6785]">
-                    <span>Rp 7.000</span>
-                    <span className="text-[#011F7B] font-bold">Pagu Rp 8.000</span>
-                    <span>Rp 9.500</span>
+                    <span>Rp 8.000</span>
+                    <span className="text-[#011F7B] font-bold">Pagu Rp 10.000 (perlu dicek juknis)</span>
+                    <span>Rp 12.500</span>
                   </div>
                 </div>
               </div>

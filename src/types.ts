@@ -19,7 +19,7 @@ export type GroundTruth = 'problematic' | 'honest_error' | 'normal';
 
 export type TriaseLabel = 'Hijau' | 'Kuning' | 'Merah';
 
-export type RedFlagCode = 'R1' | 'R2' | 'R4a' | 'R5';
+export type RedFlagCode = 'R1' | 'R2' | 'R3' | 'R4a' | 'R4b' | 'R5' | 'R6' | 'R7' | 'R8';
 
 export interface DailyFinancial {
   dayName: string; // 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
@@ -38,17 +38,23 @@ export interface Kitchen {
   capacity: number; // portions/day, e.g. 2450
   capacityLabel: string; // "2.450 porsi/hari (3 SD)"
   targetGroup: TargetGroup;
-  paguPerPorsi: number; // Rp 8.000 for SD, Rp 10.000 for SMP
+  paguPerPorsi: number; // default Rp 10.000 (perlu dicek ke juknis)
   activeVaCount: number; // 1 for normal, >1 for duplicate
   status: KitchenStatus;
-  reportedCostPerPortion: number; // Rp 7.500 - 9.800
+  reportedCostPerPortion: number; // Rp 7.500 - 11.500
   dailyFinancials: DailyFinancial[];
   reportedSpendTotal: number; // sum of 6 days
   vaOutflowTotal: number; // sum of 6 days
   vaBalance: number; // e.g. Rp 120.000.000 (cap Rp 500 juta context)
-  topUpRequested: number; // e.g. Rp 48.200.000
-  foodBudget: number; // 80% (tetap cair)
-  heldBudget: number; // 20% (ditahan jika Kuning/Merah)
+  
+  // Weekly Top-Up Components
+  weeklyPortions: number; // reported portions in 6 days
+  topUpRequested: number; // total = bahanBaku + operasional + insentif
+  bahanBakuBudget: number; // Component 1: Bahan baku pokok
+  operasionalBudget: number; // Component 2: Operasional & jasa pengolah
+  insentifBudget: number; // Component 3: Insentif Rp 2.000/porsi (efektif 5 Okt 2026, usulan)
+  foodBudget: number; // alias to bahanBakuBudget
+  heldBudget: number; // dana tertahan sementara (operasional + insentif bila Kuning/Merah)
   
   // Simulation metadata
   groundTruth: GroundTruth;
@@ -56,7 +62,7 @@ export interface Kitchen {
   // Computed live
   activeFlags: RedFlagCode[];
   triase: TriaseLabel;
-  verificationDeadline: string; // e.g. "4 hari kerja tersisa"
+  verificationDeadline: string; // e.g. "3 hari kerja" (Kuning), "5 hari kerja" (Merah)
   recommendationAction: string; // e.g. "Verifikasi lapangan"
   verificationStatus: 'Mesin Aturan' | 'Menunggu Verifikator' | 'Verifikasi Lapangan' | 'Selesai';
 }
@@ -64,9 +70,11 @@ export interface Kitchen {
 export interface SimulationParameters {
   tolR5: number; // 5 - 30%, default 10
   tolR4a: number; // 0 - 15%, default 0
-  propProblematic: number; // 2 - 10%, default 4
-  propHonestError: number; // 3 - 15%, default 8
-  fieldCapacity: number; // 50 - 500, default 150
+  paguBahan: number; // default 10000, label "perlu dicek ke juknis"
+  enableR3Tahap1: boolean; // default false: "Pindahkan R3 ke Tahap 1 (bila data penetapan penerima sudah digital)"
+  propProblematic: number; // 2 - 85%, default 75.2
+  propHonestError: number; // 3 - 30%, default 16
+  fieldCapacity: number; // 50 - 500, default 400
 }
 
 export interface DecisionLogEntry {

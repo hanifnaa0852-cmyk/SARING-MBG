@@ -24,6 +24,8 @@ export default function App() {
   const [params, setParams] = useState<SimulationParameters>({
     tolR5: 10,
     tolR4a: 0,
+    paguBahan: 10000,
+    enableR3Tahap1: false,
     propProblematic: 75.2,
     propHonestError: 16,
     fieldCapacity: 400,
@@ -136,7 +138,11 @@ export default function App() {
           )}
 
           {activePage === 'kamus-red-flag' && (
-            <KamusRedFlagPage onNavigate={(p) => setActivePage(p)} />
+            <KamusRedFlagPage
+              onNavigate={(p) => setActivePage(p)}
+              enableR3Tahap1={params.enableR3Tahap1}
+              onToggleR3={(enabled) => setParams(prev => ({ ...prev, enableR3Tahap1: enabled }))}
+            />
           )}
 
           {activePage === 'error-vs-fraud' && (

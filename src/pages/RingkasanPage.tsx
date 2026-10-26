@@ -867,16 +867,16 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({ kitchens, onNaviga
               sla: '< 3 Detik untuk 500 Dapur Nasional',
               statusKesiapan: 'Audit Otomatis Selesai Tanpa Intervensi Manual',
               inputData: [
-                'Pagu harga bahan baku per wilayah (Rp8.000 / Rp10.000 per porsi)',
+                'Pagu bahan per porsi (default Rp10.000, perlu dicek ke juknis)',
                 'Rekening koran mutasi Virtual Account perbankan mitra BGN',
-                'Status legalitas dapur, izin sanitasi, & akreditasi kelayakan',
+                'Status legalitas SPPG, status operasional, & izin SLHS',
                 'Pola arus keluar kas rekening vs klaim pengeluaran di nota'
               ],
               outputAksi: [
                 'Pendeteksian R1: Kepemilikan Virtual Account ganda / tumpang-tindih',
-                'Pendeteksian R2: Status dapur non-aktif atau izin belum rampung',
-                'Pendeteksian R4a: Biaya bahan melampaui pagu resmi wilayah',
-                'Pendeteksian R4b: Selisih signifikan laporan belanja vs mutasi rekening'
+                'Pendeteksian R2: Top-up diajukan untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS',
+                'Pendeteksian R4a: Biaya bahan melampaui pagu bahan per porsi (+ toleransi)',
+                'Pendeteksian R5: Selisih signifikan laporan belanja vs mutasi rekening'
               ],
               targetPage: 'kamus' as PageId,
               targetLabel: 'Buka Kamus Red Flag'
