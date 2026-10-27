@@ -11,6 +11,15 @@ export interface SaringLogoSvgProps {
   animated?: boolean;
   className?: string;
   idSuffix?: string;
+  /**
+   * Controlled assembly progress: 0 (completely shattered into shards) to 100 (fully unified logo).
+   * If omitted, uses standard state or CSS animation.
+   */
+  assemblyProgress?: number;
+  /**
+   * If true, triggers the automated assembly animation where shards fly together into the logo.
+   */
+  isAssembling?: boolean;
 }
 
 export const SaringLogoSvg: React.FC<SaringLogoSvgProps> = ({
@@ -19,11 +28,52 @@ export const SaringLogoSvg: React.FC<SaringLogoSvgProps> = ({
   animated = true,
   className = '',
   idSuffix = 'main',
+  assemblyProgress,
+  isAssembling = false,
 }) => {
   const isDark = theme === 'dark';
   const filterId = `saring-glow-${idSuffix}`;
   const pulseFilterId = `saring-pulse-${idSuffix}`;
-  const animClass = animated ? `saring-anim-${idSuffix}` : 'saring-static';
+  const goldGradId = `saring-gold-${idSuffix}`;
+  const shieldGradId = `saring-shield-${idSuffix}`;
+  const emeraldGradId = `saring-emerald-${idSuffix}`;
+  const ringGradId = `saring-ring-${idSuffix}`;
+
+  // If assemblyProgress is provided, compute manual transform factors
+  const hasManualProgress = typeof assemblyProgress === 'number';
+  const rawP = hasManualProgress ? Math.min(100, Math.max(0, assemblyProgress!)) / 100 : 1;
+  // Apply cubic ease-out curve for natural physical magnetic snapping
+  const p = Math.pow(rawP, 0.85);
+  const invP = 1 - p;
+
+  const animClass = animated
+    ? isAssembling
+      ? `saring-assemble-${idSuffix}`
+      : `saring-loop-${idSuffix}`
+    : 'saring-static';
+
+  // Manual transform helper when controlled via prop
+  const getManualStyle = (
+    tx: number,
+    ty: number,
+    rot: number,
+    scale: number = 1,
+    originX: number = 120,
+    originY: number = 120
+  ) => {
+    if (!hasManualProgress) return {};
+    const currTx = tx * invP;
+    const currTy = ty * invP;
+    const currRot = rot * invP;
+    const currScale = scale + (1 - scale) * p;
+    const currOpacity = 0.15 + 0.85 * p;
+    return {
+      transform: `translate(${currTx}px, ${currTy}px) rotate(${currRot}deg) scale(${currScale})`,
+      transformOrigin: `${originX}px ${originY}px`,
+      opacity: currOpacity,
+      transition: 'transform 80ms cubic-bezier(0.16, 1, 0.3, 1), opacity 80ms ease-out',
+    };
+  };
 
   return (
     <svg
@@ -31,449 +81,568 @@ export const SaringLogoSvg: React.FC<SaringLogoSvgProps> = ({
       viewBox="0 0 240 240"
       width={size}
       height={size}
-      className={`select-none ${className}`}
+      className={`select-none overflow-visible ${className} ${animClass}`}
       role="img"
-      aria-label="Logo SARING-MBG"
+      aria-label="Logo SARING-MBG: Audit Dana Makan Bergizi Gratis"
     >
       <defs>
-        {/* Subtle glow filter */}
+        {/* Glow Filters */}
         <filter id={filterId} x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="3.5" result="blur" />
+          <feGaussianBlur stdDeviation="3" result="blur" />
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
         </filter>
 
-        <filter id={pulseFilterId} x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="6" result="blur" />
+        <filter id={pulseFilterId} x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="8" result="blur" />
         </filter>
 
-        <linearGradient id={`grad-scan-${idSuffix}`} x1="0%" y1="0%" x2="100%" y2="0%">
+        {/* Premium Gold Gradient (Simbol Integritas Dana APBN) */}
+        <linearGradient id={goldGradId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFECA8" />
+          <stop offset="40%" stopColor="#FFBA09" />
+          <stop offset="70%" stopColor="#E5A100" />
+          <stop offset="100%" stopColor="#FFBA09" />
+        </linearGradient>
+
+        {/* Deep Authority Navy Gradient (Perisai Pengawasan Fiskal) */}
+        <linearGradient id={shieldGradId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={isDark ? '#02248A' : '#011F7B'} />
+          <stop offset="50%" stopColor={isDark ? '#01175E' : '#001550'} />
+          <stop offset="100%" stopColor={isDark ? '#000D36' : '#000F4A'} />
+        </linearGradient>
+
+        {/* Emerald Sprout Gradient (Simbol Nutrisi & Makanan Segar Lokal) */}
+        <linearGradient id={emeraldGradId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4AE3A0" />
+          <stop offset="60%" stopColor="#1E9E6A" />
+          <stop offset="100%" stopColor="#0E6B44" />
+        </linearGradient>
+
+        {/* Treasury Ring Gradient */}
+        <linearGradient id={ringGradId} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#FFBA09" stopOpacity="0.2" />
+          <stop offset="50%" stopColor="#FFE799" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#FFBA09" stopOpacity="0.2" />
+        </linearGradient>
+
+        {/* Laser Scanner Beam */}
+        <linearGradient id={`grad-laser-${idSuffix}`} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#FFBA09" stopOpacity="0" />
-          <stop offset="20%" stopColor="#FFBA09" stopOpacity="0.8" />
-          <stop offset="50%" stopColor="#FFE599" stopOpacity="1" />
-          <stop offset="80%" stopColor="#FFBA09" stopOpacity="0.8" />
+          <stop offset="20%" stopColor="#FFBA09" stopOpacity="0.9" />
+          <stop offset="50%" stopColor="#FFFFFF" stopOpacity="1" />
+          <stop offset="80%" stopColor="#FFBA09" stopOpacity="0.9" />
           <stop offset="100%" stopColor="#FFBA09" stopOpacity="0" />
         </linearGradient>
 
-        <linearGradient id={`grad-shield-${idSuffix}`} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={isDark ? '#02248A' : '#011F7B'} />
-          <stop offset="100%" stopColor={isDark ? '#01175E' : '#001356'} />
-        </linearGradient>
-
-        {/* Scoped CSS animations for 6s seamless loop */}
+        {/* Embedded Keyframes for 60fps Shard Assembly and Ambient Audit Loops */}
         <style>{`
-          .${animClass} .cls-shield-draw {
-            stroke-dasharray: 540;
-            stroke-dashoffset: 0;
-            animation: shieldDraw_${idSuffix} 6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+          /* ===============================================================
+             AUTOMATED SHARD ASSEMBLY ANIMATION (saat Login atau Pemicu)
+             Pecahan-pecahan berkumpul menjadi satu logo utuh
+          =============================================================== */
+          .saring-assemble-${idSuffix} .shard-top-left {
+            animation: assembleTopLeft_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .${animClass} .cls-shield-glow {
-            animation: shieldGlow_${idSuffix} 6s ease-in-out infinite;
+          .saring-assemble-${idSuffix} .shard-top-right {
+            animation: assembleTopRight_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .${animClass} .cls-shield-pulse-ring {
-            transform-origin: 120px 120px;
-            animation: pulseRing_${idSuffix} 6s ease-out infinite;
+          .saring-assemble-${idSuffix} .shard-flank-left {
+            animation: assembleFlankLeft_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .${animClass} .cls-scanline {
-            animation: scanSweep_${idSuffix} 6s ease-in-out infinite;
+          .saring-assemble-${idSuffix} .shard-flank-right {
+            animation: assembleFlankRight_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .${animClass} .cls-gate-bar {
-            animation: gateFlash_${idSuffix} 6s ease-in-out infinite;
+          .saring-assemble-${idSuffix} .shard-bottom-apex {
+            animation: assembleBottomApex_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .${animClass} .cls-particle-deflected-1 {
-            animation: particleDeflect1_${idSuffix} 6s ease-in-out infinite;
+          .saring-assemble-${idSuffix} .shard-star-crest {
+            animation: assembleStarCrest_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .${animClass} .cls-particle-deflected-2 {
-            animation: particleDeflect2_${idSuffix} 6s ease-in-out infinite;
+          .saring-assemble-${idSuffix} .shard-nutrition-bowl {
+            animation: assembleBowl_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .${animClass} .cls-particle-deflected-3 {
-            animation: particleDeflect3_${idSuffix} 6s ease-in-out infinite;
+          .saring-assemble-${idSuffix} .shard-emerald-sprout {
+            animation: assembleSprout_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .${animClass} .cls-particle-deflected-4 {
-            animation: particleDeflect4_${idSuffix} 6s ease-in-out infinite;
+          .saring-assemble-${idSuffix} .shard-filter-grid {
+            animation: assembleFilterGrid_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          .${animClass} .cls-droplet {
-            animation: dropletPass_${idSuffix} 6s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+          .saring-assemble-${idSuffix} .shard-energy-burst {
+            animation: energyShockwave_${idSuffix} 2.4s ease-out forwards;
           }
-          .${animClass} .cls-droplet-trail {
-            animation: dropletTrail_${idSuffix} 6s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
-          }
-
-          @keyframes shieldDraw_${idSuffix} {
-            0% { stroke-dashoffset: 540; opacity: 0.2; }
-            16.6% { stroke-dashoffset: 0; opacity: 1; }
-            92% { opacity: 1; stroke-dashoffset: 0; }
-            100% { stroke-dashoffset: 0; opacity: 1; }
+          .saring-assemble-${idSuffix} .shard-micro-particle {
+            animation: particleSuckIn_${idSuffix} 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
 
-          @keyframes shieldGlow_${idSuffix} {
-            0%, 15% { opacity: 0.2; }
-            50% { opacity: 0.6; }
-            85% { opacity: 0.3; }
-            92% { opacity: 0.9; }
-            100% { opacity: 0.2; }
+          /* Keyframe sequences for each shard flying together */
+          @keyframes assembleTopLeft_${idSuffix} {
+            0% { transform: translate(-80px, -70px) rotate(-35deg) scale(0.6); opacity: 0.2; }
+            50% { transform: translate(-25px, -20px) rotate(-10deg) scale(0.9); opacity: 0.8; }
+            78% { transform: translate(2px, 1px) rotate(1deg) scale(1.02); opacity: 1; }
+            100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+          }
+          @keyframes assembleTopRight_${idSuffix} {
+            0% { transform: translate(80px, -70px) rotate(35deg) scale(0.6); opacity: 0.2; }
+            50% { transform: translate(25px, -20px) rotate(10deg) scale(0.9); opacity: 0.8; }
+            78% { transform: translate(-2px, 1px) rotate(-1deg) scale(1.02); opacity: 1; }
+            100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+          }
+          @keyframes assembleFlankLeft_${idSuffix} {
+            0% { transform: translate(-95px, 15px) rotate(-40deg) scale(0.5); opacity: 0.15; }
+            50% { transform: translate(-30px, 5px) rotate(-12deg) scale(0.85); opacity: 0.85; }
+            80% { transform: translate(1px, -1px) scale(1.03); opacity: 1; }
+            100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+          }
+          @keyframes assembleFlankRight_${idSuffix} {
+            0% { transform: translate(95px, 15px) rotate(40deg) scale(0.5); opacity: 0.15; }
+            50% { transform: translate(30px, 5px) rotate(12deg) scale(0.85); opacity: 0.85; }
+            80% { transform: translate(-1px, -1px) scale(1.03); opacity: 1; }
+            100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+          }
+          @keyframes assembleBottomApex_${idSuffix} {
+            0% { transform: translate(0, 95px) rotate(15deg) scale(0.5); opacity: 0.2; }
+            55% { transform: translate(0, 25px) rotate(4deg) scale(0.9); opacity: 0.9; }
+            82% { transform: translate(0, -2px) scale(1.04); opacity: 1; }
+            100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+          }
+          @keyframes assembleStarCrest_${idSuffix} {
+            0% { transform: translate(0, -90px) rotate(-180deg) scale(0.3); opacity: 0; }
+            60% { transform: translate(0, -10px) rotate(20deg) scale(1.1); opacity: 1; filter: drop-shadow(0 0 14px #FFBA09); }
+            80% { transform: translate(0, 2px) rotate(0deg) scale(1.15); }
+            100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+          }
+          @keyframes assembleBowl_${idSuffix} {
+            0% { transform: translate(0, 60px) scale(0.4); opacity: 0.1; }
+            50% { transform: translate(0, 15px) scale(0.8); opacity: 0.85; }
+            80% { transform: translate(0, -1px) scale(1.05); }
+            100% { transform: translate(0, 0) scale(1); opacity: 1; }
+          }
+          @keyframes assembleSprout_${idSuffix} {
+            0% { transform: translate(0, -35px) scale(0.2); opacity: 0; }
+            55% { transform: translate(0, -8px) scale(0.7); opacity: 0.7; }
+            82% { transform: translate(0, 0) scale(1.12); opacity: 1; filter: drop-shadow(0 0 8px #4AE3A0); }
+            100% { transform: translate(0, 0) scale(1); opacity: 1; }
+          }
+          @keyframes assembleFilterGrid_${idSuffix} {
+            0% { opacity: 0; transform: scale(0.3); }
+            65% { opacity: 0.4; transform: scale(0.85); }
+            85% { opacity: 0.95; transform: scale(1.02); }
+            100% { opacity: 0.9; transform: scale(1); }
+          }
+          @keyframes energyShockwave_${idSuffix} {
+            0%, 75% { opacity: 0; transform: scale(0.5); }
+            78% { opacity: 0.95; transform: scale(0.95); stroke-width: 4px; }
+            92% { opacity: 0.4; transform: scale(1.25); stroke-width: 1.5px; }
+            100% { opacity: 0; transform: scale(1.4); stroke-width: 0px; }
+          }
+          @keyframes particleSuckIn_${idSuffix} {
+            0% { transform: translate(var(--p-ox, 0), var(--p-oy, 0)); opacity: 0.7; }
+            70% { transform: translate(0, 0); opacity: 1; }
+            85% { opacity: 0; }
+            100% { transform: translate(0, 0); opacity: 0; }
           }
 
-          @keyframes pulseRing_${idSuffix} {
-            0%, 91% { opacity: 0; transform: scale(0.95); }
-            92% { opacity: 0.7; transform: scale(1); stroke-width: 2.5; }
-            99% { opacity: 0; transform: scale(1.18); stroke-width: 0.5; }
-            100% { opacity: 0; transform: scale(1.2); }
+          /* ===============================================================
+             AMBIENT AUDIT SCANNER & PULSE LOOP (Ketika sudah utuh)
+          =============================================================== */
+          .saring-loop-${idSuffix} .cls-shield-aura {
+            animation: shieldAura_${idSuffix} 5s ease-in-out infinite;
+          }
+          .saring-loop-${idSuffix} .cls-star-pulse {
+            transform-origin: 120px 48px;
+            animation: starPulse_${idSuffix} 4s ease-in-out infinite;
+          }
+          .saring-loop-${idSuffix} .cls-audit-scan {
+            animation: auditLaserSweep_${idSuffix} 4.5s ease-in-out infinite;
+          }
+          .saring-loop-${idSuffix} .cls-sprout-breathe {
+            transform-origin: 120px 115px;
+            animation: sproutBreathe_${idSuffix} 3.5s ease-in-out infinite;
+          }
+          .saring-loop-${idSuffix} .cls-ring-rotate {
+            transform-origin: 120px 125px;
+            animation: ringRotate_${idSuffix} 16s linear infinite;
           }
 
-          @keyframes scanSweep_${idSuffix} {
-            0%, 16% { transform: translateY(30px); opacity: 0; }
-            18% { opacity: 0.9; }
-            48% { transform: translateY(165px); opacity: 0.9; }
-            52% { transform: translateY(172px); opacity: 0; }
-            100% { transform: translateY(172px); opacity: 0; }
+          @keyframes shieldAura_${idSuffix} {
+            0%, 100% { opacity: 0.35; filter: drop-shadow(0 0 6px rgba(1,31,123,0.4)); }
+            50% { opacity: 0.85; filter: drop-shadow(0 0 16px rgba(255,186,9,0.5)); }
           }
-
-          @keyframes gateFlash_${idSuffix} {
-            0%, 30% { filter: none; fill-opacity: 0.85; }
-            38%, 46% { fill: #FFBA09; fill-opacity: 1; filter: drop-shadow(0 0 4px #FFBA09); }
-            55%, 100% { fill: ${isDark ? '#B8C4E6' : '#011F7B'}; fill-opacity: 0.85; filter: none; }
+          @keyframes starPulse_${idSuffix} {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 3px #FFBA09); }
+            50% { transform: scale(1.12); filter: drop-shadow(0 0 10px #FFECA8); }
           }
-
-          @keyframes particleDeflect1_${idSuffix} {
-            0%, 16% { transform: translate(0, 0); opacity: 0; }
-            20% { opacity: 0.9; }
-            40% { transform: translate(-14px, 58px); opacity: 0.8; }
-            48% { transform: translate(-28px, 66px); opacity: 0; }
-            100% { opacity: 0; }
+          @keyframes auditLaserSweep_${idSuffix} {
+            0% { transform: translateY(50px); opacity: 0; }
+            15% { opacity: 0.95; }
+            50% { transform: translateY(170px); opacity: 0.95; }
+            65% { opacity: 0; transform: translateY(178px); }
+            100% { opacity: 0; transform: translateY(178px); }
           }
-
-          @keyframes particleDeflect2_${idSuffix} {
-            0%, 18% { transform: translate(0, 0); opacity: 0; }
-            23% { opacity: 0.95; }
-            42% { transform: translate(16px, 60px); opacity: 0.75; }
-            50% { transform: translate(30px, 70px); opacity: 0; }
-            100% { opacity: 0; }
+          @keyframes sproutBreathe_${idSuffix} {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); filter: drop-shadow(0 0 6px rgba(74,227,160,0.6)); }
           }
-
-          @keyframes particleDeflect3_${idSuffix} {
-            0%, 19% { transform: translate(0, 0); opacity: 0; }
-            25% { opacity: 0.9; }
-            44% { transform: translate(-20px, 80px); opacity: 0.7; }
-            52% { transform: translate(-34px, 90px); opacity: 0; }
-            100% { opacity: 0; }
-          }
-
-          @keyframes particleDeflect4_${idSuffix} {
-            0%, 20% { transform: translate(0, 0); opacity: 0; }
-            26% { opacity: 0.95; }
-            45% { transform: translate(22px, 82px); opacity: 0.7; }
-            53% { transform: translate(36px, 94px); opacity: 0; }
-            100% { opacity: 0; }
-          }
-
-          @keyframes dropletPass_${idSuffix} {
-            0%, 20% { transform: translateY(0); fill: #B8C4E6; opacity: 0; }
-            25% { opacity: 0.9; fill: #B8C4E6; }
-            48% { transform: translateY(58px); fill: #FFE599; opacity: 1; }
-            60% { transform: translateY(85px); fill: #FFBA09; filter: drop-shadow(0 0 6px #FFBA09); }
-            78% { transform: translateY(128px); fill: #FFBA09; opacity: 1; filter: drop-shadow(0 0 8px #FFBA09); }
-            90% { transform: translateY(154px); fill: #FFBA09; opacity: 0; filter: none; }
-            100% { transform: translateY(154px); opacity: 0; }
-          }
-
-          @keyframes dropletTrail_${idSuffix} {
-            0%, 55% { opacity: 0; transform: scaleY(0.2); }
-            65% { opacity: 0.8; transform: scaleY(1); }
-            80% { opacity: 0.6; transform: scaleY(1.4); }
-            90% { opacity: 0; transform: scaleY(0.2); }
-            100% { opacity: 0; }
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-            .${animClass} * {
-              animation: none !important;
-            }
+          @keyframes ringRotate_${idSuffix} {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
           }
         `}</style>
       </defs>
 
-      <g className={animClass}>
-        {/* GROUP 1: SHIELD */}
-        <g id="shield">
-          {/* Subtle soft pulse expansion ring */}
-          {animated && (
-            <polygon
-              className="cls-shield-pulse-ring"
-              points="120,24 196,68 196,156 120,208 44,156 44,68"
-              fill="none"
-              stroke="#FFBA09"
-              strokeWidth="2"
-              opacity="0"
-            />
-          )}
+      {/* Background Outer Glow Ring */}
+      <circle
+        cx="120"
+        cy="120"
+        r="105"
+        fill="none"
+        stroke="url(#saring-gold-${idSuffix})"
+        strokeWidth="1"
+        strokeDasharray="4 6"
+        opacity={isDark ? '0.25' : '0.4'}
+        className="cls-ring-rotate"
+      />
 
-          {/* Shield Base Fill */}
-          <polygon
-            points="120,26 195,68 195,155 120,206 45,155 45,68"
-            fill={`url(#grad-shield-${idSuffix})`}
-            stroke={isDark ? '#001648' : '#D0D8F0'}
-            strokeWidth="2"
-          />
+      {/* Shockwave Burst Ring upon Assembly */}
+      <circle
+        cx="120"
+        cy="125"
+        r="75"
+        fill="none"
+        stroke="#FFE599"
+        strokeWidth="3"
+        opacity="0"
+        className="shard-energy-burst"
+      />
 
-          {/* Inner ambient glow border */}
-          <polygon
-            className="cls-shield-glow"
-            points="120,32 187,71 187,149 120,198 53,149 53,71"
-            fill="none"
-            stroke={isDark ? '#003AC0' : '#4768D6'}
-            strokeWidth="1.5"
-            opacity="0.5"
-          />
-
-          {/* Outer glowing dynamic boundary */}
-          <polygon
-            className={animated ? 'cls-shield-draw' : ''}
-            points="120,26 195,68 195,155 120,206 45,155 45,68"
-            fill="none"
-            stroke="#FFBA09"
+      {/* =========================================================================
+          GROUP: SHARDS / PECASAN-PECAHAN PERISAI AUDIT (Outer Shield Structure)
+      ========================================================================= */}
+      <g id="shield-structure">
+        {/* SHARD 1: Sayap Perisai Kiri Atas */}
+        <g
+          className="shard-top-left"
+          style={getManualStyle(-80, -70, -35, 0.6, 75, 55)}
+        >
+          {/* Outer Bevel Frame */}
+          <path
+            d="M 120 30 C 95 32 65 38 45 48 C 39 70 37 92 36 115 L 75 105 L 120 85 Z"
+            fill="url(#saring-shield-${idSuffix})"
+            stroke="url(#saring-gold-${idSuffix})"
             strokeWidth="2.5"
             strokeLinejoin="round"
-            filter={`url(#${filterId})`}
           />
-        </g>
-
-        {/* GROUP 2: GATE (Sieve / Funnel Bars) */}
-        <g id="gate">
-          {/* Tier 1 Bar (Top - Widest) */}
-          <g className="cls-gate-bar">
-            {/* Left flank */}
-            <rect
-              x="72"
-              y="84"
-              width="36"
-              height="6.5"
-              rx="3.25"
-              fill={isDark ? '#B8C4E6' : '#011F7B'}
-              fillOpacity={isDark ? 0.8 : 0.9}
-            />
-            {/* Right flank */}
-            <rect
-              x="132"
-              y="84"
-              width="36"
-              height="6.5"
-              rx="3.25"
-              fill={isDark ? '#B8C4E6' : '#011F7B'}
-              fillOpacity={isDark ? 0.8 : 0.9}
-            />
-          </g>
-
-          {/* Tier 2 Bar (Middle - Narrower) */}
-          <g className="cls-gate-bar">
-            <rect
-              x="82"
-              y="108"
-              width="29"
-              height="6.5"
-              rx="3.25"
-              fill={isDark ? '#B8C4E6' : '#011F7B'}
-              fillOpacity={isDark ? 0.8 : 0.9}
-            />
-            <rect
-              x="129"
-              y="108"
-              width="29"
-              height="6.5"
-              rx="3.25"
-              fill={isDark ? '#B8C4E6' : '#011F7B'}
-              fillOpacity={isDark ? 0.8 : 0.9}
-            />
-          </g>
-
-          {/* Tier 3 Bar (Bottom - Narrowest) */}
-          <g className="cls-gate-bar">
-            <rect
-              x="92"
-              y="132"
-              width="21"
-              height="6.5"
-              rx="3.25"
-              fill={isDark ? '#B8C4E6' : '#011F7B'}
-              fillOpacity={isDark ? 0.8 : 0.9}
-            />
-            <rect
-              x="127"
-              y="132"
-              width="21"
-              height="6.5"
-              rx="3.25"
-              fill={isDark ? '#B8C4E6' : '#011F7B'}
-              fillOpacity={isDark ? 0.8 : 0.9}
-            />
-          </g>
-
-          {/* Central funnel subtle guide lines */}
-          <line
-            x1="108"
-            y1="84"
-            x2="113"
-            y2="135"
-            stroke="#FFBA09"
+          {/* Subtle inner facet line */}
+          <path
+            d="M 120 30 L 75 105 L 45 48"
+            fill="none"
+            stroke="#FFECA8"
             strokeWidth="0.8"
-            strokeDasharray="2 3"
-            opacity="0.35"
+            strokeOpacity="0.6"
           />
-          <line
-            x1="132"
-            y1="84"
-            x2="127"
-            y2="135"
-            stroke="#FFBA09"
+        </g>
+
+        {/* SHARD 2: Sayap Perisai Kanan Atas */}
+        <g
+          className="shard-top-right"
+          style={getManualStyle(80, -70, 35, 0.6, 165, 55)}
+        >
+          <path
+            d="M 120 30 C 145 32 175 38 195 48 C 201 70 203 92 204 115 L 165 105 L 120 85 Z"
+            fill="url(#saring-shield-${idSuffix})"
+            stroke="url(#saring-gold-${idSuffix})"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M 120 30 L 165 105 L 195 48"
+            fill="none"
+            stroke="#FFECA8"
             strokeWidth="0.8"
-            strokeDasharray="2 3"
-            opacity="0.35"
+            strokeOpacity="0.6"
           />
         </g>
 
-        {/* GROUP 3: PARTICLES */}
-        <g id="particles">
-          {/* Ambient incoming cluster at top */}
-          <circle cx="96" cy="48" r="1.8" fill={isDark ? '#B8C4E6' : '#5B6785'} opacity="0.6" />
-          <circle cx="144" cy="50" r="1.8" fill={isDark ? '#B8C4E6' : '#5B6785'} opacity="0.6" />
-          <circle cx="112" cy="42" r="1.5" fill={isDark ? '#FFFFFF' : '#5B6785'} opacity="0.8" />
-          <circle cx="128" cy="44" r="1.5" fill={isDark ? '#FFFFFF' : '#5B6785'} opacity="0.8" />
-
-          {animated ? (
-            <>
-              {/* Deflected particle 1: hits tier 1 left bar */}
-              <circle
-                className="cls-particle-deflected-1"
-                cx="88"
-                cy="38"
-                r="2.2"
-                fill={isDark ? '#B8C4E6' : '#5B6785'}
-              />
-
-              {/* Deflected particle 2: hits tier 1 right bar */}
-              <circle
-                className="cls-particle-deflected-2"
-                cx="152"
-                cy="38"
-                r="2.2"
-                fill={isDark ? '#B8C4E6' : '#5B6785'}
-              />
-
-              {/* Deflected particle 3: hits tier 2 left bar */}
-              <circle
-                className="cls-particle-deflected-3"
-                cx="96"
-                cy="44"
-                r="2"
-                fill={isDark ? '#B8C4E6' : '#5B6785'}
-              />
-
-              {/* Deflected particle 4: hits tier 2 right bar */}
-              <circle
-                className="cls-particle-deflected-4"
-                cx="142"
-                cy="44"
-                r="2"
-                fill={isDark ? '#B8C4E6' : '#5B6785'}
-              />
-            </>
-          ) : (
-            // Static representation: dissipated ghost particles
-            <>
-              <circle cx="76" cy="98" r="1.5" fill="#FFBA09" opacity="0.4" />
-              <circle cx="164" cy="98" r="1.5" fill="#FFBA09" opacity="0.4" />
-              <circle cx="86" cy="120" r="1.2" fill={isDark ? '#B8C4E6' : '#5B6785'} opacity="0.3" />
-              <circle cx="154" cy="120" r="1.2" fill={isDark ? '#B8C4E6' : '#5B6785'} opacity="0.3" />
-            </>
-          )}
+        {/* SHARD 3: Dinding Perisai Kiri Bawah (Flank Kiri) */}
+        <g
+          className="shard-flank-left"
+          style={getManualStyle(-95, 15, -40, 0.5, 45, 140)}
+        >
+          <path
+            d="M 36 115 C 38 150 65 180 85 195 L 98 152 L 75 105 Z"
+            fill="url(#saring-shield-${idSuffix})"
+            stroke="url(#saring-gold-${idSuffix})"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <polygon
+            points="36,115 75,105 52,138"
+            fill="#02248A"
+            opacity="0.5"
+          />
         </g>
 
-        {/* GROUP 4: SCANLINE */}
-        <g id="scanline">
-          {animated ? (
-            <g className="cls-scanline">
-              <line
-                x1="52"
-                y1="0"
-                x2="188"
-                y2="0"
-                stroke={`url(#grad-scan-${idSuffix})`}
-                strokeWidth="2"
-                filter={`url(#${filterId})`}
-              />
-              <line
-                x1="80"
-                y1="0"
-                x2="160"
-                y2="0"
-                stroke="#FFFFFF"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-                opacity="0.85"
-              />
-            </g>
-          ) : (
-            // Static frame scanline resting near gate
-            <g transform="translate(0, 108)">
-              <line
-                x1="65"
-                y1="0"
-                x2="175"
-                y2="0"
-                stroke={`url(#grad-scan-${idSuffix})`}
-                strokeWidth="2"
-                filter={`url(#${filterId})`}
-                opacity="0.7"
-              />
-            </g>
-          )}
+        {/* SHARD 4: Dinding Perisai Kanan Bawah (Flank Kanan) */}
+        <g
+          className="shard-flank-right"
+          style={getManualStyle(95, 15, 40, 0.5, 195, 140)}
+        >
+          <path
+            d="M 204 115 C 202 150 175 180 155 195 L 142 152 L 165 105 Z"
+            fill="url(#saring-shield-${idSuffix})"
+            stroke="url(#saring-gold-${idSuffix})"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <polygon
+            points="204,115 165,105 188,138"
+            fill="#001550"
+            opacity="0.5"
+          />
         </g>
 
-        {/* GROUP 5: DROPLET (The Single Verified Particle) */}
-        <g id="droplet">
-          {animated ? (
-            <g>
-              {/* Luminous trail */}
-              <line
-                className="cls-droplet-trail"
-                x1="120"
-                y1="100"
-                x2="120"
-                y2="170"
-                stroke="#FFBA09"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                opacity="0"
-                filter={`url(#${filterId})`}
-              />
-
-              {/* The Passing Droplet */}
-              <g className="cls-droplet">
-                <circle cx="120" cy="40" r="3.2" filter={`url(#${filterId})`} />
-                {/* Secondary core */}
-                <circle cx="120" cy="40" r="1.8" fill="#FFFFFF" opacity="0.9" />
-              </g>
-            </g>
-          ) : (
-            // Static frozen frame: Droplet positioned cleanly mid-gate, transformed to golden #FFBA09!
-            <g>
-              {/* Soft upper trail */}
-              <line
-                x1="120"
-                y1="96"
-                x2="120"
-                y2="132"
-                stroke="#FFBA09"
-                strokeWidth="2"
-                strokeLinecap="round"
-                opacity="0.6"
-              />
-              {/* Droplet at bottom gate exit */}
-              <circle cx="120" cy="148" r="4.2" fill="#FFBA09" filter={`url(#${filterId})`} />
-              <circle cx="120" cy="148" r="2.2" fill="#FFFFFF" />
-            </g>
-          )}
+        {/* SHARD 5: Ujung Runcing Dasar Perisai (Shield Apex) */}
+        <g
+          className="shard-bottom-apex"
+          style={getManualStyle(0, 95, 15, 0.5, 120, 205)}
+        >
+          <path
+            d="M 85 195 C 100 206 112 212 120 216 C 128 212 140 206 155 195 L 120 170 Z"
+            fill="url(#saring-gold-${idSuffix})"
+            stroke="#FFECA8"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          {/* Inner dark notch */}
+          <polygon
+            points="120,210 98,194 120,180 142,194"
+            fill="#000F4A"
+          />
         </g>
       </g>
+
+      {/* =========================================================================
+          GROUP: SARING-MBG AUDIT FILTER & KISI DATA (The Screening Gate)
+      ========================================================================= */}
+      <g
+        id="audit-filter-matrix"
+        className="shard-filter-grid"
+        style={getManualStyle(0, 0, 0, 0.4, 120, 125)}
+      >
+        {/* Treasury Central Shield Plate */}
+        <circle
+          cx="120"
+          cy="125"
+          r="54"
+          fill={isDark ? '#011244' : '#011A66'}
+          stroke="url(#saring-gold-${idSuffix})"
+          strokeWidth="2"
+          opacity="0.9"
+        />
+
+        {/* Precision Audit Ticks along the Circular Rim (12 Point Cycle) */}
+        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
+          <line
+            key={`tick-${deg}`}
+            x1="120"
+            y1="73"
+            x2="120"
+            y2="77"
+            stroke="#FFECA8"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            transform={`rotate(${deg} 120 125)`}
+            opacity="0.75"
+          />
+        ))}
+
+        {/* Precision Saring Matrix Lines (Pemeriksaan Deterministik R1, R2, R4a, R5) */}
+        <g stroke="#FFBA09" strokeOpacity="0.25" strokeWidth="1">
+          <line x1="80" y1="110" x2="160" y2="110" />
+          <line x1="72" y1="125" x2="168" y2="125" />
+          <line x1="80" y1="140" x2="160" y2="140" />
+          <line x1="105" y1="85" x2="105" y2="165" />
+          <line x1="120" y1="75" x2="120" y2="175" />
+          <line x1="135" y1="85" x2="135" y2="165" />
+        </g>
+
+        {/* Data Validation Verified Nodes */}
+        <circle cx="105" cy="110" r="2.2" fill="#4AE3A0" />
+        <circle cx="135" cy="110" r="2.2" fill="#4AE3A0" />
+        <circle cx="105" cy="140" r="2.2" fill="#4AE3A0" />
+        <circle cx="135" cy="140" r="2.2" fill="#FFBA09" />
+      </g>
+
+      {/* =========================================================================
+          GROUP: MAKAN BERGIZI GRATIS (Golden Nutrition Cloche, Bowl, Sprout & Steam)
+      ========================================================================= */}
+      <g id="nutritious-meal-core">
+        {/* SHARD 7: Mangkuk Emas Pangan Bergizi & Kubah Saji (Cloche & Bowl) */}
+        <g
+          className="shard-nutrition-bowl"
+          style={getManualStyle(0, 60, 0, 0.4, 120, 145)}
+        >
+          {/* Golden Serving Bowl / Mangkuk Bergizi */}
+          <path
+            d="M 82 135 C 82 135 88 162 120 162 C 152 162 158 135 158 135 Z"
+            fill="url(#saring-gold-${idSuffix})"
+            stroke="#FFECA8"
+            strokeWidth="1.8"
+            filter={`url(#${filterId})`}
+          />
+
+          {/* Upper Rim Plate */}
+          <ellipse
+            cx="120"
+            cy="135"
+            rx="38"
+            ry="6.5"
+            fill="#FFF1BF"
+            stroke="#E5A100"
+            strokeWidth="1.2"
+          />
+
+          {/* Bowl Pedestal Base */}
+          <path
+            d="M 108 162 L 104 167 L 136 167 L 132 162 Z"
+            fill="url(#saring-gold-${idSuffix})"
+          />
+
+          {/* Treasury Checkmark on the bowl (Verifikasi Lolos Bahan Baku) */}
+          <path
+            d="M 112 147 L 118 153 L 129 141"
+            fill="none"
+            stroke="#011F7B"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
+
+        {/* SHARD 8: Tunas Daun Nutrisi Zamrud (Bahan Baku Segar Lokal MBG) */}
+        <g
+          className="shard-emerald-sprout cls-sprout-breathe"
+          style={getManualStyle(-15, -40, -15, 0.3, 120, 115)}
+        >
+          {/* Daun Sayur / Tunas Pertumbuhan Kiri */}
+          <path
+            d="M 120 132 C 104 125 100 110 110 102 C 120 95 122 114 120 132 Z"
+            fill="url(#saring-emerald-${idSuffix})"
+            stroke="#4AE3A0"
+            strokeWidth="1.2"
+          />
+          {/* Daun Sayur / Tunas Pertumbuhan Kanan */}
+          <path
+            d="M 120 132 C 136 125 140 110 130 102 C 120 95 118 114 120 132 Z"
+            fill="url(#saring-emerald-${idSuffix})"
+            stroke="#4AE3A0"
+            strokeWidth="1.2"
+          />
+          {/* Tulang Daun Bersinar */}
+          <line
+            x1="120"
+            y1="132"
+            x2="120"
+            y2="105"
+            stroke="#FFECA8"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+          />
+
+          {/* Uap Hangat Pangan Bernutrisi (Warm Nutrition Aroma Steam) */}
+          <path
+            d="M 114 96 C 112 90 118 85 116 80"
+            fill="none"
+            stroke="#FFECA8"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            opacity="0.8"
+          />
+          <path
+            d="M 126 96 C 128 90 122 85 124 80"
+            fill="none"
+            stroke="#FFECA8"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            opacity="0.8"
+          />
+        </g>
+      </g>
+
+      {/* =========================================================================
+          GROUP: BINTANG INTEGRITAS AUDIT (Eight-Point Star of Transparency)
+      ========================================================================= */}
+      <g
+        id="star-of-integrity"
+        className="shard-star-crest cls-star-pulse"
+        style={getManualStyle(0, -90, -180, 0.3, 120, 48)}
+      >
+        {/* Glow halo */}
+        <circle cx="120" cy="48" r="16" fill="#FFBA09" opacity="0.25" filter={`url(#${filterId})`} />
+
+        {/* Main 8-Point Diamond Star */}
+        <polygon
+          points="120,33 123.5,44.5 135,48 123.5,51.5 120,63 116.5,51.5 105,48 116.5,44.5"
+          fill="url(#saring-gold-${idSuffix})"
+          stroke="#FFFFFF"
+          strokeWidth="1"
+          filter={`url(#${filterId})`}
+        />
+
+        {/* Diagonal Micro Rays */}
+        <polygon
+          points="120,40 125.5,42.5 128,48 125.5,53.5 120,56 114.5,53.5 112,48 114.5,42.5"
+          fill="#FFECA8"
+          opacity="0.85"
+        />
+
+        {/* Center Diamond Light Point */}
+        <circle cx="120" cy="48" r="2" fill="#FFFFFF" />
+      </g>
+
+      {/* =========================================================================
+          AUDIT LASER SCANNER SWEEP (Active Forensics Sweep during gate screening)
+      ========================================================================= */}
+      <g className="cls-audit-scan pointer-events-none">
+        <rect
+          x="48"
+          y="0"
+          width="144"
+          height="3"
+          fill={`url(#grad-laser-${idSuffix})`}
+          filter={`url(#${filterId})`}
+        />
+      </g>
+
+      {/* =========================================================================
+          MICRO SHARDS / DATA FRAGMENTS (Flying into the core during assembly)
+      ========================================================================= */}
+      {isAssembling && (
+        <g id="micro-particles" className="pointer-events-none">
+          {[
+            { ox: -120, oy: -80, x: 70, y: 65, size: 4, col: '#FFBA09' },
+            { ox: 130, oy: -90, x: 170, y: 65, size: 5, col: '#4AE3A0' },
+            { ox: -140, oy: 40, x: 50, y: 130, size: 4, col: '#FFECA8' },
+            { ox: 140, oy: 50, x: 190, y: 130, size: 5, col: '#FFBA09' },
+            { ox: -90, oy: 120, x: 80, y: 180, size: 4, col: '#4AE3A0' },
+            { ox: 100, oy: 120, x: 160, y: 180, size: 4, col: '#FFECA8' },
+            { ox: 0, oy: -130, x: 120, y: 35, size: 6, col: '#FFFFFF' },
+            { ox: 0, oy: 140, x: 120, y: 215, size: 5, col: '#FFBA09' },
+          ].map((pt, idx) => (
+            <polygon
+              key={`shard-particle-${idx}`}
+              className="shard-micro-particle"
+              points={`${pt.x},${pt.y - pt.size} ${pt.x + pt.size},${pt.y} ${pt.x},${pt.y + pt.size} ${pt.x - pt.size},${pt.y}`}
+              fill={pt.col}
+              style={{
+                '--p-ox': `${pt.ox}px`,
+                '--p-oy': `${pt.oy}px`,
+                animationDelay: `${idx * 0.08}s`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </g>
+      )}
     </svg>
   );
 };

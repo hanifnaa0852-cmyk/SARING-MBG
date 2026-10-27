@@ -196,6 +196,33 @@ class SoundFx {
       osc.stop(noteTime + 0.13);
     });
   }
+
+  // Crystal harmonic chime when shards snap and assemble into logo
+  public playSuccessChime() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    const freqs = [659.25, 783.99, 987.77, 1318.51]; // E5, G5, B5, E6 (Major 7th sparkle)
+    freqs.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const noteTime = now + idx * 0.045;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, noteTime);
+
+      gain.gain.setValueAtTime(0.001, noteTime);
+      gain.gain.linearRampToValueAtTime(0.09, noteTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.45);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(noteTime);
+      osc.stop(noteTime + 0.5);
+    });
+  }
 }
 
 export const soundFx = new SoundFx();
