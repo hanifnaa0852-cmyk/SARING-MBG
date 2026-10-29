@@ -36,19 +36,21 @@ export const IndikatorPilotPage: React.FC<IndikatorPilotPageProps> = ({ kitchens
   const copyParameters = () => {
     const textData = `SARING-MBG: Parameter Indikator Pilot (Data Sintetis)
 1. Proporsi top-up dibaca sebelum SPP: 100%
-2. Presisi (Base Rate p*s / [p*s+(1-p)(1-k)]): ${precisionPct}%
+2. Presisi (dana ditahan yang terbukti bermasalah): ${precisionPct}%
 3. Tingkat positif palsu: ${fpPct}%
 4. Perkiraan negatif palsu: ${fnPct}%
 5. Rasio pembatalan oleh verifikator: ${cancellationRate}% (n = ${totalLogs})
-6. Median hari verifikasi: ${metrics.medianDaysKuning} / ${metrics.medianDaysMerah} hari kerja (asumsi simulasi)
-7. Hari layanan makan terganggu per dapur: 0,4 hari
-8. Sisa dana akhir tahun: Diukur dari IHPS, tidak disimulasikan
+6. Median hari verifikasi: ${metrics.medianDaysKuning} / ${metrics.medianDaysMerah} hari kerja (asumsi simulasi; Kuning SLA 3 hari, Merah SLA 4 hari)
+7. Hari layanan makan terganggu per dapur: ${metrics.disruptedDaysPerKitchen} hari
+
+Rancangan Pilot:
+Satu wilayah uji coba dengan pembanding wilayah berikutnya yang belum menerapkan gerbang; red flag tahap 1 (R1, R2, R3) diuji terlebih dahulu.
 
 Batas Simulasi:
-- Data sintetis, bukan data BGN
-- Ambang, batas hari, dan proporsi dapur ditandai adalah usulan yang diuji di pilot
-- Efektivitas belum teruji di Indonesia
-- Rancangan pilot: satu wilayah, pembanding wilayah berikutnya, red flag tahap 1 (R1, R2, R4a, R5)`;
+Data sintetis, bukan data BGN. Ambang, batas hari, dan proporsi dapur ditandai adalah usulan yang diuji di pilot. Efektivitas belum teruji.
+
+Prasyarat:
+Sinkronisasi SK penetapan penerima ke SIPGN, rekening Virtual Account bank Himbara terhubung, kapasitas tim verifikator BGN.`;
 
     navigator.clipboard.writeText(textData).then(() => {
       setCopyFeedback(true);
@@ -63,7 +65,7 @@ Dicetak: ${new Date().toLocaleString('id-ID')}
 Status: Data Sintetis Uji Coba (Bukan Data BGN)
 
 --------------------------------------------------
-INDIKATOR METRIK PILOT (Ditetapkan Sebelum Pilot):
+INDIKATOR METRIK PILOT (Target Ditetapkan Sebelum Pilot):
 --------------------------------------------------
 1. Proporsi top-up dibaca sebelum SPP : 100%
 2. Presisi (dana ditahan bermasalah) : ${precisionPct}%
@@ -71,15 +73,14 @@ INDIKATOR METRIK PILOT (Ditetapkan Sebelum Pilot):
 4. Perkiraan negatif palsu           : ${fnPct}%
 5. Rasio pembatalan verifikator      : ${cancellationRate}% (n = ${totalLogs})
 6. Median hari verifikasi (Kuning/Merah): ${metrics.medianDaysKuning} / ${metrics.medianDaysMerah} hari kerja (asumsi simulasi)
-7. Hari layanan makan terganggu      : 0,4 hari/dapur
-8. Sisa dana akhir tahun             : Berdasarkan audit IHPS BPK
+7. Hari layanan makan terganggu      : ${metrics.disruptedDaysPerKitchen} hari per dapur
 
 --------------------------------------------------
 BATASAN DAN PROTOKOL SIMULASI:
 --------------------------------------------------
-- Model menggunakan data sintetis murni untuk keperluan demonstrasi arsitektur.
-- Parameter numerik disiapkan untuk kalibrasi dinamis selama masa uji coba.
-- Evaluasi berkala dilaksanakan bersama BPKP dan Satgas MBG.
+- Satu wilayah uji coba dengan pembanding wilayah berikutnya yang belum menerapkan gerbang; red flag tahap 1 (R1, R2, R3) diuji terlebih dahulu.
+- Data sintetis, bukan data BGN. Ambang, batas hari, dan proporsi dapur ditandai adalah usulan yang diuji di pilot. Efektivitas belum teruji.
+- Prasyarat: Sinkronisasi SK penetapan penerima ke SIPGN, rekening Virtual Account bank Himbara terhubung, kapasitas tim verifikator BGN.
 `;
 
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -167,8 +168,8 @@ BATASAN DAN PROTOKOL SIMULASI:
         </div>
       </div>
 
-      {/* 8 Metric Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      {/* 7 Metric Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {/* Card 1 */}
         <div className="flex flex-col justify-between bg-white p-5 rounded-xl shadow-xs border border-[#E0E2E7] hover:shadow-sm transition-shadow">
           <div className="space-y-3">
@@ -208,7 +209,7 @@ BATASAN DAN PROTOKOL SIMULASI:
             <div>
               <div className="flex items-center justify-between">
                 <h3 className="text-[11px] uppercase text-[#757683] tracking-wider font-semibold">
-                  Presisi (Base Rate)
+                  Presisi (dana ditahan bermasalah)
                 </h3>
                 <span className="text-[8px] font-mono text-[#011F7B] bg-[#011F7B]/10 px-1.5 py-0.5 rounded font-bold">
                   p·s / [p·s+(1-p)(1-k)]
@@ -220,7 +221,7 @@ BATASAN DAN PROTOKOL SIMULASI:
             </div>
           </div>
           <p className="text-xs text-[#454652] mt-4 leading-relaxed pt-2.5 border-t border-[#ECEEF3]">
-            Bila dapur yang benar-benar bermasalah jarang, sebagian besar tanda jatuh pada dapur yang sah. Karena itu kuning tetap mencairkan bahan baku dan ambang dikalibrasi di pilot.
+            Bila dapur yang benar-benar bermasalah jarang, sebagian besar tanda jatuh pada dapur yang sah. Dihasilkan oleh asumsi simulasi, bukan temuan.
           </p>
         </div>
 
@@ -295,7 +296,7 @@ BATASAN DAN PROTOKOL SIMULASI:
             </div>
           </div>
           <p className="text-xs text-[#454652] mt-4 leading-relaxed pt-2.5 border-t border-[#ECEEF3]">
-            Penyesuaian sinyal mesin otomatis oleh verifikator pasca bukti fisik diklarifikasi.
+            Penyesuaian sinyal mesin otomatis oleh verifikator pasca bukti fisik diklarifikasi ({modifiedLogs} dari {totalLogs} kasus).
           </p>
         </div>
 
@@ -318,12 +319,12 @@ BATASAN DAN PROTOKOL SIMULASI:
                 {metrics.medianDaysKuning} / {metrics.medianDaysMerah} <span className="text-xs font-normal text-[#757683]">hari kerja</span>
               </div>
               <div className="text-[10px] text-[#757683] italic mt-0.5">
-                asumsi simulasi (SLA 3 & 5 hari)
+                asumsi simulasi (Kuning SLA 3 hari, Merah SLA 4 hari)
               </div>
             </div>
           </div>
           <p className="text-xs text-[#454652] mt-4 leading-relaxed pt-2.5 border-t border-[#ECEEF3]">
-            Waktu siklus resolusi klarifikasi berkas (Kuning SLA 3 hari, Merah SLA 5 hari).
+            Waktu siklus resolusi klarifikasi dokumen (Kuning) dan verifikasi lapangan (Merah).
           </p>
         </div>
 
@@ -340,10 +341,10 @@ BATASAN DAN PROTOKOL SIMULASI:
             </div>
             <div>
               <h3 className="text-[11px] uppercase text-[#757683] tracking-wider font-semibold">
-                Layanan terganggu per dapur
+                Hari layanan makan terganggu per dapur
               </h3>
               <div className="text-2xl font-bold text-[#000F4A] mt-1 tabular-nums font-mono">
-                0,4 <span className="text-xs font-normal text-[#757683]">hari</span>
+                {metrics.disruptedDaysPerKitchen} <span className="text-xs font-normal text-[#757683]">hari</span>
               </div>
             </div>
           </div>
@@ -351,182 +352,70 @@ BATASAN DAN PROTOKOL SIMULASI:
             Dampak penahanan likuiditas operasional terhadap kontinuitas pasokan porsi siswa.
           </p>
         </div>
-
-        {/* Card 8 */}
-        <div className="flex flex-col justify-between bg-white p-5 rounded-xl shadow-xs border border-[#E0E2E7] hover:shadow-sm transition-shadow">
-          <div className="space-y-3">
-            <div className="flex items-start justify-between gap-2">
-              <div className="w-9 h-9 rounded-lg bg-[#F1F4F9] flex items-center justify-center shrink-0 text-[#011F7B]">
-                <span className="material-symbols-outlined text-[20px]">account_balance</span>
-              </div>
-              <span className="text-[9px] px-2 py-0.5 bg-[#ECEEF3] text-[#454652] rounded font-semibold uppercase tracking-wider text-right">
-                Target ditetapkan sebelum pilot
-              </span>
-            </div>
-            <div>
-              <h3 className="text-[11px] uppercase text-[#757683] tracking-wider font-semibold">
-                Sisa dana akhir tahun
-              </h3>
-              <div className="text-sm font-bold text-[#000F4A] mt-1">
-                Diukur dari IHPS, tidak disimulasikan
-              </div>
-            </div>
-          </div>
-          <p className="text-xs text-[#454652] mt-4 leading-relaxed pt-2.5 border-t border-[#ECEEF3]">
-            Berdasarkan Ikhtisar Hasil Pemeriksaan Semester BPK RI pasca tahun anggaran selesai.
-          </p>
-        </div>
       </div>
 
-      {/* Visual Benchmarking Bar & Simulation Boundaries */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-        {/* Precision vs False Positive Matrix (5 cols) */}
-        <div className="lg:col-span-5 bg-white p-6 rounded-xl shadow-xs border border-[#E0E2E7] flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] uppercase font-bold text-[#757683] tracking-wider">
-                Keseimbangan Forensik Triase
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#ECEEF3] text-[#000F4A]">
-                RASIO {precisionPct}:{fpPct}
-              </span>
+      {/* 3 Dedicated Core Cards for Pilot Implementation */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* Card A: Rancangan Pilot */}
+        <div className="bg-white p-6 rounded-xl shadow-xs border border-[#E0E2E7] flex flex-col justify-between space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#EBF0FF] flex items-center justify-center text-[#011F7B]">
+                <span className="material-symbols-outlined text-[20px]">hub</span>
+              </div>
+              <h3 className="text-base font-bold text-[#000F4A]">Rancangan Pilot</h3>
             </div>
-            <h4 className="text-base font-bold text-[#000F4A]">Distribusi Hasil Penahanan Dana</h4>
-            <p className="text-xs text-[#454652] mt-1">
-              Perbandingan antara penghentian dana berdampak riil versus penundaan akibat galat administrasi non-fraud.
+            <p className="text-xs text-[#181C20] leading-relaxed font-semibold">
+              Satu wilayah uji coba dengan pembanding wilayah berikutnya yang belum menerapkan gerbang; red flag tahap 1 (R1, R2, R3) diuji terlebih dahulu.
             </p>
-
-            <div className="mt-5 space-y-4">
-              <div>
-                <div className="flex justify-between text-xs mb-1 font-semibold">
-                  <span className="text-[#011F7B] flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#011F7B] inline-block"></span>
-                    Presisi Anomali Riil (Deviasi/Salah Saji)
-                  </span>
-                  <span className="text-[#011F7B] font-bold font-mono">{precisionPct}%</span>
-                </div>
-                <div className="w-full h-2.5 bg-[#ECEEF3] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#011F7B] rounded-full" style={{ width: `${precisionPct}%` }}></div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1 font-semibold">
-                  <span className="text-[#8A5A00] flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#fcb803] inline-block"></span>
-                    Positif Palsu (Klarifikasi Dokumen Bersih)
-                  </span>
-                  <span className="text-[#8A5A00] font-bold font-mono">{fpPct}%</span>
-                </div>
-                <div className="w-full h-2.5 bg-[#ECEEF3] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#fcb803] rounded-full" style={{ width: `${fpPct}%` }}></div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs mb-1 font-semibold">
-                  <span className="text-[#757683] flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#C5C5D4] inline-block"></span>
-                    Toleransi Negatif Palsu (Lolos Audit Acak)
-                  </span>
-                  <span className="text-[#757683] font-bold font-mono">{fnPct}%</span>
-                </div>
-                <div className="w-full h-2.5 bg-[#ECEEF3] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#757683] rounded-full" style={{ width: `${Math.min(100, metrics.falseNegativeRate * 10)}%` }}></div>
-                </div>
-              </div>
-            </div>
+            <p className="text-xs text-[#525363] leading-relaxed">
+              Metodologi kuasi-eksperimental untuk mengukur efektivitas gerbang pencegahan dibanding penyisiran audit post-facto biasa.
+            </p>
           </div>
-
-          <div className="mt-5 p-3 bg-[#F1F4F9] rounded-lg border border-[#E0E2E7] flex items-center gap-2 text-xs">
-            <span className="material-symbols-outlined text-[#011F7B] text-[18px]">tune</span>
-            <span className="text-[#181C20]">
-              Target evaluasi pilot: <strong>Target ditetapkan sebelum pilot</strong> untuk kalibrasi ambang batas operasional.
-            </span>
+          <div className="p-2.5 rounded-lg bg-[#F1F4F9] text-[11px] font-mono text-[#011F7B] font-bold">
+            Fokus: Tahap 1 (R1, R2, R3)
           </div>
         </div>
 
-        {/* Batas Simulasi Panel (7 cols) */}
-        <div className="lg:col-span-7 bg-[#F1F4F9] p-6 rounded-xl border border-[#E0E2E7] flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-7 h-7 rounded-full bg-[#011F7B] flex items-center justify-center text-white">
-                <span className="material-symbols-outlined text-[16px]">info</span>
+        {/* Card B: Batas Simulasi */}
+        <div className="bg-white p-6 rounded-xl shadow-xs border border-[#E0E2E7] flex flex-col justify-between space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#FFF4CC] flex items-center justify-center text-[#8A5A00]">
+                <span className="material-symbols-outlined text-[20px]">info</span>
               </div>
-              <div>
-                <h4 className="text-base font-bold text-[#000F4A]">Batas Simulasi</h4>
-                <span className="text-[10px] uppercase tracking-wider text-[#757683] font-semibold">
-                  Klausul Batasan Model Operasional
-                </span>
-              </div>
+              <h3 className="text-base font-bold text-[#000F4A]">Batas Simulasi</h3>
             </div>
-
-            <div className="space-y-3 mt-4">
-              {/* Item 1 */}
-              <div className="flex items-start gap-3 bg-white p-3.5 rounded-lg border border-[#E0E2E7] shadow-xs">
-                <div className="w-6 h-6 rounded-full bg-[#F1F4F9] flex items-center justify-center shrink-0 mt-0.5 text-[#011F7B]">
-                  <span className="material-symbols-outlined text-[16px]">database</span>
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-xs text-[#000F4A] font-bold">
-                    Data sintetis, bukan data BGN
-                  </div>
-                  <div className="text-xs text-[#454652] leading-relaxed">
-                    Semua kalkulasi, nominal rupiah, dan proporsi unit berasal dari dataset pengujian awal untuk memvalidasi arsitektur perangkat lunak.
-                  </div>
-                </div>
-              </div>
-
-              {/* Item 2 */}
-              <div className="flex items-start gap-3 bg-white p-3.5 rounded-lg border border-[#E0E2E7] shadow-xs">
-                <div className="w-6 h-6 rounded-full bg-[#F1F4F9] flex items-center justify-center shrink-0 mt-0.5 text-[#011F7B]">
-                  <span className="material-symbols-outlined text-[16px]">tune</span>
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-xs text-[#000F4A] font-bold">
-                    Ambang, batas hari, dan proporsi dapur ditandai adalah usulan yang diuji di pilot
-                  </div>
-                  <div className="text-xs text-[#454652] leading-relaxed">
-                    Nilai parameter numerik disiapkan untuk kalibrasi dinamis selama masa implementasi lapangan terpadu.
-                  </div>
-                </div>
-              </div>
-
-              {/* Item 3 */}
-              <div className="flex items-start gap-3 bg-white p-3.5 rounded-lg border border-[#E0E2E7] shadow-xs">
-                <div className="w-6 h-6 rounded-full bg-[#F1F4F9] flex items-center justify-center shrink-0 mt-0.5 text-[#011F7B]">
-                  <span className="material-symbols-outlined text-[16px]">science</span>
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-xs text-[#000F4A] font-bold">
-                    Efektivitas belum teruji di Indonesia
-                  </div>
-                  <div className="text-xs text-[#454652] leading-relaxed">
-                    Skema penahanan preventif pra-pencairan berjenjang merupakan pendekatan baru yang membutuhkan verifikasi empiris di tingkat satuan kerja.
-                  </div>
-                </div>
-              </div>
-
-              {/* Item 4 */}
-              <div className="flex items-start gap-3 bg-white p-3.5 rounded-lg border border-[#E0E2E7] shadow-xs">
-                <div className="w-6 h-6 rounded-full bg-[#F1F4F9] flex items-center justify-center shrink-0 mt-0.5 text-[#011F7B]">
-                  <span className="material-symbols-outlined text-[16px]">hub</span>
-                </div>
-                <div className="space-y-0.5">
-                  <div className="text-xs text-[#000F4A] font-bold">
-                    Rancangan pilot: satu wilayah, pembanding wilayah gelombang berikutnya
-                  </div>
-                  <div className="text-xs text-[#454652] leading-relaxed">
-                    Hanya red flag tahap 1 (R1, R2, R4a, R5). Metodologi evaluasi quasi-experimental berfokus pada aturan inti untuk meminimalkan friksi operasional logistik gizi.
-                  </div>
-                </div>
-              </div>
-            </div>
+            <p className="text-xs text-[#181C20] leading-relaxed font-semibold">
+              Data sintetis, bukan data BGN. Ambang, batas hari, dan proporsi dapur ditandai adalah usulan yang diuji di pilot. Efektivitas belum teruji.
+            </p>
+            <p className="text-xs text-[#525363] leading-relaxed">
+              Seluruh nominal rupiah dan sebaran kasus adalah model komputasi matematis ilustratif untuk kalibrasi operasional.
+            </p>
           </div>
+          <div className="p-2.5 rounded-lg bg-[#FFF4CC] text-[11px] font-mono text-[#8A5A00] font-bold">
+            Klausul: Simulasi Ilustratif
+          </div>
+        </div>
 
-          <div className="mt-4 pt-3 border-t border-[#E0E2E7] flex items-center justify-between text-xs text-[#757683]">
-            <span>Uji Coba Terbatas BGN</span>
-            <span className="font-semibold text-[#000F4A]">Tahap: Uji Laboratorium Terbatas</span>
+        {/* Card C: Prasyarat */}
+        <div className="bg-white p-6 rounded-xl shadow-xs border border-[#E0E2E7] flex flex-col justify-between space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#E8F6F0] flex items-center justify-center text-[#1E9E6A]">
+                <span className="material-symbols-outlined text-[20px]">checklist</span>
+              </div>
+              <h3 className="text-base font-bold text-[#000F4A]">Prasyarat Implementasi</h3>
+            </div>
+            <p className="text-xs text-[#181C20] leading-relaxed font-semibold">
+              Sinkronisasi SK penetapan penerima ke SIPGN, rekening Virtual Account bank Himbara terhubung, kapasitas tim verifikator BGN.
+            </p>
+            <p className="text-xs text-[#525363] leading-relaxed">
+              Ketiga pilar data dan sumber daya manusia ini merupakan fondasi mutlak agar gerbang pencegahan dapat berjalan tanpa mengganggu distribusi makan anak.
+            </p>
+          </div>
+          <div className="p-2.5 rounded-lg bg-[#E8F6F0] text-[11px] font-mono text-[#1E9E6A] font-bold">
+            Status: Kesiapan Sistem &amp; SDM
           </div>
         </div>
       </div>

@@ -13,7 +13,7 @@ export type GroundTruth = 'problematic' | 'honest_error' | 'normal';
 
 export type TriaseLabel = 'Hijau' | 'Kuning' | 'Merah';
 
-export type RedFlagCode = 'R1' | 'R2' | 'R3' | 'R4a' | 'R4b' | 'R5' | 'R6' | 'R7' | 'R8';
+export type RedFlagCode = 'R1' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6' | 'R7' | 'R8';
 
 export interface DailyFinancial {
   dayName: string; // 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
@@ -32,43 +32,60 @@ export interface Kitchen {
   capacity: number; // portions/day, e.g. 2450
   capacityLabel: string; // "2.450 porsi/hari"
   targetGroup: TargetGroup;
-  paguPerPorsi: number; // default Rp 10.000 (perlu dicek ke juknis)
-  activeVaCount: number; // 1 for normal, >1 for duplicate
   status: KitchenStatus;
-  reportedCostPerPortion: number; // Rp 8.000 - 11.500
+  hasSLHS: boolean; // Sertifikat Laik Higiene Sanitasi
+  activeVaCount: number; // 1 for normal, >1 for duplicate
+  penerimaSinkronisasi: number; // Jumlah penerima hasil sinkronisasi per hari
+  porsiDilaporkan: number[]; // Porsi dilaporkan Senin - Sabtu (6 hari)
+  totalPorsiDilaporkan: number; // Total porsi 6 hari
+  hariTanpaLayanan: boolean; // Dilaporkan pada hari tanpa layanan
+  biayaBahanPerPorsi: number; // Biaya bahan dilaporkan per porsi
+  hargaAcuan: number; // Harga acuan bahan per porsi (HET / survei pasar), default Rp10.000
+  danaDilaporkanTerpakai: number; // Dana dilaporkan terpakai (sum of 6 days reported spend)
+  arusKeluarVa: number; // Arus keluar mutasi VA (sum of 6 days)
+  saldoVa: number; // Saldo sisa pada rekening VA
   dailyFinancials: DailyFinancial[];
-  reportedSpendTotal: number; // sum of 6 days
-  vaOutflowTotal: number; // sum of 6 days
-  vaBalance: number; // e.g. Rp 120.000.000 (context under 500M)
   
-  // Weekly Top-Up Components
-  weeklyPortions: number; // reported portions in 6 days
-  topUpRequested: number; // total = bahanBaku + operasional + insentif
-  bahanBakuBudget: number; // Component 1: Bahan baku pokok
-  operasionalBudget: number; // Component 2: Operasional & jasa pengolah
-  insentifBudget: number; // Component 3: Insentif Rp 2.000/porsi (efektif 5 Okt 2026, usulan)
+  // Weekly Top-Up Components (TWO components only: bahan baku & operasional)
+  weeklyPortions: number; // total porsi dilaporkan
+  topUpRequested: number; // total = bahanBakuBudget + operasionalBudget
+  bahanBakuBudget: number; // Komponen 1: Bahan baku
+  operasionalBudget: number; // Komponen 2: Operasional (share e.g. 20%)
   foodBudget: number; // alias to bahanBakuBudget
-  heldBudget: number; // dana tertahan sementara (operasional + insentif bila Kuning/Merah)
+  heldBudget: number; // Dana tertahan sementara berdasarkan aturan perlakuan
+  paidBahanBaku: number; // Nilai bahan baku yang dicairkan
+  paidOperasional: number; // Nilai operasional yang dicairkan
   
   // Simulation metadata
   groundTruth: GroundTruth;
+  schoolConfirmationSampled: boolean; // Sampel 10% konfirmasi sekolah/posyandu untuk R8
+  schoolConfirmedPortions?: number; // Porsi menurut konfirmasi pihak ketiga
+  
+  // Consecutive cycle state
+  prevWeekKuning: boolean; // Siklus minggu sebelumnya Kuning
+  clarificationAccepted: boolean; // Klarifikasi diterima pada siklus sebelumnya
+  isConsecutiveKuningMerah: boolean; // Merah akibat Kuning 2 siklus berturut-turut tanpa klarifikasi diterima
   
   // Computed live
   activeFlags: RedFlagCode[];
   triase: TriaseLabel;
-  verificationDeadline: string; // e.g. "usulan 3 hari kerja" (Kuning), "usulan 5 hari kerja" (Merah)
-  recommendationAction: string; // e.g. "Verifikasi lapangan"
+  triggerReason: string; // Logika aturan pemicu label (e.g. "R5 + R3 aktif bersamaan", "R1 aktif", "Kuning 2 siklus tanpa klarifikasi")
+  verificationDeadline: string; // "usulan 3 hari kerja" (Kuning), "usulan 4 hari kerja" (Merah)
+  recommendationAction: string; // Teks perlakuan operasional
   verificationStatus: 'Mesin Aturan' | 'Menunggu Verifikator' | 'Verifikasi Lapangan' | 'Selesai';
 }
 
 export interface SimulationParameters {
-  tolR5: number; // 5 - 30%, default 10
-  tolR4a: number; // 0 - 15%, default 0
-  paguBahan: number; // default 10000, label "perlu dicek ke juknis"
-  enableR3Tahap1: boolean; // default false: "Pindahkan R3 ke Tahap 1 (bila data penetapan penerima sudah digital)"
-  propProblematic: number; // 2 - 10%, default 4
-  propHonestError: number; // 3 - 15%, default 8
-  fieldCapacity: number; // 50 - 500, default 150
+  mode: 'tahap1' | 'tahap1_2'; // "Tahap 1 saja (rancangan pilot: R1, R2, R3)" [default] | "Tahap 1 + 2 (tambah R4, R5, R8)"
+  tolR3: number; // 0 - 20%, default 5% (toleransi kelebihan porsi R3)
+  tolR4: number; // 0 - 15%, default 0% (toleransi biaya bahan R4)
+  tolR5: number; // 5 - 30%, default 10% (toleransi selisih rekonsiliasi R5)
+  hargaAcuan: number; // default 10000, label "perlu dicek ke juknis"
+  operasionalShare: number; // default 20 (%), label "asumsi simulasi"
+  propProblematic: number; // 2 - 10%, default 4%
+  propHonestError: number; // 3 - 15%, default 8%
+  fieldCapacity: number; // 50 - 500, default 150 (label: "asumsi: jumlah verifikator BGN belum diketahui")
+  docReviewCapacity: number; // default 600 (label: "asumsi")
 }
 
 export interface SimulationMetrics {
@@ -78,22 +95,26 @@ export interface SimulationMetrics {
   merahCount: number;
   flaggedCount: number;
   falsePositivesCount: number;
-  falsePositiveRate: number;
-  falseNegativesCount: number;
-  falseNegativeRate: number;
-  falseNegativesOverHijauRate: number;
+  falsePositiveRate: number; // Positif palsu: dapur bertanda bukan bermasalah / seluruh dapur bertanda
+  falseNegativesCount: number; // Negatif palsu: dapur bermasalah berlabel Hijau
+  falseNegativeRate: number; // Negatif palsu dari audit sampel hijau / total dapur
+  falseNegativesOverHijauRate: number; // Negatif palsu / dapur Hijau
   sensitivity: number;
   specificity: number;
-  precisionBaseRate: number;
-  withheldTotal: number;
+  precisionBaseRate: number; // p*s / (p*s + (1-p)*(1-k))
+  withheldTotal: number; // Dana tertahan sementara
   totalRequested: number;
-  fieldBurden: number; // Beban lapangan (Merah)
+  fieldBurden: number; // Beban lapangan (Merah only)
+  fieldCapacity: number;
+  merahLateCount: number; // Merah terlambat dilaporkan ke Inspektorat Utama
   docReviewBurden: number; // Beban reviu dokumen (Kuning)
-  burdenPercent: number; // Merah / fieldCapacity * 100
-  isOverCapacity: boolean; // Merah > fieldCapacity
-  capacity: number;
+  docReviewCapacity: number;
+  kuningReleasedCount: number; // Kuning dilepas karena verifikator terlambat
+  burdenPercent: number;
+  isOverCapacity: boolean;
   medianDaysKuning: number;
   medianDaysMerah: number;
+  disruptedDaysPerKitchen: number;
 }
 
 export interface DecisionLogEntry {

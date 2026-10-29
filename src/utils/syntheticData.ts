@@ -13,20 +13,24 @@ import {
   RedFlagCode,
   TriaseLabel,
   DailyFinancial,
-  SimulationMetrics
+  SimulationMetrics,
+  DecisionLogEntry
 } from '../types';
 
 export const DEFAULT_SIMULATION_PARAMETERS: SimulationParameters = {
-  tolR5: 10,
-  tolR4a: 0,
-  paguBahan: 10000,
-  enableR3Tahap1: false,
-  propProblematic: 4, // 2-10%, default 4%
-  propHonestError: 8, // 3-15%, default 8%
-  fieldCapacity: 150, // 50-500, default 150
+  mode: 'tahap1', // "Tahap 1 saja (rancangan pilot: R1, R2, R3)" [default]
+  tolR3: 5, // 0 - 20%, default 5%
+  tolR4: 0, // 0 - 15%, default 0%
+  tolR5: 10, // 5 - 30%, default 10%
+  hargaAcuan: 10000, // default Rp10.000, label "perlu dicek ke juknis"
+  operasionalShare: 20, // default 20%, label "asumsi simulasi"
+  propProblematic: 4, // 2 - 10%, default 4%
+  propHonestError: 8, // 3 - 15%, default 8%
+  fieldCapacity: 150, // 50 - 500, default 150 (label: "asumsi: jumlah verifikator BGN belum diketahui")
+  docReviewCapacity: 600, // default 600 (label: "asumsi")
 };
 
-// Deterministic Pseudo-Random Generator (Mulberry32)
+// Deterministic Mulberry32 RNG
 function createRng(seed: number) {
   let s = seed >>> 0;
   return function () {
@@ -48,43 +52,33 @@ const PARTNER_NAMES = [
 ];
 
 /**
- * Generate 500 synthetic kitchens for Minggu 4 (current gate run)
- * Single source of truth across all prototype pages.
+ * Generate 500 synthetic kitchens with persistent state across Minggu 1 to 4.
+ * Core inputs:
+ * - Laporan harian SIPGN (Senin-Sabtu)
+ * - Status SPPG (beroperasi, suspend, SLHS)
+ * - Mutasi VA Himbara (Tahap 2)
  */
 export function generateSyntheticKitchens(
   params: SimulationParameters = DEFAULT_SIMULATION_PARAMETERS,
-  weekIndex: number = 4
+  targetWeek: number = 4
 ): Kitchen[] {
-  const rng = createRng(42 + weekIndex * 1337);
-  const kitchens: Kitchen[] = [];
-
   const totalKitchens = 500;
-  const numProblematic = Math.round(totalKitchens * (params.propProblematic / 100)); // ~20 at 4%
-  const numHonestError = Math.round(totalKitchens * (params.propHonestError / 100)); // ~40 at 8%
+  const numProblematic = Math.round(totalKitchens * (params.propProblematic / 100)); // default ~20
+  const numHonestError = Math.round(totalKitchens * (params.propHonestError / 100)); // default ~40
 
-  // Determine ground truths in a reproducible shuffled manner
+  // Ground truths array deterministically seeded from base seed
+  const baseRng = createRng(1001);
   const groundTruths: GroundTruth[] = [];
   for (let i = 0; i < numProblematic; i++) groundTruths.push('problematic');
   for (let i = 0; i < numHonestError; i++) groundTruths.push('honest_error');
   while (groundTruths.length < totalKitchens) groundTruths.push('normal');
 
-  // Shuffle ground truths deterministically
   for (let i = groundTruths.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
+    const j = Math.floor(baseRng() * (i + 1));
     [groundTruths[i], groundTruths[j]] = [groundTruths[j], groundTruths[i]];
   }
 
-  // Pin key representative showcase examples to fixed IDs
-  // SPPG Contoh 087 -> problematic with R4a + R5 (Merah)
-  // SPPG Contoh 014 -> problematic with R2 (Merah: belum beroperasi/suspend/belum SLHS)
-  // SPPG Contoh 045 -> problematic with R1 (Merah: VA ganda)
-  // SPPG Contoh 028 -> problematic with subtle drift below tolerance (Negatif Palsu -> Hijau)
-  // SPPG Contoh 070 -> problematic with subtle drift below tolerance (Negatif Palsu -> Hijau)
-  // SPPG Contoh 156 -> honest_error (Kuning: R4a alone)
-  // SPPG Contoh 212 -> honest_error (Kuning: R5 alone)
-  // SPPG Contoh 092 -> honest_error (Kuning)
-  // SPPG Contoh 188 -> honest_error (Kuning)
-  // SPPG Contoh 301, 302, 303 -> normal (Hijau)
+  // Pin key representative showcase examples
   const pinIndex = (idNum: number, truth: GroundTruth) => {
     const idx = idNum - 1;
     const oldTruth = groundTruths[idx];
@@ -93,28 +87,64 @@ export function generateSyntheticKitchens(
     if (swapIdx !== -1) groundTruths[swapIdx] = oldTruth;
   };
 
-  pinIndex(87, 'problematic');
-  pinIndex(14, 'problematic');
-  pinIndex(45, 'problematic');
-  pinIndex(28, 'problematic'); // subtle drift -> produces false negative when tolerance >= 10%
-  pinIndex(70, 'problematic'); // subtle drift -> produces false negative when tolerance >= 8%
-  pinIndex(156, 'honest_error');
-  pinIndex(212, 'honest_error');
-  pinIndex(92, 'honest_error');
-  pinIndex(188, 'honest_error');
+  pinIndex(87, 'problematic'); // SPPG 087: Problematic flagship case
+  pinIndex(14, 'problematic'); // SPPG 014: Status belum beroperasi / tanpa SLHS -> R2
+  pinIndex(45, 'problematic'); // SPPG 045: VA Ganda -> R1
+  pinIndex(63, 'problematic'); // SPPG 063: Kuning 2 siklus berturut-turut -> Merah
+  pinIndex(28, 'problematic'); // SPPG 028: Drift halus lolos ambang -> Negatif Palsu (Hijau)
+  pinIndex(70, 'problematic'); // SPPG 070: Drift halus lolos ambang -> Negatif Palsu (Hijau)
+  pinIndex(156, 'honest_error'); // SPPG 156: Salah ketik biaya bahan -> R4 / R3
+  pinIndex(212, 'honest_error'); // SPPG 212: Transmisi nota terlambat / R5 alone
+  pinIndex(92, 'honest_error');  // SPPG 092: Kelebihan porsi ringan -> R3 alone
+  pinIndex(188, 'honest_error'); // SPPG 188: Salah ketik administrasi
   pinIndex(301, 'normal');
   pinIndex(302, 'normal');
   pinIndex(303, 'normal');
 
+  // Multi-week simulation storage: track prior week status for Kuning 2-cycle rule
+  // Week 3 states to determine Week 4 consecutive Kuning rule
+  const prevWeekKuningMap: Record<number, boolean> = {};
+  const prevWeekClarificationAccepted: Record<number, boolean> = {};
+
+  // Simulate persistent history for week 1, 2, 3
+  for (let w = 1; w <= 3; w++) {
+    const wRng = createRng(2000 + w * 777);
+    for (let i = 1; i <= totalKitchens; i++) {
+      const truth = groundTruths[i - 1];
+      let wasKuning = false;
+      if (truth === 'problematic') {
+        wasKuning = wRng() < 0.40;
+      } else if (truth === 'honest_error') {
+        wasKuning = wRng() < 0.65;
+      } else {
+        wasKuning = wRng() < 0.04;
+      }
+
+      if (i === 63) {
+        // Explicitly set SPPG 063 as Kuning in week 3 with unaccepted clarification
+        wasKuning = true;
+      }
+
+      if (w === 3) {
+        prevWeekKuningMap[i] = wasKuning;
+        // Honest error clarifications accepted with high probability (85%), problematic rarely (15%)
+        if (i === 63) {
+          prevWeekClarificationAccepted[i] = false;
+        } else if (truth === 'honest_error') {
+          prevWeekClarificationAccepted[i] = wRng() < 0.85;
+        } else if (truth === 'problematic') {
+          prevWeekClarificationAccepted[i] = wRng() < 0.15;
+        } else {
+          prevWeekClarificationAccepted[i] = true;
+        }
+      }
+    }
+  }
+
+  // Generate target week
+  const rng = createRng(42 + targetWeek * 1337);
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  const dateLabels = [
-    'Senin (Minggu 4)',
-    'Selasa (Minggu 4)',
-    'Rabu (Minggu 4)',
-    'Kamis (Minggu 4)',
-    'Jumat (Minggu 4)',
-    'Sabtu (Minggu 4)'
-  ];
+  const kitchens: Kitchen[] = [];
 
   for (let i = 1; i <= totalKitchens; i++) {
     const idNum = i;
@@ -127,236 +157,281 @@ export function generateSyntheticKitchens(
     const subdistrictNum = String((idNum % 25) + 1).padStart(2, '0');
     const location = `Kecamatan ${subdistrictNum}, ${region}`;
     const partner = PARTNER_NAMES[(idNum - 1) % PARTNER_NAMES.length];
-
     const targetGroup: TargetGroup = rng() > 0.4 ? 'SD' : 'SMP';
-    // Single editable parameter: Pagu bahan per porsi (default Rp10.000, label "perlu dicek ke juknis")
-    const paguPerPorsi = params.paguBahan || 10000;
-    const capacityPortions = 1800 + Math.floor(rng() * 1400); // 1.800 - 3.200
-    const capacityLabel = `${capacityPortions.toLocaleString('id-ID')} porsi/hari`;
+
+    // Master data
+    const penerimaSinkronisasi = 1800 + Math.floor(rng() * 1200); // 1.800 - 3.000 porsi per hari
+    const capacityLabel = `${penerimaSinkronisasi.toLocaleString('id-ID')} porsi/hari`;
+    const hargaAcuan = params.hargaAcuan || 10000;
 
     let activeVaCount = 1;
     let status: KitchenStatus = 'beroperasi';
-    let baseBahanCost = Math.round(paguPerPorsi * (0.85 + (rng() * 0.1))); // Rp 8.500 - 9.500
+    let hasSLHS = true;
+    let hariTanpaLayanan = false;
 
-    // Average daily spend ~Rp 18M - 28M
-    const avgDailySpend = Math.round((capacityPortions * baseBahanCost * 1.33) / 100000) * 100000;
-    let dailyFinancials: DailyFinancial[] = [];
+    // Continuous deviation generation
+    let porsiFactor = 0.98 + rng() * 0.03; // normal: ~98% - 101% of synced recipients
+    let bahanCostFactor = 0.88 + rng() * 0.08; // normal: Rp 8.800 - 9.600
+    let vaGapFactor = 0.01 + rng() * 0.025; // normal: 1% - 3.5% gap
+    let schoolDiff = 0; // for R8
 
-    // Distinct profile setup
+    // R8 sampling: 10% random school-confirmation sample
+    const schoolConfirmationSampled = rng() < 0.10;
+
+    // Consecutive cycle tracking
+    const prevWeekKuning = targetWeek === 4 ? Boolean(prevWeekKuningMap[i]) : false;
+    const clarificationAccepted = targetWeek === 4 ? Boolean(prevWeekClarificationAccepted[i]) : true;
+
+    // Specific deterministic case configurations
     if (idNum === 87) {
-      // Benchmark flagship case: R4a (+12%) and R5 (34% gap) active together -> Merah
-      baseBahanCost = 11200; // > pagu Rp10.000
-      dailyFinancials = [
-        { dayName: 'Senin', dateLabel: 'Senin (Minggu 4)', reportedSpend: 8200000, vaOutflow: 7800000, isAnomaly: false },
-        { dayName: 'Selasa', dateLabel: 'Selasa (Minggu 4)', reportedSpend: 8100000, vaOutflow: 7900000, isAnomaly: false },
-        { dayName: 'Rabu', dateLabel: 'Rabu (Minggu 4)', reportedSpend: 8400000, vaOutflow: 5200000, isAnomaly: true },
-        { dayName: 'Kamis', dateLabel: 'Kamis (Minggu 4)', reportedSpend: 8000000, vaOutflow: 3100000, isAnomaly: true },
-        { dayName: 'Jumat', dateLabel: 'Jumat (Minggu 4)', reportedSpend: 7900000, vaOutflow: 3800000, isAnomaly: true },
-        { dayName: 'Sabtu', dateLabel: 'Sabtu (Minggu 4)', reportedSpend: 7600000, vaOutflow: 3800000, isAnomaly: true }
-      ];
+      // Benchmark: Problematic with R3, R4, R5 active together
+      porsiFactor = 1.18; // 18% over synced recipients -> R3
+      bahanCostFactor = 1.12; // Rp 11.200 (> Rp 10.000) -> R4
+      vaGapFactor = 0.32; // 32% gap -> R5
     } else if (idNum === 14) {
-      // Benchmark flagship case: R2 (status belum beroperasi) -> Merah
+      // Benchmark: R2 (status belum beroperasi & belum SLHS)
       status = 'belum beroperasi';
-      baseBahanCost = paguPerPorsi - 200;
-      dailyFinancials = days.map((d, dIdx) => ({
-        dayName: d,
-        dateLabel: dateLabels[dIdx],
-        reportedSpend: avgDailySpend,
-        vaOutflow: Math.round(avgDailySpend * 0.88),
-        isAnomaly: false
-      }));
+      hasSLHS = false;
     } else if (idNum === 45) {
-      // Benchmark flagship case: R1 (activeVaCount = 2) -> Merah
+      // Benchmark: R1 (2 VA aktif)
       activeVaCount = 2;
-      baseBahanCost = paguPerPorsi - 100;
-      dailyFinancials = days.map((d, dIdx) => ({
-        dayName: d,
-        dateLabel: dateLabels[dIdx],
-        reportedSpend: avgDailySpend,
-        vaOutflow: Math.round(avgDailySpend * 0.90),
-        isAnomaly: false
-      }));
+    } else if (idNum === 63) {
+      // Benchmark: Kuning 2 siklus berturut-turut tanpa klarifikasi diterima -> Merah
+      porsiFactor = 1.07; // mild R3 in both weeks
+      // prevWeekKuning is true, clarificationAccepted is false
     } else if (idNum === 156) {
-      // Benchmark flagship case: R4a alone (+5%) -> Kuning
-      baseBahanCost = 10500;
-      dailyFinancials = days.map((d, dIdx) => ({
-        dayName: d,
-        dateLabel: dateLabels[dIdx],
-        reportedSpend: avgDailySpend,
-        vaOutflow: Math.round(avgDailySpend * 0.96),
-        isAnomaly: false
-      }));
+      // Benchmark: Honest error with R4 alone (+6%)
+      bahanCostFactor = 1.06;
+      porsiFactor = 1.00;
+      vaGapFactor = 0.03;
     } else if (idNum === 212) {
-      // Benchmark flagship case: R5 alone (16% gap) -> Kuning
-      baseBahanCost = 9600;
-      dailyFinancials = days.map((d, dIdx) => ({
-        dayName: d,
-        dateLabel: dateLabels[dIdx],
-        reportedSpend: avgDailySpend,
-        vaOutflow: Math.round(avgDailySpend * 0.84),
-        isAnomaly: true
-      }));
+      // Benchmark: Honest error with R5 alone (17% gap)
+      vaGapFactor = 0.17;
+      bahanCostFactor = 0.94;
+    } else if (idNum === 92) {
+      // Benchmark: Honest error with R3 alone (+9%)
+      porsiFactor = 1.09;
+      bahanCostFactor = 0.95;
+      vaGapFactor = 0.03;
+    } else if (idNum === 28 || idNum === 70) {
+      // Problematic with subtle anomaly below thresholds -> Negatif Palsu (Hijau)
+      porsiFactor = 1.03; // below 5% tolerance
+      bahanCostFactor = 0.98; // below tolerance
+      vaGapFactor = 0.06; // below 10% tolerance
     } else if (truth === 'problematic') {
-      // Continuous anomaly size generation for truly problematic kitchens:
-      // R5 gap drawn from a wide continuous distribution (3% to 45% gap)
-      // Some small (3-9%), some medium (10-25%), some large (25-45%)
-      const r5GapRatio = 0.03 + (rng() * 0.42);
-      // R4a overage drawn from wide continuous distribution (-5% to +27%)
-      const r4aOverage = (rng() * 0.32) - 0.05;
-      baseBahanCost = Math.round(paguPerPorsi * (1 + r4aOverage));
+      // Wide continuous distribution for truly problematic kitchens
+      porsiFactor = 0.95 + rng() * 0.35; // 0.95 - 1.30
+      bahanCostFactor = 0.90 + rng() * 0.32; // 0.90 - 1.22
+      vaGapFactor = 0.03 + rng() * 0.40; // 3% - 43% gap
 
-      if (rng() < 0.12) {
-        activeVaCount = 2;
-      }
-      if (rng() < 0.12) {
+      if (rng() < 0.10) activeVaCount = 2; // R1 trigger
+      if (rng() < 0.08) {
         status = rng() > 0.5 ? 'belum beroperasi' : 'suspend';
+        hasSLHS = rng() > 0.5;
       }
-
-      dailyFinancials = days.map((d, dIdx) => {
-        const rep = avgDailySpend + Math.floor((rng() - 0.5) * 500000);
-        const dailyDrop = dIdx >= 3 ? (r5GapRatio * 1.8) : (r5GapRatio * 0.2);
-        const va = Math.round(rep * (1 - Math.min(0.85, Math.max(0, dailyDrop))));
-        return {
-          dayName: d,
-          dateLabel: dateLabels[dIdx],
-          reportedSpend: rep,
-          vaOutflow: va,
-          isAnomaly: false
-        };
-      });
+      if (rng() < 0.12) hariTanpaLayanan = true;
+      if (schoolConfirmationSampled && rng() < 0.45) schoolDiff = 0.15 + rng() * 0.25;
     } else if (truth === 'honest_error') {
-      // Continuous anomaly size generation for honest-error kitchens:
-      // R5 gap drawn from continuous distribution (4% to 26%)
-      const r5GapRatio = 0.04 + (rng() * 0.22);
-      // R4a overage drawn from -4% to +8%
-      const r4aOverage = (rng() * 0.12) - 0.04;
-      baseBahanCost = Math.round(paguPerPorsi * (1 + r4aOverage));
-
-      dailyFinancials = days.map((d, dIdx) => {
-        const rep = avgDailySpend + Math.floor((rng() - 0.5) * 400000);
-        const dailyDrop = dIdx === 5 ? (r5GapRatio * 2.5) : (r5GapRatio * 0.4);
-        const va = Math.round(rep * (1 - Math.min(0.85, Math.max(0, dailyDrop))));
-        return {
-          dayName: d,
-          dateLabel: dateLabels[dIdx],
-          reportedSpend: rep,
-          vaOutflow: va,
-          isAnomaly: false
-        };
-      });
-    } else {
-      // Normal kitchens: tight consistency, minimal natural friction (0.8% - 3.4% gap)
-      const r5GapRatio = 0.008 + (rng() * 0.026);
-      baseBahanCost = Math.round(paguPerPorsi * (0.87 + rng() * 0.08));
-      dailyFinancials = days.map((d, dIdx) => {
-        const rep = avgDailySpend + Math.floor((rng() - 0.5) * 300000);
-        const va = Math.round(rep * (1 - (r5GapRatio * (0.8 + rng() * 0.4))));
-        return {
-          dayName: d,
-          dateLabel: dateLabels[dIdx],
-          reportedSpend: rep,
-          vaOutflow: va,
-          isAnomaly: false
-        };
-      });
+      // Honest error deviations
+      porsiFactor = 0.97 + rng() * 0.18; // 0.97 - 1.15
+      bahanCostFactor = 0.90 + rng() * 0.18; // 0.90 - 1.08
+      vaGapFactor = 0.03 + rng() * 0.22; // 3% - 25% gap
+      if (rng() < 0.06) hariTanpaLayanan = true;
+      if (schoolConfirmationSampled && rng() < 0.20) schoolDiff = 0.11 + rng() * 0.08;
     }
 
-    const reportedSpendTotal = dailyFinancials.reduce((acc, curr) => acc + curr.reportedSpend, 0);
-    const vaOutflowTotal = dailyFinancials.reduce((acc, curr) => acc + curr.vaOutflow, 0);
-    const vaBalance = Math.round(80000000 + rng() * 140000000);
+    // Daily reporting (Senin - Sabtu)
+    const porsiDilaporkan = days.map((d, dIdx) => {
+      // Non-service day check
+      if (hariTanpaLayanan && dIdx === 5) {
+        return Math.round(penerimaSinkronisasi * 0.9);
+      }
+      const dayVariation = 0.96 + rng() * 0.08;
+      return Math.round(penerimaSinkronisasi * porsiFactor * dayVariation);
+    });
 
-    // Weekly reported portions (6 days)
-    const weeklyPortions = capacityPortions * 6;
+    const totalPorsiDilaporkan = porsiDilaporkan.reduce((acc, p) => acc + p, 0);
+    const biayaBahanPerPorsi = Math.round(hargaAcuan * bahanCostFactor);
 
-    // TOP-UP COMPONENTS:
-    // 1. Bahan baku: cost of ingredients (~75% of reported operational base)
-    // 2. Operasional: operational expenses & cook fees (~25% of reported operational base)
-    // 3. Insentif: Rp 2.000 per reported portion, effective 5 Oktober 2026 (usulan)
-    const bahanBakuBudget = Math.round((reportedSpendTotal * 0.75) / 100000) * 100000;
-    const operasionalBudget = Math.round((reportedSpendTotal * 0.25) / 100000) * 100000;
-    const insentifBudget = weeklyPortions * 2000;
-    const topUpRequested = bahanBakuBudget + operasionalBudget + insentifBudget;
+    // Financial numbers
+    // Top-up = reported spend
+    const dailyReportedSpends = porsiDilaporkan.map((porsi) => {
+      return Math.round((porsi * biayaBahanPerPorsi * 1.25) / 1000) * 1000;
+    });
+
+    const reportedSpendTotal = dailyReportedSpends.reduce((a, b) => a + b, 0);
+    const vaOutflowTotal = Math.round(reportedSpendTotal * (1 - Math.min(0.85, vaGapFactor)));
+    const saldoVa = Math.round(40000000 + rng() * 120000000); // Rp 40M - 160M
+
+    const dailyFinancials: DailyFinancial[] = days.map((d, dIdx) => {
+      const rep = dailyReportedSpends[dIdx];
+      const vaRatio = (dIdx === 4 || dIdx === 5) ? (1 - vaGapFactor * 1.5) : (1 - vaGapFactor * 0.6);
+      const va = Math.round(rep * Math.max(0.15, vaRatio));
+      const dayGap = Math.abs(rep - va) / rep;
+      return {
+        dayName: d,
+        dateLabel: `${d} (Minggu ${targetWeek})`,
+        reportedSpend: rep,
+        vaOutflow: va,
+        isAnomaly: dayGap > params.tolR5 / 100
+      };
+    });
+
+    // TWO COMPONENTS ONLY:
+    // Bahan baku & operasional (operasional share default 20%, editable assumption)
+    const operasionalSharePct = params.operasionalShare || 20;
+    const operasionalBudget = Math.round((reportedSpendTotal * (operasionalSharePct / 100)) / 100000) * 100000;
+    const bahanBakuBudget = reportedSpendTotal - operasionalBudget;
+    const topUpRequested = bahanBakuBudget + operasionalBudget;
     const foodBudget = bahanBakuBudget;
 
-    // RULE ENGINE EVALUATION
+    // School confirmation for R8
+    const schoolConfirmedPortions = schoolConfirmationSampled
+      ? Math.round(totalPorsiDilaporkan * (1 - schoolDiff))
+      : undefined;
+
+    // RED FLAG EVALUATION
+    // Lapis 1 (Master Data): R1, R2
+    // Lapis 2 (Laporan Mingguan): R3 first, then R4, R5, R8
+    // Mode Switch:
+    // Tahap 1 saja (rancangan pilot): R1, R2, R3
+    // Tahap 1 + 2: R1, R2, R3, R4, R5, R8
     const activeFlags: RedFlagCode[] = [];
 
-    // R1: Virtual Account ganda aktif
+    // R1: Satu dapur, alamat, atau penanggung jawab memegang lebih dari satu VA aktif
     if (activeVaCount > 1) {
       activeFlags.push('R1');
     }
 
-    // R2: Top-up diajukan untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS
-    if (status !== 'beroperasi') {
+    // R2: Top-up untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS
+    if (status !== 'beroperasi' || !hasSLHS) {
       activeFlags.push('R2');
     }
 
-    // R3 (when enabled via toggle):
-    // Laporan porsi harian melebihi porsi penetapan dapur atau dilaporkan pada hari non-layanan
-    if (params.enableR3Tahap1) {
-      const hasR3Anomaly = (truth === 'problematic' && idNum % 3 === 0) || idNum === 87;
-      if (hasR3Anomaly) {
-        activeFlags.push('R3');
+    // R3: Porsi harian melebihi penerima hasil sinkronisasi, atau dilaporkan pada hari tanpa layanan
+    const maxDayPortion = Math.max(...porsiDilaporkan);
+    const r3Limit = penerimaSinkronisasi * (1 + params.tolR3 / 100);
+    if (maxDayPortion > r3Limit || hariTanpaLayanan) {
+      activeFlags.push('R3');
+    }
+
+    // Mode 'tahap1_2' enables R4, R5, R8
+    if (params.mode === 'tahap1_2') {
+      // R4: Biaya bahan per porsi melebihi HET atau survei pasar (+ toleransi)
+      const r4Limit = hargaAcuan * (1 + params.tolR4 / 100);
+      if (biayaBahanPerPorsi > r4Limit) {
+        activeFlags.push('R4');
+      }
+
+      // R5: Pemakaian yang dilaporkan tidak sejalan dengan arus keluar VA
+      const gapPercent = Math.abs(reportedSpendTotal - vaOutflowTotal) / reportedSpendTotal;
+      if (gapPercent > params.tolR5 / 100) {
+        activeFlags.push('R5');
+      }
+
+      // R8: Porsi berbeda dengan konfirmasi sekolah atau posyandu (sampel acak 10%)
+      if (schoolConfirmationSampled && schoolDiff > 0.10) {
+        activeFlags.push('R8');
       }
     }
 
-    // R4a: Biaya bahan di atas pagu bahan per porsi (+ toleransi)
-    const maxAllowedCost = paguPerPorsi * (1 + params.tolR4a / 100);
-    if (baseBahanCost > maxAllowedCost) {
-      activeFlags.push('R4a');
-    }
-
-    // R5: Selisih relatif belanja dilaporkan vs arus keluar VA melebihi toleransi R5
-    const gapPercent = Math.abs(reportedSpendTotal - vaOutflowTotal) / reportedSpendTotal;
-    if (gapPercent > params.tolR5 / 100) {
-      activeFlags.push('R5');
-    }
-
-    // Mark daily row anomalies consistently based on R5 tolerance
-    dailyFinancials.forEach((d) => {
-      const dayGap = Math.abs(d.reportedSpend - d.vaOutflow) / d.reportedSpend;
-      d.isAnomaly = dayGap > params.tolR5 / 100;
-    });
-
-    // RULE TEXT & CLASSIFICATION (NO NUMERIC SCORES, NO REPUTATION HISTORY)
-    // Merah: R1 or R2 active, or two or more of other flags active together (e.g. R4a and R5 active together).
-    // Kuning: exactly one other flag active (e.g. R4a or R5 active alone).
-    // Hijau: none.
-    // Note: flags sharing the same source (laporan harian SPPG) active together only raise verification priority; they do not prove intent.
+    // LABEL RULE (EXACT ESSAY DEFINITION; NO SCORES OR WEIGHTS)
+    // Merah:
+    // 1) R1 or R2 active;
+    // 2) OR R5 active together with R3 or R4 (only in tahap1_2);
+    // 3) OR the kitchen was Kuning two consecutive cycles without an accepted clarification.
+    // Kuning:
+    // Any one of R3, R4, R5, R8 active without a Merah condition.
+    // Hijau:
+    // No red flag active.
     const hasR1 = activeFlags.includes('R1');
     const hasR2 = activeFlags.includes('R2');
-    const otherFlags = activeFlags.filter((f) => f !== 'R1' && f !== 'R2');
+    const hasR3 = activeFlags.includes('R3');
+    const hasR4 = activeFlags.includes('R4');
+    const hasR5 = activeFlags.includes('R5');
+    const hasR8 = activeFlags.includes('R8');
+
+    const consecutiveKuningMerah = prevWeekKuning && !clarificationAccepted && (activeFlags.length > 0 || idNum === 63);
 
     let triase: TriaseLabel = 'Hijau';
-    if (hasR1 || hasR2 || otherFlags.length >= 2) {
+    let triggerReason = 'Tidak ada red flag aktif; seluruh parameter lolos';
+
+    if (hasR1) {
       triase = 'Merah';
-    } else if (otherFlags.length === 1) {
+      triggerReason = 'R1 aktif (satu dapur memegang lebih dari 1 VA aktif)';
+    } else if (hasR2) {
+      triase = 'Merah';
+      triggerReason = 'R2 aktif (SPPG belum beroperasi, disuspend, atau belum ber-SLHS)';
+    } else if (hasR5 && (hasR3 || hasR4)) {
+      triase = 'Merah';
+      triggerReason = hasR3 && hasR4
+        ? 'R5 + R3 + R4 aktif bersamaan (selisih VA dan deviasi laporan harian)'
+        : hasR3
+        ? 'R5 + R3 aktif bersamaan (selisih mutasi VA dan kelebihan porsi)'
+        : 'R5 + R4 aktif bersamaan (selisih mutasi VA dan biaya di atas acuan)';
+    } else if (consecutiveKuningMerah) {
+      triase = 'Merah';
+      triggerReason = 'Kuning 2 siklus berturut-turut tanpa klarifikasi tertulis yang diterima';
+    } else if (hasR3 || hasR4 || hasR5 || hasR8) {
       triase = 'Kuning';
+      const triggered = activeFlags.filter(f => ['R3', 'R4', 'R5', 'R8'].includes(f));
+      triggerReason = `${triggered.join(', ')} aktif (indikator tunggal tanpa kondisi Merah)`;
     } else {
       triase = 'Hijau';
+      triggerReason = 'Tidak ada red flag aktif';
     }
 
-    // TREATMENT:
-    // Hijau: all three paid (bahan baku, operasional, insentif)
-    // Kuning: bahan baku paid, operasional and insentif held pending written clarification (usulan 3 hari kerja)
-    // Merah: only minimum bahan baku paid if kitchen is verified to exist and operate; operasional and insentif held; field verification by Verifikator BGN (usulan 5 hari kerja)
+    // TREATMENT PER LABEL (EXACT ESSAY DEFINITION)
+    // Hijau: top-up penuh sesuai jadwal; a random sample of Hijau kitchens is audited each week without notice.
+    // Kuning: bahan baku tetap cair; operasional ditahan sampai klarifikasi tertulis selesai, paling lama 3 hari kerja;
+    //         the held component is paid together with the next week's SPP; if clarification is late because of verifikator, operasional is released without waiting.
+    // Merah: bahan baku only for the penerima hasil sinkronisasi, and only if the remaining VA balance is not enough until the next SPP;
+    //        waits for verifikasi lapangan, paling lama 4 hari kerja; held components are paid together with the next week's SPP;
+    //        NO automatic release exception, and a late verification is reported to Inspektorat Utama. A kitchen that does not exist receives no funds.
     let heldBudget = 0;
-    let recommendationAction = 'Top-up penuh dicairkan (bahan baku, operasional, insentif)';
+    let paidBahanBaku = 0;
+    let paidOperasional = 0;
+    let recommendationAction = '';
     let verificationDeadline = '-';
 
-    if (triase === 'Merah') {
-      if (status === 'beroperasi') {
-        heldBudget = operasionalBudget + insentifBudget;
-        recommendationAction = 'Bahan baku minimum dicairkan; operasional & insentif ditahan; verifikasi lapangan oleh Verifikator BGN (usulan 5 hari kerja); Inspektorat Utama BGN hanya mereviu eksepsi & menerima rujukan audit investigatif';
-      } else {
-        heldBudget = topUpRequested;
-        recommendationAction = 'Top-up ditahan penuh: SPPG belum beroperasi / belum ber-SLHS; verifikasi lapangan oleh Verifikator BGN (usulan 5 hari kerja); Inspektorat Utama BGN hanya mereviu eksepsi & menerima rujukan audit investigatif';
-      }
-      verificationDeadline = 'usulan 5 hari kerja';
+    if (triase === 'Hijau') {
+      paidBahanBaku = bahanBakuBudget;
+      paidOperasional = operasionalBudget;
+      heldBudget = 0;
+      recommendationAction = 'Top-up penuh dicairkan sesuai jadwal; sampel acak dapur Hijau diaudit setiap minggu tanpa pemberitahuan';
+      verificationDeadline = '-';
     } else if (triase === 'Kuning') {
-      heldBudget = operasionalBudget + insentifBudget;
-      recommendationAction = 'Bahan baku dicairkan; operasional & insentif ditahan sementara menunggu klarifikasi tertulis (usulan 3 hari kerja)';
+      paidBahanBaku = bahanBakuBudget;
+      paidOperasional = 0;
+      heldBudget = operasionalBudget;
+      recommendationAction = 'Bahan baku tetap cair; operasional ditahan sampai klarifikasi tertulis selesai (usulan maks. 3 hari kerja); dibayarkan pada SPP minggu berikutnya';
       verificationDeadline = 'usulan 3 hari kerja';
+    } else if (triase === 'Merah') {
+      verificationDeadline = 'usulan 4 hari kerja';
+      if (status !== 'beroperasi' || !hasSLHS) {
+        // Dapur tidak ada / belum beroperasi: tidak ada dana cair
+        paidBahanBaku = 0;
+        paidOperasional = 0;
+        heldBudget = topUpRequested;
+        recommendationAction = 'Seluruh top-up ditahan; dapur belum beroperasi/tanpa SLHS, hak penerima dialihkan sementara ke dapur terdekat; verifikasi lapangan maks. 4 hari kerja';
+      } else {
+        // Dapur beroperasi: hitung kebutuhan bahan baku penerima hasil sinkronisasi
+        const bahanBakuNeeded = penerimaSinkronisasi * 6 * hargaAcuan;
+        if (saldoVa >= bahanBakuNeeded) {
+          // Saldo VA mencukupi sampai SPP berikutnya
+          paidBahanBaku = 0;
+          paidOperasional = 0;
+          heldBudget = topUpRequested;
+          recommendationAction = 'Saldo VA masih mencukupi kebutuhan bahan porsi sinkronisasi sampai SPP berikutnya; top-up ditahan menunggu verifikasi lapangan (usulan maks. 4 hari kerja)';
+        } else {
+          // Saldo VA tidak cukup: cairkan kekurangan bahan baku minimum
+          const shortfall = Math.max(0, bahanBakuNeeded - saldoVa);
+          paidBahanBaku = Math.min(bahanBakuBudget, shortfall);
+          paidOperasional = 0;
+          heldBudget = topUpRequested - paidBahanBaku;
+          recommendationAction = `Bahan baku dicairkan sebesar kekurangan (Rp ${paidBahanBaku.toLocaleString('id-ID')}); operasional ditahan; verifikasi lapangan maks. 4 hari kerja oleh Verifikator BGN`;
+        }
+      }
     }
 
     kitchens.push({
@@ -365,27 +440,39 @@ export function generateSyntheticKitchens(
       region,
       location,
       partner,
-      capacity: capacityPortions,
+      capacity: penerimaSinkronisasi,
       capacityLabel,
       targetGroup,
-      paguPerPorsi,
-      activeVaCount,
       status,
-      reportedCostPerPortion: baseBahanCost,
+      hasSLHS,
+      activeVaCount,
+      penerimaSinkronisasi,
+      porsiDilaporkan,
+      totalPorsiDilaporkan,
+      hariTanpaLayanan,
+      biayaBahanPerPorsi,
+      hargaAcuan,
+      danaDilaporkanTerpakai: reportedSpendTotal,
+      arusKeluarVa: vaOutflowTotal,
+      saldoVa,
       dailyFinancials,
-      reportedSpendTotal,
-      vaOutflowTotal,
-      vaBalance,
-      weeklyPortions,
+      weeklyPortions: totalPorsiDilaporkan,
       topUpRequested,
       bahanBakuBudget,
       operasionalBudget,
-      insentifBudget,
       foodBudget,
       heldBudget,
+      paidBahanBaku,
+      paidOperasional,
       groundTruth: truth,
+      schoolConfirmationSampled,
+      schoolConfirmedPortions,
+      prevWeekKuning,
+      clarificationAccepted,
+      isConsecutiveKuningMerah: consecutiveKuningMerah,
       activeFlags,
       triase,
+      triggerReason,
       verificationDeadline,
       recommendationAction,
       verificationStatus: 'Mesin Aturan'
@@ -406,10 +493,8 @@ function computeMedian(values: number[]): number {
 }
 
 /**
- * Historical stacked data for Minggu 1 - Minggu 4
- * Single source of truth: Minggu 1 to 3 generated with the same seeded engine and a different seed per week.
- * Minggu 4 reads live from current simulation state.
- * All weeks strictly sum to 500 kitchens.
+ * Historical summary for Minggu 1 to 4 from the SAME seeded engine.
+ * Reads persistent data per week.
  */
 export function getHistoricalWeeksSummary(
   week4Kitchens: Kitchen[],
@@ -445,7 +530,8 @@ export function getHistoricalWeeksSummary(
 }
 
 /**
- * Computes simulation metrics: FP, FN, Capacity, Withheld Funds, and Presisi (Base Rate)
+ * Computes simulation metrics:
+ * FP, FN, Capacity, Withheld Funds, and Presisi (Base Rate)
  */
 export function computeSimulationMetrics(kitchens: Kitchen[], params: SimulationParameters): SimulationMetrics {
   const total = kitchens.length;
@@ -484,24 +570,32 @@ export function computeSimulationMetrics(kitchens: Kitchen[], params: Simulation
   const precisionDenominator = (p * sensitivity) + ((1 - p) * (1 - specificity));
   const precisionBaseRate = precisionDenominator > 0 ? (precisionNumerator / precisionDenominator) * 100 : 0;
 
-  // Dana tertahan (operasional + insentif yang ditahan pada Minggu 4 untuk dapur Merah dan Kuning, atau top-up penuh bila belum beroperasi/suspend)
-  const withheldTotal = flagged.reduce((acc, k) => acc + k.heldBudget, 0);
+  // Dana tertahan sementara (= top-up diajukan minus amount paid under treatment rules)
+  const withheldTotal = kitchens.reduce((acc, k) => acc + k.heldBudget, 0);
   const totalRequested = kitchens.reduce((acc, k) => acc + k.topUpRequested, 0);
 
-  // Beban Lapangan (Merah) vs Kapasitas & Beban Reviu Dokumen (Kuning)
-  const fieldBurden = merah.length; // Only Merah requires field verification
-  const docReviewBurden = kuning.length; // Kuning requires written document clarification
+  // Beban Lapangan (Merah only) vs Kapasitas
+  const fieldBurden = merah.length;
+  const merahLateCount = Math.max(0, fieldBurden - params.fieldCapacity); // Merah terlambat dilaporkan ke Inspektorat Utama
+
+  // Beban Reviu Dokumen (Kuning only) vs Kapasitas
+  const docReviewBurden = kuning.length;
+  const kuningReleasedCount = Math.max(0, docReviewBurden - params.docReviewCapacity); // Kuning dilepas karena verifikator terlambat
+
   const burdenPercent = params.fieldCapacity > 0 ? (fieldBurden / params.fieldCapacity) * 100 : 0;
   const isOverCapacity = fieldBurden > params.fieldCapacity;
 
   // Draw verification durations per case from distribution (asumsi simulasi)
-  // Kuning: klarifikasi dokumen 1-3 hari kerja (rata-rata ~2.1)
-  const kuningDurations = kuning.map((k) => 1.4 + ((k.id.charCodeAt(k.id.length - 1) * 7) % 15) / 10);
-  // Merah: verifikasi lapangan fisik 3-5 hari kerja (rata-rata ~3.8)
-  const merahDurations = merah.map((k) => 2.6 + ((k.id.charCodeAt(k.id.length - 1) * 11) % 25) / 10);
+  // Kuning: klarifikasi dokumen 1-3 hari kerja
+  const kuningDurations = kuning.map((k) => 1.3 + ((k.id.charCodeAt(k.id.length - 1) * 7) % 16) / 10);
+  // Merah: verifikasi lapangan fisik 2-4 hari kerja (maks. 4 hari kerja)
+  const merahDurations = merah.map((k) => 2.2 + ((k.id.charCodeAt(k.id.length - 1) * 9) % 18) / 10);
 
   const medianDaysKuning = kuningDurations.length > 0 ? Number(computeMedian(kuningDurations).toFixed(1)) : 2.1;
-  const medianDaysMerah = merahDurations.length > 0 ? Number(computeMedian(merahDurations).toFixed(1)) : 3.8;
+  const medianDaysMerah = merahDurations.length > 0 ? Number(computeMedian(merahDurations).toFixed(1)) : 3.4;
+
+  // Disrupted service days per kitchen (estimasi ~0,4 hari rata-rata)
+  const disruptedDaysPerKitchen = 0.4;
 
   return {
     total,
@@ -520,31 +614,158 @@ export function computeSimulationMetrics(kitchens: Kitchen[], params: Simulation
     withheldTotal,
     totalRequested,
     fieldBurden,
+    fieldCapacity: params.fieldCapacity,
+    merahLateCount,
     docReviewBurden,
+    docReviewCapacity: params.docReviewCapacity,
+    kuningReleasedCount,
     burdenPercent,
     isOverCapacity,
-    capacity: params.fieldCapacity,
     medianDaysKuning,
-    medianDaysMerah
+    medianDaysMerah,
+    disruptedDaysPerKitchen
   };
 }
 
 /**
- * Pre-computes trade-off curve points across R5 tolerance [5, 10, 15, 20, 25, 30]
- * Uses identical metric computation engine so active point matches cards exactly.
+ * Computes trade-off curve across selected tolerance threshold steps (R3, R4, or R5).
+ * Re-runs the full simulation at each step so active point matches cards exactly.
  */
-export function computeTradeOffCurve(baseParams: SimulationParameters) {
-  const testTolerances = [5, 10, 15, 20, 25, 30];
-  return testTolerances.map((tolR5) => {
-    const testParams = { ...baseParams, tolR5 };
+export function computeTradeOffCurve(
+  baseParams: SimulationParameters,
+  selectedThreshold: 'R3' | 'R4' | 'R5' = 'R5'
+) {
+  let testSteps: number[] = [];
+  if (selectedThreshold === 'R3') {
+    testSteps = [0, 5, 10, 15, 20];
+  } else if (selectedThreshold === 'R4') {
+    testSteps = [0, 3, 6, 9, 12, 15];
+  } else {
+    testSteps = [5, 10, 15, 20, 25, 30];
+  }
+
+  return testSteps.map((stepVal) => {
+    let testParams = { ...baseParams };
+    if (selectedThreshold === 'R3') {
+      testParams.tolR3 = stepVal;
+    } else if (selectedThreshold === 'R4') {
+      testParams.tolR4 = stepVal;
+    } else {
+      testParams.tolR5 = stepVal;
+    }
+
     const simulated = generateSyntheticKitchens(testParams, 4);
     const metrics = computeSimulationMetrics(simulated, testParams);
     return {
-      tolR5,
+      thresholdValue: stepVal,
       falsePositiveRate: Number(metrics.falsePositiveRate.toFixed(1)),
       falseNegativeRate: Number(metrics.falseNegativeRate.toFixed(1)),
       flaggedCount: metrics.flaggedCount,
       withheldTotal: metrics.withheldTotal
     };
   });
+}
+
+/**
+ * Seed 40 synthetic decision register logs with timestamps AFTER the weekly gate run.
+ * Rules:
+ * - Every entry reaching Tingkat 3 must have passed Tingkat 2 first.
+ * - SPPG labels are consistent with the simulation state.
+ */
+export function generateInitialDecisionLogs(kitchens: Kitchen[]): DecisionLogEntry[] {
+  const logs: DecisionLogEntry[] = [];
+  const verifiers = [
+    'Verifikator BGN (Wilayah A)',
+    'Verifikator BGN (Wilayah B)',
+    'Verifikator BGN (Wilayah C)'
+  ];
+
+  // Pick representative kitchens from simulation
+  const flagKuning = kitchens.filter(k => k.triase === 'Kuning').slice(0, 24);
+  const flagMerah = kitchens.filter(k => k.triase === 'Merah').slice(0, 16);
+  const sampleList = [...flagKuning, ...flagMerah];
+
+  const times = [
+    'Senin, 14:15 WIB',
+    'Senin, 16:30 WIB',
+    'Selasa, 09:20 WIB',
+    'Selasa, 11:45 WIB',
+    'Selasa, 15:10 WIB',
+    'Rabu, 10:00 WIB',
+    'Rabu, 13:40 WIB',
+    'Kamis, 09:15 WIB'
+  ];
+
+  sampleList.forEach((k, idx) => {
+    const timeStr = times[idx % times.length];
+    const verifikator = verifiers[idx % verifiers.length];
+    let tingkat: 'Tingkat 1' | 'Tingkat 2' | 'Tingkat 3' | 'Tingkat 4' = 'Tingkat 2';
+    let keputusan = '';
+    let alasan = '';
+    let hasilDiubah = false;
+
+    if (k.id === 'SPPG Contoh 087') {
+      // Benchmark Tingkat 3 (passed Tingkat 2 first)
+      tingkat = 'Tingkat 3';
+      keputusan = 'Rujukan ke Inspektorat Utama untuk audit investigatif';
+      alasan = 'Pemeriksaan fisik Tingkat 2 menemukan selisih belanja berulang dan stempel nota terindikasi tidak sah; dirujuk ke Inspektorat Utama BGN';
+      hasilDiubah = false;
+    } else if (k.id === 'SPPG Contoh 156') {
+      tingkat = 'Tingkat 2';
+      keputusan = 'Klarifikasi Diterima & Koreksi Administratif';
+      alasan = 'Faktur pasar basah fisik sah sesuai harga acuan Rp10.000; kekeliruan ketik koma desimal pada formulir SIPGN';
+      hasilDiubah = true; // Label diubah / dibatalkan
+    } else if (k.id === 'SPPG Contoh 212') {
+      tingkat = 'Tingkat 2';
+      keputusan = 'Klarifikasi Diterima & Salur Operasional Disetujui';
+      alasan = 'Transmisi nota terlambat akibat pemadaman jaringan telekomunikasi; fisik berkas lengkap dan sah';
+      hasilDiubah = true;
+    } else if (k.id === 'SPPG Contoh 092') {
+      tingkat = 'Tingkat 2';
+      keputusan = 'Koreksi Porsi Administratif';
+      alasan = 'Kelebihan porsi terkonfirmasi akibat penambahan siswa baru belum masuk SK sinkronisasi; dikoreksi administratif';
+      hasilDiubah = true;
+    } else if (k.triase === 'Merah') {
+      if (idx % 3 === 0) {
+        tingkat = 'Tingkat 3'; // Passed Tingkat 2 first
+        keputusan = 'Rujukan ke Inspektorat Utama untuk audit investigatif';
+        alasan = 'Verifikasi dokumen dan lapangan mengonfirmasi ketidaksesuaian material dan pola selisih mutasi VA berulang';
+        hasilDiubah = false;
+      } else {
+        tingkat = 'Tingkat 2';
+        keputusan = 'Verifikasi Lapangan Ditugaskan';
+        alasan = 'Pemeriksaan fisik unit dapur dan pengecekan saldo VA sedang berlangsung oleh Verifikator BGN';
+        hasilDiubah = false;
+      }
+    } else {
+      // Kuning cases
+      if (idx % 2 === 0) {
+        tingkat = 'Tingkat 2';
+        keputusan = 'Klarifikasi Tertulis Diterima';
+        alasan = 'Bukti nota fisik dan mutasi rekening sesuai; kekeliruan penginputan laporan harian telah diperbaiki';
+        hasilDiubah = true;
+      } else {
+        tingkat = 'Tingkat 2';
+        keputusan = 'Menunggu Tanggapan SPPG';
+        alasan = 'Surat permintaan klarifikasi tertulis telah dikirimkan ke Kepala SPPG (batas 3 hari kerja)';
+        hasilDiubah = false;
+      }
+    }
+
+    logs.push({
+      id: `REG-2026-M4-${String(idx + 1).padStart(3, '0')}`,
+      time: timeStr,
+      sppgId: k.id,
+      kitchenName: k.name,
+      region: k.region,
+      label: k.triase,
+      tingkat,
+      keputusan,
+      verifikator,
+      alasan,
+      hasilDiubah
+    });
+  });
+
+  return logs;
 }

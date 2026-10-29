@@ -206,7 +206,7 @@ export const INITIAL_DECISION_LOGS: DecisionLogEntry[] = [
     tingkat: 'Tingkat 1',
     keputusan: 'Menunggu Klarifikasi Tertulis SPPG',
     verifikator: 'Mesin Aturan SARING-MBG',
-    alasan: 'Biaya bahan per porsi Rp10.450 melampaui pagu acuan Rp10.000 (R4a aktif sendirian).',
+    alasan: 'Biaya bahan per porsi Rp10.450 melampaui pagu acuan Rp10.000 (R4 aktif sendirian).',
     hasilDiubah: false
   },
   // 15. Tingkat 2
@@ -287,7 +287,7 @@ export const INITIAL_DECISION_LOGS: DecisionLogEntry[] = [
     tingkat: 'Tingkat 2',
     keputusan: 'Bahan Baku Minimum Dicairkan, Operasional Ditahan',
     verifikator: 'Verifikator BGN',
-    alasan: 'Unit dapur beroperasi nyata melayani 2.100 porsi; bahan baku dialirkan demi kontinuitas makan siswa, operasional ditahan verifikasi 5 hari.',
+    alasan: 'Unit dapur beroperasi nyata melayani 2.100 porsi; bahan baku dialirkan demi kontinuitas makan siswa, operasional ditahan verifikasi lapangan maks. 4 hari kerja.',
     hasilDiubah: false
   },
   {
@@ -300,7 +300,7 @@ export const INITIAL_DECISION_LOGS: DecisionLogEntry[] = [
     tingkat: 'Tingkat 1',
     keputusan: 'Menunggu Klarifikasi Tertulis SPPG',
     verifikator: 'Mesin Aturan SARING-MBG',
-    alasan: 'R4a aktif karena biaya per porsi dilaporkan Rp10.200 (melebihi batas pagu tanpa toleransi).',
+    alasan: 'R4 aktif karena biaya per porsi dilaporkan Rp10.200 (melebihi batas acuan tanpa toleransi).',
     hasilDiubah: false
   },
   {
@@ -443,7 +443,7 @@ export const INITIAL_DECISION_LOGS: DecisionLogEntry[] = [
     tingkat: 'Tingkat 1',
     keputusan: 'Menunggu Klarifikasi Tertulis SPPG',
     verifikator: 'Mesin Aturan SARING-MBG',
-    alasan: 'R4a aktif karena pengajuan harga beras premium melampaui pagu standar Rp10.000.',
+    alasan: 'R4 aktif karena pengajuan harga beras premium melampaui harga acuan Rp10.000.',
     hasilDiubah: false
   },
   {

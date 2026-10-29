@@ -153,8 +153,8 @@ export default function App() {
           {activePage === 'kamus-red-flag' && (
             <KamusRedFlagPage
               onNavigate={(p) => setActivePage(p)}
-              enableR3Tahap1={params.enableR3Tahap1}
-              onToggleR3={(enabled) => setParams((prev) => ({ ...prev, enableR3Tahap1: enabled }))}
+              params={params}
+              onUpdateParams={(newParams) => setParams(newParams)}
             />
           )}
 

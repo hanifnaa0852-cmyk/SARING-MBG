@@ -42,7 +42,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   // Interactive quick simulator preview state
   const [simR5, setSimR5] = useState<number>(params.tolR5 || 10);
-  const [simR4a, setSimR4a] = useState<number>(params.tolR4a || 0);
+  const [simR4, setSimR4] = useState<number>(params.tolR4 || 0);
 
   // Active step in "Alur Kerja"
   const [activeStep, setActiveStep] = useState<number>(1);
@@ -58,8 +58,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   // Computed results for the mini preview using actual simulation engine
   const previewKitchens = useMemo(() => {
-    return generateSyntheticKitchens({ ...params, tolR5: simR5, tolR4a: simR4a }, 4);
-  }, [params, simR5, simR4a]);
+    return generateSyntheticKitchens({ ...params, tolR5: simR5, tolR4: simR4 }, 4);
+  }, [params, simR5, simR4]);
 
   const previewHijau = previewKitchens.filter((k) => k.triase === 'Hijau').length;
   const previewKuning = previewKitchens.filter((k) => k.triase === 'Kuning').length;
@@ -88,48 +88,48 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const stepDetails = [
     {
       num: 1,
-      title: 'Laporan Harian SPPG',
+      title: 'Laporan Harian SIPGN (Senin-Sabtu)',
       tag: 'INPUT LOGISTIK',
-      desc: 'Setiap hari kerja (Senin–Sabtu), SPPG mencatat porsi disalurkan, nota pembelian bahan pangan dari pasar lokal, dan mutasi virtual account BGN.',
-      metrics: '6 Hari / Minggu · 500 Dapur · Rerata 2.450 Porsi/Hari',
+      desc: 'SPPG menginput laporan harian di SIPGN (Senin–Sabtu): realisasi porsi, menu gizi, dan bukti pembelian bahan baku.',
+      metrics: 'Senin–Sabtu · 500 Dapur · Rerata 2.450 Porsi/Hari',
       icon: 'receipt_long',
-      highlight: 'Setiap data terkunci pada akhir hari operasional dengan tanda tangan digital.'
+      highlight: 'Laporan harian menjadi rekaman faktual aktivitas operasional dapur.'
     },
     {
       num: 2,
-      title: 'Mesin Aturan Red Flag',
+      title: 'Mesin Aturan Sebelum SPP Disusun',
       tag: 'PEMERIKSAAN OTOMATIS',
-      desc: 'Sebelum PPK menerbitkan SPP (Senin–Selasa sesuai juknis), mesin mengevaluasi 4 indikator deterministik Tahap 1 (R1, R2, R4a, R5) tanpa bobot angka abstrak atau model black-box.',
-      metrics: '< 1 Detik untuk 500 Dapur · 100% Konsistensi Deterministik',
+      desc: 'Mesin aturan berjalan sebelum Surat Perintah Pembayaran (SPP) disusun. Lapis 1 menguji master data (R1, R2); Lapis 2 menguji laporan mingguan (R3, lalu R4, R5, R8).',
+      metrics: '< 1 Detik untuk 500 Dapur · 100% Deterministik',
       icon: 'smart_toy',
-      highlight: 'Aturan tertulis resmi yang transparan dan dapat diaudit ulang kapan pun.'
+      highlight: 'Aturan tertulis transparan tanpa bobot angka atau skor abstrak.'
     },
     {
       num: 3,
       title: 'Label Hijau / Kuning / Merah',
       tag: 'KLASIFIKASI TRIASE',
-      desc: 'Hasil pembacaan memisahkan dapur ke dalam 3 antrean penanganan: Hijau (lancar 100%), Kuning (bahan baku dicairkan, operasional dan insentif ditahan sementara), Merah (hanya bahan baku minimum dicairkan bila dapur beroperasi).',
-      metrics: `${liveMetrics.hijauCount} Hijau (${((liveMetrics.hijauCount / 500) * 100).toFixed(1).replace('.', ',')}%) · ${liveMetrics.kuningCount} Kuning (${((liveMetrics.kuningCount / 500) * 100).toFixed(1).replace('.', ',')}%) · ${liveMetrics.merahCount} Merah (${((liveMetrics.merahCount / 500) * 100).toFixed(1).replace('.', ',')}%)`,
+      desc: 'Hasil pembacaan memisahkan dapur: Hijau (top-up penuh); Kuning (bahan baku cair, operasional ditahan maks. 3 hari kerja); Merah (bahan baku hanya bila saldo VA kurang, verifikasi lapangan maks. 4 hari kerja).',
+      metrics: `${liveMetrics.hijauCount} Hijau · ${liveMetrics.kuningCount} Kuning · ${liveMetrics.merahCount} Merah`,
       icon: 'traffic',
-      highlight: 'Uang operasional ditahan sementara, hak makan bergizi anak sekolah tetap terjamin.'
+      highlight: 'Bahan baku siswa tetap diprioritaskan, operasional ditahan sementara bila ada anomali.'
     },
     {
       num: 4,
-      title: 'PPK Menerbitkan SPP Top-up',
+      title: 'PPK Menerbitkan SPP Top-up (Senin dan Selasa)',
       tag: 'PENCAIRAN DANA',
-      desc: 'Pejabat Pembuat Komitmen menerbitkan Surat Perintah Pembayaran (SPP) dengan proteksi likuiditas otomatis berbasis rekomendasi triase.',
-      metrics: 'Bahan Baku Diprioritaskan · Dana Tertahan Diamankan Sementara',
+      desc: 'Pejabat Pembuat Komitmen (PPK) menerbitkan SPP untuk top-up mingguan pada hari Senin dan Selasa sesuai rekomendasi triase.',
+      metrics: 'Senin & Selasa · Rekomendasi Triase Diterapkan',
       icon: 'payments',
-      highlight: 'Mitigasi risiko kebocoran fiskal terjadi SEBELUM dana berpindah ke rekening dapur.'
+      highlight: 'Mitigasi kebocoran anggaran berjalan sebelum dana ditransfer.'
     },
     {
       num: 5,
-      title: 'Pemilahan Hasil Verifikasi',
+      title: 'Pemilahan Empat Tingkat untuk Kuning dan Merah',
       tag: 'REGISTER KEPUTUSAN',
-      desc: 'Verifikator BGN meneliti berkas yang ditahan: memilah kesalahan administratif jujur (honest error) dari indikasi kesengajaan (fraud).',
-      metrics: '3 Hari Kerja Batas Klarifikasi · 4 Tingkat Keputusan Berjenjang',
+      desc: 'Pemilahan berjenjang memilah kekeliruan administratif jujur dari indikasi kesengajaan, dengan audit trail permanen tidak dapat dihapus.',
+      metrics: 'Kuning maks. 3 hari · Merah maks. 4 hari',
       icon: 'gavel',
-      highlight: 'SOP bertingkat menjamin keadilan bagi pengelola dapur yang melakukan human error.'
+      highlight: 'Gerbang menahan uang, bukan menghukum orang.'
     }
   ];
 
@@ -438,12 +438,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                           <span className="text-[10px] font-mono text-[#B8C4E6]">| Penyaringan Red Flag</span>
                         </div>
                         <p className="text-[11px] text-[#B8C4E6] mt-0.5">
-                          R1, R2, R4a, R5 dibaca tiap minggu
+                          Lapis 1 (R1, R2), Lapis 2 (R3, R4, R5, R8)
                         </p>
                       </div>
                     </div>
                     <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FFBA09]/20 text-[#FFBA09] border border-[#FFBA09]/30 shrink-0">
-                      Tahap 1
+                      2 Lapis
                     </span>
                   </div>
 
@@ -512,17 +512,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="text-center max-w-3xl mx-auto mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#011F7B]/5 text-[#011F7B] text-xs font-mono font-bold uppercase tracking-wider mb-3">
               <span className="material-symbols-outlined text-[16px]">priority_high</span>
-              <span>Latar Belakang Kebijakan</span>
+              <span>Latar Belakang Masalah</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#011F7B] tracking-tight font-['Plus_Jakarta_Sans',sans-serif]">
-              Data Sudah Tercatat, Pembacaannya yang Terlambat
+              Laporan SPPG menjadi uang setiap minggu tanpa uji kewajaran oleh pihak di luar dapur.
             </h2>
             <p className="mt-3 text-base text-[#5B6785]">
               Tantangan mitigasi kebocoran anggaran makan bergizi bukan pada ketiadaan sistem catatan, melainkan jeda waktu antara pelaporan dan pencairan dana berikutnya.
             </p>
           </div>
 
-          {/* Interactive Switcher: Konvensional vs SARING-MBG */}
+          {/* Interactive Switcher: Penyisiran setelah cair vs Gerbang sebelum SPP */}
           <div className="flex items-center justify-center mb-10">
             <div className="inline-flex p-1 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7]">
               <button
@@ -536,7 +536,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     : 'text-[#5B6785] hover:text-[#011F7B]'
                 }`}
               >
-                Model Konvensional (Post-Audit)
+                Penyisiran setelah cair
               </button>
               <button
                 onClick={() => {
@@ -550,7 +550,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 }`}
               >
                 <span className="w-2 h-2 rounded-full bg-[#FFBA09] animate-pulse"></span>
-                <span>Model SARING-MBG (Pra-SPP)</span>
+                <span>Gerbang sebelum SPP</span>
               </button>
             </div>
           </div>
@@ -559,43 +559,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="mb-10 p-5 rounded-2xl bg-[#F7F9FE] border border-[#E0E2E7] grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
             <div className="p-3 bg-white rounded-xl border border-[#ECEEF3] shadow-xs">
               <span className="text-[11px] font-mono uppercase text-[#5B6785] font-bold block mb-1">
-                Waktu Deteksi Anomali
+                Waktu Pembacaan Data
               </span>
               <div className="text-xl font-extrabold font-mono text-[#011F7B]">
-                {comparisonTab === 'sebelum' ? '30–90 Hari' : 'Dibaca sebelum SPP'}
+                {comparisonTab === 'sebelum' ? 'Setelah Dana Cair' : 'Dibaca sebelum SPP'}
               </div>
               <span className="text-[11px] text-[#5B6785] mt-1 block">
-                {comparisonTab === 'sebelum' ? 'Uang terlanjur ditarik tunai' : 'Uang ditahan sebelum berpindah'}
+                {comparisonTab === 'sebelum' ? 'Penyisiran post-audit saat uang sudah berpindah' : 'Uang ditahan sebelum berpindah tangan'}
               </span>
             </div>
 
             <div className="p-3 bg-white rounded-xl border border-[#ECEEF3] shadow-xs">
               <span className="text-[11px] font-mono uppercase text-[#5B6785] font-bold block mb-1">
-                Potensi Pemulihan Anggaran
+                Proteksi Bahan Makanan Anak
               </span>
               <div className="text-xl font-extrabold font-mono text-[#1E9E6A]">
-                {comparisonTab === 'sebelum' ? '12% – 25%' : 'Bahan baku tetap diprioritaskan'}
+                {comparisonTab === 'sebelum' ? 'Risiko Terhenti' : 'Bahan baku tetap diprioritaskan'}
               </div>
               <span className="text-[11px] text-[#5B6785] mt-1 block">
-                {comparisonTab === 'sebelum' ? 'Proses TGR / hukum panjang' : 'Hak bayar ditangguhkan sementara'}
+                {comparisonTab === 'sebelum' ? 'Dapur ditutup atau pembekuan penuh' : 'Hanya operasional ditahan sementara'}
               </span>
             </div>
 
             <div className="p-3 bg-white rounded-xl border border-[#ECEEF3] shadow-xs">
               <span className="text-[11px] font-mono uppercase text-[#5B6785] font-bold block mb-1">
-                Kepastian Gizi Anak Sekolah
+                Validasi Keberhasilan
               </span>
               <div className="text-xl font-extrabold font-mono text-[#8A5A00]">
-                {comparisonTab === 'sebelum' ? 'Dapur Tutup Total' : 'Efektivitas diuji di pilot'}
+                {comparisonTab === 'sebelum' ? 'Belum Terkalibrasi' : 'Efektivitas diuji di pilot'}
               </div>
               <span className="text-[11px] text-[#5B6785] mt-1 block">
-                Pencairan berjenjang lindungi bahan baku
+                Pencairan berjenjang diuji di satu wilayah pilot
               </span>
             </div>
           </div>
 
-          {/* Three Informative Cards with Expandable Badges */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Three Informative Problem Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             {/* Card 1 */}
             <div className="p-8 rounded-2xl bg-[#F7F9FE] border border-[#E0E2E7] hover:border-[#011F7B]/40 hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
@@ -603,19 +603,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <span className="material-symbols-outlined text-[24px]">receipt_long</span>
                 </div>
                 <h3 className="text-lg font-bold text-[#011F7B] leading-snug">
-                  Laporan harian menjadi dasar pengajuan dana
+                  Laporan menjadi dasar uang
                 </h3>
                 <p className="mt-3 text-sm text-[#5B6785] leading-relaxed">
-                  Dapur (SPPG) mencatat porsi terdistribusi dan bahan terpakai setiap hari kerja. Namun data ini sering hanya ditumpuk sebagai prasyarat administratif tanpa validasi anomali otomatis.
+                  Laporan harian dikonversi menjadi pengajuan dana dan VA diisi ulang sebesar dana yang dilaporkan terpakai.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-[#E0E2E7] flex items-center justify-between text-xs font-mono">
                 <span className="text-[#011F7B] font-bold flex items-center gap-1">
                   <span className="material-symbols-outlined text-[16px]">check</span>
-                  Data Logistik Tersedia
+                  Laporan SIPGN
                 </span>
                 <span className="px-2 py-0.5 rounded bg-[#011F7B]/10 text-[#011F7B] font-bold">
-                  Tahap Input
+                  Siklus Mingguan
                 </span>
               </div>
             </div>
@@ -624,22 +624,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="p-8 rounded-2xl bg-[#F7F9FE] border border-[#E0E2E7] hover:border-[#FFBA09] hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-[#FFBA09]/20 text-[#8A5A00] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-[24px]">history_toggle_off</span>
+                  <span className="material-symbols-outlined text-[24px]">policy</span>
                 </div>
                 <h3 className="text-lg font-bold text-[#011F7B] leading-snug">
-                  Penyisiran dilakukan setelah dana keluar
+                  Pengaman ada, tetapi menguji hal lain
                 </h3>
                 <p className="mt-3 text-sm text-[#5B6785] leading-relaxed">
-                  Audit konvensional (post-audit) baru menyisir bukti transaksi mingguan atau bulanan setelah uang terlanjur ditarik dari rekening penampung, membuat pemulihan kerugian negara lambat.
+                  Verifikasi kelayakan sekali di awal, PPK mencocokkan dengan jumlah penerima hasil sinkronisasi, bukan porsi harian, uji harga dijalankan Kepala SPPG yang juga approver VA.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-[#E0E2E7] flex items-center justify-between text-xs font-mono">
                 <span className="text-[#8A5A00] font-bold flex items-center gap-1">
                   <span className="material-symbols-outlined text-[16px]">warning</span>
-                  Risiko Kas Hilang
+                  Gap Pengawasan
                 </span>
                 <span className="px-2 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00] font-bold">
-                  Kelemahan Klasik
+                  Uji Internal Dapur
                 </span>
               </div>
             </div>
@@ -648,25 +648,94 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="p-8 rounded-2xl bg-[#F7F9FE] border border-[#E0E2E7] hover:border-[#D64545]/40 hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-[#D64545]/10 text-[#D64545] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-[24px]">speed</span>
+                  <span className="material-symbols-outlined text-[24px]">history_toggle_off</span>
                 </div>
                 <h3 className="text-lg font-bold text-[#011F7B] leading-snug">
-                  Skala keputusan mingguan terlalu besar untuk diperiksa manual
+                  Penyisiran datang setelah dana cair
                 </h3>
                 <p className="mt-3 text-sm text-[#5B6785] leading-relaxed">
-                  Dengan ribuan SPPG di seluruh Nusantara yang mengajukan top-up serentak setiap siklus top-up mingguan, tim verifikator manusia akan kewalahan (kemacetan antrean) jika harus memeriksa ratusan berkas tanpa triase cerdas.
+                  27.469 VA disisir setelah dana diterima; yang dipersoalkan waktu, bukan besaran.
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-[#E0E2E7] flex items-center justify-between text-xs font-mono">
                 <span className="text-[#D64545] font-bold flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px]">group_off</span>
-                  Kapasitas Terbatas
+                  <span className="material-symbols-outlined text-[16px]">hourglass_bottom</span>
+                  Waktu Penyisiran
                 </span>
                 <span className="px-2 py-0.5 rounded bg-[#FCEBEB] text-[#D64545] font-bold">
-                  Solusi: Triase
+                  Post-Audit
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Section: "Melengkapi, Bukan Mengganti" Comparison Table */}
+          <div className="mt-12 pt-10 border-t border-[#E0E2E7]">
+            <div className="text-center max-w-3xl mx-auto mb-8">
+              <span className="px-3 py-1 rounded-full bg-[#011F7B]/10 text-[#011F7B] font-mono text-xs font-bold uppercase tracking-wider">
+                HARMONISASI TATA KELOLA
+              </span>
+              <h3 className="text-2xl font-bold text-[#011F7B] mt-2">
+                Melengkapi, Bukan Mengganti
+              </h3>
+              <p className="text-sm text-[#5B6785] mt-1">
+                SARING-MBG bekerja di atas fondasi Petunjuk Teknis BGN yang sudah ada, mengisi jeda waktu sebelum SPP diterbitkan.
+              </p>
+            </div>
+
+            <div className="overflow-x-auto rounded-2xl border border-[#E0E2E7] shadow-sm bg-white">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#011F7B] text-white">
+                    <th className="py-3.5 px-4 font-bold uppercase tracking-wider font-mono w-1/4">
+                      Fitur
+                    </th>
+                    <th className="py-3.5 px-4 font-bold uppercase tracking-wider font-mono w-3/8">
+                      Tata Kelola Sekarang (Petunjuk Teknis BGN)
+                    </th>
+                    <th className="py-3.5 px-4 font-bold uppercase tracking-wider font-mono w-3/8 text-[#FFBA09]">
+                      Yang Ditambahkan Prototipe Ini
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E0E2E7]">
+                  <tr className="hover:bg-[#F7F9FE] transition-colors">
+                    <td className="py-3 px-4 font-bold text-[#000F4A]">Uji kelayakan dapur</td>
+                    <td className="py-3 px-4 text-[#5B6785]">Sekali di awal penetapan oleh BGN</td>
+                    <td className="py-3 px-4 text-[#1E9E6A] font-semibold">Tidak diubah (tetap berjalan)</td>
+                  </tr>
+                  <tr className="hover:bg-[#F7F9FE] transition-colors bg-[#FAFBFD]">
+                    <td className="py-3 px-4 font-bold text-[#000F4A]">Rekening operasional</td>
+                    <td className="py-3 px-4 text-[#5B6785]">Satu VA Himbara per SPPG</td>
+                    <td className="py-3 px-4 text-[#011F7B] font-semibold">Aturan R1: cegah rekening ganda</td>
+                  </tr>
+                  <tr className="hover:bg-[#F7F9FE] transition-colors">
+                    <td className="py-3 px-4 font-bold text-[#000F4A]">Dasar pencairan mingguan</td>
+                    <td className="py-3 px-4 text-[#5B6785]">Pengajuan dana SPPG berdasarkan porsi terjadwal</td>
+                    <td className="py-3 px-4 text-[#011F7B] font-semibold">Mesin aturan membaca laporan harian dan mutasi VA sebelum SPP disusun</td>
+                  </tr>
+                  <tr className="hover:bg-[#F7F9FE] transition-colors bg-[#FAFBFD]">
+                    <td className="py-3 px-4 font-bold text-[#000F4A]">Pengendalian harga</td>
+                    <td className="py-3 px-4 text-[#5B6785]">Kepala SPPG membandingkan dengan harga pasar lokal</td>
+                    <td className="py-3 px-4 text-[#011F7B] font-semibold">Aturan R4: uji ulang terhadap HET/survei pasar dari luar dapur</td>
+                  </tr>
+                  <tr className="hover:bg-[#F7F9FE] transition-colors">
+                    <td className="py-3 px-4 font-bold text-[#000F4A]">Penanganan anomali</td>
+                    <td className="py-3 px-4 text-[#5B6785]">Belum ada mekanisme penahanan sebagian</td>
+                    <td className="py-3 px-4 text-[#011F7B] font-semibold">Triase 3 label: tahan operasional bila ada anomali, lindungi bahan baku</td>
+                  </tr>
+                  <tr className="hover:bg-[#F7F9FE] transition-colors bg-[#FAFBFD]">
+                    <td className="py-3 px-4 font-bold text-[#000F4A]">Pengawasan lapangan</td>
+                    <td className="py-3 px-4 text-[#5B6785]">Deputi Bidang Pemantauan dan Pengawasan</td>
+                    <td className="py-3 px-4 text-[#011F7B] font-semibold">Pemilahan 4 tingkat memprioritaskan antrean verifikasi</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-[11px] text-center text-[#757683] italic mt-3">
+              Efektivitas belum teruji.
+            </p>
           </div>
         </div>
       </section>
@@ -910,12 +979,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
 
-            {/* R4a: Biaya Melebihi Pagu */}
+            {/* R4: Biaya Melebihi Acuan Pasar */}
             <div className="p-6 rounded-2xl bg-[#F7F9FE] border border-[#E0E2E7] hover:border-[#FFBA09] transition-all flex flex-col justify-between shadow-xs">
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-mono font-extrabold text-[#8A5A00] bg-[#FFF4CC] px-2.5 py-1 rounded-lg">
-                    R4a
+                    R4
                   </span>
                   <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded transition-colors ${
                     testBahanCost > 10000 ? 'bg-[#FFBA09] text-[#000F4A]' : 'bg-[#1E9E6A]/20 text-[#1E9E6A]'
@@ -924,13 +993,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </span>
                 </div>
                 <h3 className="text-base font-bold text-[#011F7B] mb-2">
-                  Biaya Bahan Melebihi Pagu
+                  Biaya Bahan Melebihi Acuan
                 </h3>
                 <p className="text-xs text-[#5B6785] leading-relaxed mb-4">
-                  Biaya bahan per porsi yang dilaporkan melampaui pagu bahan per porsi (default Rp10.000, perlu dicek ke juknis).
+                  Biaya bahan per porsi melebihi HET atau survei pasar (default Rp10.000, perlu dicek ke juknis).
                 </p>
 
-                {/* Micro Simulator R4a */}
+                {/* Micro Simulator R4 */}
                 <div className="p-3 bg-white rounded-xl border border-[#ECEEF3] space-y-2">
                   <div className="flex justify-between text-xs font-semibold text-[#011F7B]">
                     <span>Lapor Bahan/Porsi:</span>
@@ -947,13 +1016,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   />
                   <div className="flex justify-between text-[9px] font-mono text-[#5B6785]">
                     <span>Rp 8.000</span>
-                    <span className="text-[#011F7B] font-bold">Pagu Rp 10.000 (perlu dicek juknis)</span>
+                    <span className="text-[#011F7B] font-bold">Acuan Rp 10.000 (perlu dicek juknis)</span>
                     <span>Rp 12.500</span>
                   </div>
                 </div>
               </div>
               <div className="mt-4 pt-3 border-t border-[#E0E2E7] text-[11px] font-mono text-[#5B6785]">
-                Logika: <code>biaya &gt; pagu × (1 + tol)</code>
+                Logika: <code>biaya &gt; acuan × (1 + tol)</code>
               </div>
             </div>
 
@@ -1024,7 +1093,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 Simulator Kalibrasi Ambang Kebijakan
               </h2>
               <p className="mt-3 text-base text-[#5B6785]">
-                Sesuaikan toleransi R5 dan R4a untuk melihat langsung kompromi (trade-off) antara risiko beban verifikasi lapangan dan potensi kebocoran anggaran negara.
+                Sesuaikan toleransi R5 dan R4 untuk melihat langsung kompromi (trade-off) antara risiko beban verifikasi lapangan dan potensi kebocoran anggaran negara.
               </p>
 
               {/* Interactive Sliders */}
@@ -1054,9 +1123,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
                 <div>
                   <div className="flex justify-between items-center text-sm font-semibold text-[#011F7B] mb-2">
-                    <span>Toleransi Pagu Bahan Makanan (R4a)</span>
+                    <span>Toleransi Biaya Bahan Acuan (R4)</span>
                     <span className="font-mono text-base font-extrabold text-[#011F7B] bg-white px-2.5 py-0.5 rounded border border-[#E0E2E7]">
-                      <AnimatedNumber value={simR4a} suffix="%" />
+                      <AnimatedNumber value={simR4} suffix="%" />
                     </span>
                   </div>
                   <input
@@ -1064,12 +1133,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     min="0"
                     max="15"
                     step="1"
-                    value={simR4a}
-                    onChange={(e) => setSimR4a(Number(e.target.value))}
+                    value={simR4}
+                    onChange={(e) => setSimR4(Number(e.target.value))}
                     className="w-full h-2 bg-[#E0E2E7] rounded-lg appearance-none cursor-pointer accent-[#FFBA09]"
                   />
                   <div className="flex justify-between text-[11px] text-[#5B6785] font-mono mt-1">
-                    <span>0% (Nol Pelanggaran Pagu)</span>
+                    <span>0% (Default)</span>
                     <span>15%</span>
                   </div>
                 </div>

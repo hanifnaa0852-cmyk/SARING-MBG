@@ -160,7 +160,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
           </div>
           <p className="mt-4 text-xs text-[#454652] flex items-center gap-1">
             <span className="material-symbols-outlined text-[16px] text-[#1E9E6A]">bolt</span>
-            <span>Top-up penuh dicairkan sesuai jadwal rutin</span>
+            <span>Top-up penuh</span>
           </p>
         </div>
 
@@ -185,7 +185,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
             </div>
           </div>
           <p className="mt-4 text-xs text-[#454652] leading-relaxed">
-            Bahan baku tetap cair; operasional &amp; insentif ditahan pending klarifikasi tertulis (usulan 3 hari)
+            Bahan baku cair, operasional ditahan (klarifikasi maks. 3 hari kerja)
           </p>
         </div>
 
@@ -210,7 +210,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
             </div>
           </div>
           <p className="mt-4 text-xs text-[#454652] leading-relaxed">
-            Hanya bahan baku minimum dicairkan &amp; verifikasi lapangan oleh Verifikator BGN (usulan 5 hari kerja); Inspektorat Utama BGN hanya mereviu eksepsi dan menerima rujukan untuk audit investigatif
+            Bahan baku hanya bila saldo VA tidak cukup; verifikasi lapangan maks. 4 hari kerja
           </p>
         </div>
       </div>
@@ -341,7 +341,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
                 </span>
               </div>
               <span className="text-[11px] uppercase tracking-wider font-bold text-[#011F7B] bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
-                PROTEKSI LIKUIDITAS: OPERASIONAL &amp; INSENTIF DITAHAN
+                PROTEKSI LIKUIDITAS: OPERASIONAL DITAHAN
               </span>
             </div>
             <p className="text-[11px] text-[#757683] italic border-t border-[#F0F2F6] pt-1.5">
@@ -372,7 +372,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
                 <AnimatedNumber value={withheldTotal / 1000000000} decimals={2} prefix="Rp " suffix=" miliar" />
               </div>
               <p className="mt-2 text-[11px] text-[#011F7B] font-medium bg-[#EBF0FF] p-2 rounded-lg border border-[#CCD8FC] text-left leading-snug">
-                <strong>Formula &amp; Periode:</strong> Operasional + insentif yang ditahan pada Minggu 4 untuk dapur Merah dan Kuning (atau top-up penuh bila belum beroperasi/suspend).
+                <strong>Formula &amp; Periode:</strong> Operasional yang ditahan pada Minggu 4 untuk dapur Merah dan Kuning (atau top-up penuh bila belum beroperasi/suspend).
               </p>
               <p className="mt-1.5 text-[10px] italic text-[#757683]">
                 *bukan klaim kebocoran riil, bagian dari skenario simulasi
@@ -403,7 +403,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
                   <span className="text-sm font-bold text-[#000F4A] tabular-nums font-mono">
                     {metrics?.medianDaysMerah ?? 3.8} hari kerja
                   </span>
-                  <span className="block text-[9px] text-[#757683]">asumsi simulasi (SLA 5 hari)</span>
+                  <span className="block text-[9px] text-[#757683]">asumsi simulasi (SLA 4 hari)</span>
                 </div>
               </div>
             </div>
@@ -852,7 +852,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
             </span>
             <span className="hidden md:inline-flex items-center gap-2 text-[11px] font-mono text-[#FFBA09]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#1E9E6A]"></span>
-              SISTEM AKTIF: KAMIS MINGGU BERJALAN
+              SISTEM AKTIF: SEBELUM PENERBITAN SPP
             </span>
           </div>
         </div>
@@ -864,13 +864,13 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
               id: 1,
               km: 'KM 01',
               waktu: 'Senin – Sabtu (Input Harian SPPG)',
-              judul: 'Laporan Harian & Absensi SPPG',
+              judul: 'Laporan Harian & Absensi SIPGN',
               subjudul: 'Pencatatan realisasi porsi, menu gizi, & nota logistik pasar',
               tahap: 'TAHAP 01 · INPUT & AGREGASI DATA',
               icon: 'assignment',
               pic: 'Operator SPPG & Kepala Dapur Wilayah',
               sla: 'Harian s/d 18:00 WIB (Senin–Sabtu)',
-              statusKesiapan: '100% Data Teragregasi di Server BGN',
+              statusKesiapan: '100% Data Teragregasi di SIPGN',
               inputData: [
                 'Absensi porsi riil siswa penerima manfaat makan bergizi',
                 'Dokumentasi variasi menu gizi harian (karbohidrat, protein, sayur, buah)',
@@ -880,7 +880,7 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
               outputAksi: [
                 'Data harian diagregasi menjadi total realisasi mingguan',
                 'Enkripsi berkas laporan dan penguncian tanggal kirim (timestamp BGN)',
-                'Kompilasi paket data siap disaring mesin aturan sebelum SPP terbit'
+                'Kompilasi paket data siap disaring mesin aturan sebelum SPP disusun'
               ],
               targetPage: 'antrean' as PageId,
               targetLabel: 'Lihat Antrean Dapur'
@@ -890,23 +890,25 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
               km: 'KM 02',
               waktu: 'Sebelum Penerbitan SPP (Senin – Selasa per Juknis)',
               judul: 'Mesin Aturan Red Flag',
-              subjudul: 'Automasi komparasi harga acuan daerah, porsi, & kepatuhan mutasi rekening koran',
-              tahap: 'TAHAP 02 · AUDIT MESIN REAL-TIME',
+              subjudul: 'Lapis 1 (R1, R2) & Lapis 2 (R3, R4, R5, R8) sebelum SPP disusun',
+              tahap: 'TAHAP 02 · AUDIT MESIN SEBELUM SPP',
               icon: 'psychology',
-              pic: 'Mesin Audit Otomatis SARING-MBG (BGN Engine)',
+              pic: 'Mesin Aturan SARING-MBG (BGN Engine)',
               sla: '< 1 Detik untuk 500 Dapur Nasional',
               statusKesiapan: 'Audit Otomatis Selesai Tanpa Intervensi Manual',
               inputData: [
-                'Pagu bahan per porsi (default Rp10.000, perlu dicek ke juknis)',
-                'Rekening koran mutasi Virtual Account perbankan mitra BGN',
+                'Harga acuan bahan per porsi (default Rp10.000, perlu dicek ke juknis)',
+                'Mutasi Virtual Account Himbara (Tahap 2)',
                 'Status legalitas SPPG, status operasional, & izin SLHS',
-                'Pola arus keluar kas rekening vs klaim pengeluaran di nota'
+                'Sinkronisasi SK penetapan kuota penerima'
               ],
               outputAksi: [
                 'Pendeteksian R1: Kepemilikan Virtual Account ganda / tumpang-tindih',
                 'Pendeteksian R2: Top-up diajukan untuk SPPG yang belum beroperasi, disuspend, atau belum ber-SLHS',
-                'Pendeteksian R4a: Biaya bahan melampaui pagu bahan per porsi (+ toleransi)',
-                'Pendeteksian R5: Selisih signifikan laporan belanja vs mutasi rekening'
+                'Pendeteksian R3: Porsi harian melebihi penetapan atau dilaporkan pada hari non-layanan',
+                'Pendeteksian R4: Biaya bahan melampaui harga acuan pasar/HET (+ toleransi)',
+                'Pendeteksian R5: Selisih laporan belanja vs arus keluar VA',
+                'Pendeteksian R8: Porsi berbeda dengan konfirmasi sekolah/posyandu'
               ],
               targetPage: 'kamus' as PageId,
               targetLabel: 'Buka Kamus Red Flag'
@@ -919,16 +921,16 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
               subjudul: 'Penetapan status protektif berjenjang sebelum Surat Perintah Pembayaran diterbitkan',
               tahap: 'TAHAP 03 · PINTU GERBANG RISIKO',
               icon: 'traffic',
-              pic: 'Sistem Penapisan Risiko BGN & Panel Pengawas',
+              pic: 'Sistem Penapisan Risiko BGN & PPK',
               sla: 'Sebelum Penerbitan SPP',
               statusKesiapan: `Triase Diterbitkan: Hijau ${hijauCount}, Kuning ${kuningCount}, Merah ${merahCount}`,
               inputData: [
-                'Hasil komputasi 4 red flag tahap 1 (R1, R2, R4a, R5)'
+                'Hasil komputasi red flag aktif dan status riwayat verifikasi siklus sebelumnya'
               ],
               outputAksi: [
-                'HIJAU: Tidak ada tanda aktif, rekomendasi top-up penuh langsung cair (bahan baku, operasional, insentif)',
-                'KUNING: R4a atau R5 aktif sendirian; bahan baku dicairkan, operasional dan insentif ditahan sementara (usulan 3 hari kerja)',
-                'MERAH: R1 atau R2 aktif, atau R4a dan R5 aktif bersamaan; hanya bahan baku minimum dicairkan bila dapur beroperasi, operasional dan insentif ditahan, verifikasi lapangan (usulan 5 hari kerja)'
+                'HIJAU: Tidak ada tanda aktif, rekomendasi top-up penuh langsung cair (bahan baku dan operasional)',
+                'KUNING: Satu flag aktif (R3, R4, R5, atau R8); bahan baku dicairkan, operasional ditahan sementara (klarifikasi maks. 3 hari kerja)',
+                'MERAH: R1 atau R2 aktif, atau R5 aktif bersama R3/R4, atau Kuning 2 siklus berurutan; bahan baku hanya bila saldo VA tidak cukup, verifikasi lapangan maks. 4 hari kerja'
               ],
               targetPage: 'simulator' as PageId,
               targetLabel: 'Uji di Simulator Ambang'
@@ -937,22 +939,22 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
               id: 4,
               km: 'KM 04',
               waktu: 'Senin – Selasa (Penerbitan SPP oleh PPK)',
-              judul: 'PPK Menerbitkan SPP Berjenjang',
+              judul: 'PPK Menerbitkan SPP Top-Up',
               subjudul: 'Eksekusi pencairan terproteksi: menjamin pasokan pangan & mengunci risiko fiskal',
               tahap: 'TAHAP 04 · EKSEKUSI ANGGARAN',
               icon: 'history_edu',
-              pic: 'Pejabat Pembuat Komitmen (PPK) BGN & Kas Negara (KPPN)',
+              pic: 'Pejabat Pembuat Komitmen (PPK) BGN & KPPN',
               sla: 'Senin–Selasa per Juknis',
               statusKesiapan: 'SPP Diterbitkan Terproteksi Sesuai Rekomendasi Triase',
               inputData: [
                 'Berita Acara Rekomendasi Triase Gerbang SARING-MBG',
-                'Nilai pagu top-up bersih setelah pemotongan dana ditahan (held budget)',
+                'Nilai pagu top-up setelah pemotongan operasional ditahan (held budget)',
                 'Otorisasi tanda tangan elektronik pejabat berwenang'
               ],
               outputAksi: [
                 'Top-up penuh ditransfer ke Virtual Account SPPG Hijau',
-                'Bahan baku dicairkan ke SPPG Kuning & Merah yang beroperasi',
-                'Operasional dan insentif ditahan sementara di kas negara'
+                'Bahan baku dicairkan ke SPPG Kuning',
+                'Dapur Merah: bahan baku hanya dicairkan bila saldo VA kurang, operasional ditahan sementara'
               ],
               targetPage: 'antrean' as PageId,
               targetLabel: 'Pantau Realisasi Dana'
@@ -960,13 +962,13 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
             {
               id: 5,
               km: 'KM 05',
-              waktu: 'Usulan 3 Hari Kerja (Kuning) / 5 Hari Kerja (Merah)',
-              judul: 'Pemilahan Verifikasi Lapangan',
-              subjudul: 'Audit fisik lapangan, pembuktian sanggahan, & pelepasan sisa dana ditahan',
-              tahap: 'TAHAP 05 · RESOLUSI & AKUNTABILITAS',
+              waktu: 'Maks. 3 Hari Kerja (Kuning) / Maks. 4 Hari Kerja (Merah)',
+              judul: 'Pemilahan Hasil Verifikasi',
+              subjudul: 'Verifikasi dokumen dan lapangan, klarifikasi tertulis, & pelepasan operasional ditahan',
+              tahap: 'TAHAP 05 · RESOLUSI & REGISTER KEPUTUSAN',
               icon: 'task_alt',
               pic: 'Verifikator BGN & Inspektorat Utama BGN',
-              sla: 'Kuning: usulan 3 hari kerja, Merah: usulan 5 hari kerja',
+              sla: 'Kuning: maks. 3 hari kerja, Merah: maks. 4 hari kerja',
               statusKesiapan: 'Proses Resolusi Berjalan Berdasarkan Register Keputusan',
               inputData: [
                 'Unggahan dokumen klarifikasi dan bukti nota sah dari pengelola SPPG',
@@ -974,9 +976,9 @@ export const RingkasanPage: React.FC<RingkasanPageProps> = ({
                 'Konfirmasi data penerimaan bahan pangan dari pihak sekolah'
               ],
               outputAksi: [
-                'Kesalahan Jujur (Human Error): Diberikan asistensi teknis dan sisa dana ditahan dilepas',
-                'Fraud Terstruktur: Pembekuan izin permanen, penutupan VA, dan pelaporan penegak hukum',
-                'Pembaruan otomatis register reputasi dapur untuk siklus pekan berikutnya'
+                'Kesalahan Jujur (Human Error): Diberikan asistensi teknis dan operasional ditahan dilepas',
+                'Tanda Penyembunyian / Rekayasa: Rujukan ke Inspektorat Utama untuk audit investigatif',
+                'Catatan permanen di Register Keputusan'
               ],
               targetPage: 'errorFraud' as PageId,
               targetLabel: 'Buka Register Keputusan'

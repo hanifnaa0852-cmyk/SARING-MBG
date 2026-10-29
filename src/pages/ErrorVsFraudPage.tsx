@@ -113,17 +113,17 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
     levelNumber: 1,
     title: 'Indikator Risiko',
     tagline: 'Pola data menyimpang dari aturan.',
-    disimpulkanOleh: 'Mesin Aturan SARING-MBG',
+    disimpulkanOleh: 'Mesin Aturan',
     disimpulkanIcon: 'psychology',
     buktiMinimal: [
-      'Red flag aktif (R1, R2, R4a, atau R5)',
+      'Red flag aktif (R1-R5, R8)',
       'Deviasi statistik nota pelaporan vs data pembanding',
       'Peringatan otomatis sebelum penerbitan SPP',
     ],
     contohDiSaring:
-      'R4a aktif karena biaya bahan per porsi dilaporkan Rp10.800 (melebihi pagu Rp10.000), atau R5 selisih pelaporan vs arus keluar VA.',
+      'R1/R2 aktif, atau R5 bersama R3/R4 aktif (label Merah); atau salah satu R3, R4, R5, R8 aktif sendiri (label Kuning).',
     tindakan:
-      'Penetapan label Kuning (bahan baku cair, operasional dan insentif ditahan) atau Merah (hanya bahan minimum darurat bila beroperasi); verifikasi lapangan.',
+      'Penetapan label Kuning (bahan baku cair, operasional ditahan; klarifikasi tertulis maks. 3 hari kerja) atau Merah (bahan baku minimum bila saldo VA kurang; operasional ditahan; verifikasi lapangan maks. 4 hari kerja).',
     batasDijaga:
       'Indikator risiko adalah pemicu pemeriksaan awal, bukan bukti kesalahan dan bukan penetapan kerugian.',
     mengapaBegini:
@@ -138,10 +138,10 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
     buktiMinimal: [
       'Pemeriksaan dokumen fisik faktur/nota pasar basah',
       'Cek fisik lapangan ke unit dapur dan gudang bahan',
-      'Konfirmasi langsung pihak ketiga (komite sekolah / pedagang)',
+      'Konfirmasi langsung pihak ketiga (komite sekolah / posyandu)',
     ],
     contohDiSaring:
-      'Konfirmasi komite sekolah menunjukkan absensi porsi riil siswa 1.800 porsi, sedangkan klaim laporan mingguan mencatat 2.200 porsi.',
+      'Konfirmasi sekolah menunjukkan absensi porsi riil siswa berbeda, atau kekeliruan pencatatan faktur tanpa kesengajaan.',
     tindakan:
       'Koreksi nilai top-up anggaran; selesai secara administratif apabila tanpa tanda penyembunyian, dan dapur diberikan pembinaan teknis.',
     batasDijaga:
@@ -153,17 +153,17 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
     levelNumber: 3,
     title: 'Indikasi Kesengajaan',
     tagline: 'Salah saji disertai tanda penyembunyian atau pola berulang.',
-    disimpulkanOleh: 'Inspektorat Utama BGN',
+    disimpulkanOleh: 'Inspektorat Utama',
     disimpulkanIcon: 'policy',
     buktiMinimal: [
-      'Dokumen sengaja direkayasa atau nota fiktif berturut-turut',
+      'Tanda penyembunyian atau dokumen sengaja direkayasa',
       'Pola selisih berulang di banyak minggu tanpa perbaikan',
-      'Pemasok bahan baku terafiliasi dengan pengurus dapur',
+      'Pemasok terafiliasi (R6) dengan pengurus dapur',
     ],
     contohDiSaring:
-      'Ditemukan stempel toko palsu pada nota belanja, selisih anggaran terjadi selama 3 minggu berturut-turut, atau mutasi dana mengalir ke rekening pribadi pengurus.',
+      'Ditemukan dokumen direkayasa, pola selisih berulang di banyak minggu, atau transaksi pemasok terafiliasi.',
     tindakan:
-      'Rujukan ke Inspektorat Utama untuk audit investigatif, serta penahanan komponen operasional dan insentif.',
+      'Rujukan ke Inspektorat Utama untuk audit investigatif',
     batasDijaga:
       'Hanya menyatakan ada cukup petunjuk awal untuk diteruskan ke audit investigatif; bukan vonis bersalah pidana.',
     mengapaBegini:
@@ -172,7 +172,7 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
   {
     levelNumber: 4,
     title: 'Kesimpulan',
-    tagline: 'Pernyataan kerugian negara dan penetapan tindak pidana. Disimpulkan oleh: BPK (kerugian negara); APH dan pengadilan (unsur pidana). DI LUAR GERBANG.',
+    tagline: 'Kesimpulan fraud atau kerugian negara: kerugian negara dinyatakan BPK; unsur pidana oleh APH dan pengadilan. DI LUAR GERBANG.',
     isLocked: true,
     lockedLabel: 'DI LUAR GERBANG',
     disimpulkanOleh: 'BPK (kerugian negara); APH dan pengadilan (unsur pidana)',
@@ -183,7 +183,7 @@ const LEVEL_DEFINITIONS: LevelDefinition[] = [
       'Putusan Pengadilan Tindak Pidana Korupsi berkekuatan hukum tetap',
     ],
     contohDiSaring:
-      'Kesimpulan: pernyataan kerugian negara dan penetapan tindak pidana. Disimpulkan oleh: BPK (kerugian negara); APH dan pengadilan (unsur pidana). DI LUAR GERBANG.',
+      'Kesimpulan fraud atau kerugian negara: kerugian negara dinyatakan BPK; unsur pidana oleh APH dan pengadilan. DI LUAR GERBANG.',
     tindakan:
       'Penetapan kerugian keuangan negara oleh BPK; penyidikan dan penuntutan unsur pidana oleh APH; vonis serta eksekusi putusan pengadilan.',
     batasDijaga:
@@ -466,11 +466,10 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#000F4A] tracking-tight">
-            Tangga Bukti: Pemilahan Error vs Indikasi Kesengajaan
+            Gerbang Menahan Uang, Bukan Menghukum Orang
           </h1>
           <p className="text-xs sm:text-sm text-[#454652] max-w-4xl leading-relaxed">
-            Mencegah lonjakan dari indikator risiko (Tingkat 1) langsung ke vonis (Tingkat 4).
-            Setiap tingkat menuntut eskalasi bukti faktual objektif. Menahan uang, bukan menghukum orang.
+            Tangga Bukti: Pemilahan Error vs Indikasi Kesengajaan. Mencegah lonjakan dari indikator risiko (Tingkat 1) langsung ke vonis (Tingkat 4). Setiap tingkat menuntut eskalasi bukti faktual objektif.
           </p>
         </div>
 
@@ -1077,6 +1076,108 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
         </div>
       </div>
 
+      {/* DIAGRAM PEMBAGIAN PERAN */}
+      <div className="bg-white rounded-2xl p-6 sm:p-7 border border-[#E0E2E7] shadow-sm flex flex-col gap-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#F0F2F6]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#011F7B] text-[#FFBA09] flex items-center justify-center shadow-sm">
+              <span className="material-symbols-outlined text-[24px]">corporate_fare</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold text-[#000F4A] tracking-tight">
+                  Pembagian Peran Tata Kelola
+                </h2>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#EBF0FF] text-[#011F7B] text-[11px] font-mono font-bold">
+                  AKUNTABILITAS BERJENJANG
+                </span>
+              </div>
+              <p className="text-xs text-[#525363] mt-0.5">
+                Pemisahan fungsi operasional, verifikasi gerbang, audit internal, dan pengawasan eksternal
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Lini 1 */}
+          <div className="p-4 rounded-xl bg-[#F8FAFD] border border-[#CCD8FC] flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 rounded bg-[#011F7B] text-white text-[10px] font-bold font-mono uppercase">
+                  Lini 1
+                </span>
+                <span className="material-symbols-outlined text-[#011F7B] text-[20px]">storefront</span>
+              </div>
+              <h3 className="text-sm font-bold text-[#000F4A]">PPK BGN, Kepala SPPG &amp; Yayasan</h3>
+              <p className="text-xs text-[#525363] leading-relaxed">
+                Pengendalian operasional langsung: penginputan laporan harian di SIPGN (Senin–Sabtu), pengelolaan dapur gizi, dan penerbitan SPP top-up mingguan.
+              </p>
+            </div>
+            <div className="p-2.5 rounded-lg bg-white border border-[#E0E2E7] text-[11px] font-semibold text-[#011F7B]">
+              Peran: Operasional &amp; Keputusan SPP
+            </div>
+          </div>
+
+          {/* Lini 2 */}
+          <div className="p-4 rounded-xl bg-[#F8FAFD] border border-[#CCD8FC] flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 rounded bg-[#011F7B] text-white text-[10px] font-bold font-mono uppercase">
+                  Lini 2
+                </span>
+                <span className="material-symbols-outlined text-[#FFBA09] text-[20px]">policy</span>
+              </div>
+              <h3 className="text-sm font-bold text-[#000F4A]">Deputi Pemantauan dan Pengawasan</h3>
+              <p className="text-xs text-[#525363] leading-relaxed">
+                Pengawasan melekat: otomatisasi mesin aturan gerbang, penugasan Verifikator BGN, pemrosesan klarifikasi tertulis, dan uji fisik lapangan.
+              </p>
+            </div>
+            <div className="p-2.5 rounded-lg bg-white border border-[#E0E2E7] text-[11px] font-semibold text-[#011F7B]">
+              Peran: Mesin Aturan &amp; Verifikator BGN
+            </div>
+          </div>
+
+          {/* Lini 3 */}
+          <div className="p-4 rounded-xl bg-[#F8FAFD] border border-[#CCD8FC] flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 rounded bg-[#011F7B] text-white text-[10px] font-bold font-mono uppercase">
+                  Lini 3
+                </span>
+                <span className="material-symbols-outlined text-[#D64545] text-[20px]">shield</span>
+              </div>
+              <h3 className="text-sm font-bold text-[#000F4A]">Inspektorat Utama</h3>
+              <p className="text-xs text-[#525363] leading-relaxed">
+                Pengawasan internal independen: menerima rujukan kasus indikasi kesengajaan, reviu pengecualian, serta pelaksanaan audit investigatif.
+              </p>
+            </div>
+            <div className="p-2.5 rounded-lg bg-white border border-[#E0E2E7] text-[11px] font-semibold text-[#011F7B]">
+              Peran: Audit Investigatif Internal
+            </div>
+          </div>
+
+          {/* Di luar BGN */}
+          <div className="p-4 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7] flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2 py-0.5 rounded bg-[#525363] text-white text-[10px] font-bold font-mono uppercase">
+                  Di luar BGN
+                </span>
+                <span className="material-symbols-outlined text-[#525363] text-[20px]">account_balance</span>
+              </div>
+              <h3 className="text-sm font-bold text-[#000F4A]">BPK, Bank Himbara, BPKP</h3>
+              <p className="text-xs text-[#525363] leading-relaxed">
+                Pengawasan eksternal &amp; perbankan: mutasi rekening VA oleh Bank Himbara, audit keandalan sistem oleh BPKP, dan penetapan kerugian negara oleh BPK.
+              </p>
+            </div>
+            <div className="p-2.5 rounded-lg bg-white border border-[#E0E2E7] text-[11px] font-semibold text-[#525363]">
+              Peran: Mutasi VA, Audit Eksternal &amp; Vonis Hukum
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ZONE C: PENJELAJAH KASUS & REGISTER KEPUTUSAN */}
 
       {/* Part 1: Penjelajah Kasus (Interactive Case Simulator) */}
@@ -1169,28 +1270,28 @@ export const ErrorVsFraudPage: React.FC<ErrorVsFraudPageProps> = ({
               {[
                 {
                   key: 'redFlag',
-                  label: 'Red flag aktif (R1, R2, R4a, atau R5)',
+                  label: 'Red flag aktif (R1-R5, R8)',
                   desc: 'Pola anomali komparasi harga atau selisih arus kas dibaca mesin',
                 },
                 {
                   key: 'selisihTerkonfirmasi',
-                  label: 'Selisih terkonfirmasi (dokumen / cek fisik / konfirmasi pihak ketiga)',
-                  desc: 'Verifikator memeriksa nota basah dan konfirmasi absensi riil siswa',
+                  label: 'Selisih terkonfirmasi',
+                  desc: 'Verifikator memeriksa nota basah dan konfirmasi absensi riil penerima',
                 },
                 {
                   key: 'tandaPenyembunyian',
-                  label: 'Tanda penyembunyian atau dokumen sengaja direkayasa',
+                  label: 'Tanda penyembunyian atau dokumen direkayasa',
                   desc: 'Nota fiktif, stempel toko buatan, atau kuitansi palsu berturut-turut',
                 },
                 {
                   key: 'polaBerulang',
-                  label: 'Pola berulang di banyak minggu',
+                  label: 'Pola selisih berulang di banyak minggu',
                   desc: 'Penyimpangan terjadi terus-menerus tanpa ada upaya rektifikasi',
                 },
                 {
                   key: 'pemasokTerafiliasi',
-                  label: 'Pemasok terafiliasi dengan pengurus dapur (konflik kepentingan)',
-                  desc: 'Arus dana kas belanja mengalir ke keluarga atau rekening pengurus',
+                  label: 'Pemasok terafiliasi (R6)',
+                  desc: 'Arus kas logistik mengalir ke pihak terafiliasi pengurus dapur (konflik kepentingan)',
                 },
               ].map((sw) => {
                 const isChecked = toggles[sw.key as keyof typeof toggles];

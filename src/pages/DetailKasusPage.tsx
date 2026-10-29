@@ -200,13 +200,28 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
               </span>
             </div>
 
-            {/* Auditor Banner Note */}
+              {/* Auditor Banner Note */}
             <div className="px-5 py-2.5 bg-[#F7F9FE] border-b border-[#ECEEF3] flex items-start gap-2 text-xs">
               <span className="material-symbols-outlined text-[#011F7B] text-[18px] shrink-0 mt-0.5">info</span>
               <p className="text-[#454652] leading-snug">
                 <strong className="text-[#181C20] font-semibold">Perhatian Auditor:</strong> Indikator risiko awal hasil otomatisasi mesin aturan, bukan bukti bersalah / vonis hukum. Keputusan mutlak bergantung verifikasi faktual lapangan.
               </p>
             </div>
+
+            {/* Aturan Pemicu Label */}
+            {kitchen.triggerReason && (
+              <div className="p-4 mx-5 mt-4 rounded-xl bg-[#FFF8E6] border border-[#FFE28A] flex items-start gap-2.5 text-xs">
+                <span className="material-symbols-outlined text-[#FFBA09] text-[20px] shrink-0 mt-0.5">rule</span>
+                <div>
+                  <span className="font-bold text-[#8A5A00] uppercase tracking-wider block font-mono text-[10px]">
+                    Aturan yang Menghasilkan Label ({kitchen.triase})
+                  </span>
+                  <p className="text-[#000F4A] font-semibold mt-0.5 leading-relaxed">
+                    {kitchen.triggerReason}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Flags List */}
             <div className="p-5 space-y-4">
@@ -217,41 +232,42 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                 </div>
               ) : (
                 kitchen.activeFlags.map((flag) => {
-                  if (flag === 'R4a') {
-                    const deviasi = (((kitchen.reportedCostPerPortion - kitchen.paguPerPorsi) / kitchen.paguPerPorsi) * 100).toFixed(1);
+                  if (flag === 'R4') {
+                    const deviasi = (((kitchen.biayaBahanPerPorsi - kitchen.hargaAcuan) / kitchen.hargaAcuan) * 100).toFixed(1);
                     return (
                       <div key={flag} className="p-4 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7] space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center justify-center px-2 py-0.5 rounded bg-[#D64545] text-white text-[11px] font-bold tracking-wider">
-                              R4a
+                              R4
                             </span>
                             <h3 className="text-sm font-semibold text-[#181C20]">
-                              Biaya bahan per porsi melebihi pagu
+                              Biaya bahan per porsi melebihi HET atau survei pasar
                             </h3>
                           </div>
                           <span className="text-[10px] text-[#454652] uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-[#E0E2E7]">
-                            Indikator risiko, bukan bukti
+                            Tahap 2 • Sedang • Kuning
                           </span>
                         </div>
                         <div className="p-3 bg-white rounded-lg border border-[#E0E2E7] text-xs">
                           <p className="text-[#181C20]">
-                            Dilaporkan <span className="font-bold text-[#D64545] font-mono">Rp {kitchen.reportedCostPerPortion.toLocaleString('id-ID')}</span> per porsi vs Pagu Maksimum <span className="font-bold text-[#181C20] font-mono">Rp {kitchen.paguPerPorsi.toLocaleString('id-ID')}</span> per porsi
+                            Dilaporkan <span className="font-bold text-[#D64545] font-mono">Rp {kitchen.biayaBahanPerPorsi.toLocaleString('id-ID')}</span> per porsi vs Harga Acuan Bahan <span className="font-bold text-[#181C20] font-mono">Rp {kitchen.hargaAcuan.toLocaleString('id-ID')}</span> per porsi
                             <span className="inline-block ml-1 px-1.5 py-0.5 rounded bg-[#FCEBEB] text-[#B02A2A] font-bold text-[11px] font-mono">
                               (+{deviasi}% deviasi)
                             </span>
                           </p>
+                          <span className="text-[10px] text-[#757683] italic mt-0.5 block">perlu dicek ke juknis</span>
                         </div>
                         <p className="text-xs text-[#454652] leading-relaxed">
-                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Menu terlapor berupa ayam filet dan telur organik di {kitchen.region} melebihi standar harga satuan regional yang ditetapkan juknis BGN.
+                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Laporan harian menunjukkan harga beli melebihi acuan Panel Harga Pangan. Bahan baku tetap cair; operasional ditahan sementara menunggu klarifikasi tertulis (maks. 3 hari kerja).
                         </p>
                       </div>
                     );
                   }
 
                   if (flag === 'R5') {
-                    const diffRp = Math.abs(kitchen.reportedSpendTotal - kitchen.vaOutflowTotal);
-                    const diffPct = ((diffRp / kitchen.reportedSpendTotal) * 100).toFixed(1);
+                    const diffRp = Math.abs(kitchen.danaDilaporkanTerpakai - kitchen.arusKeluarVa);
+                    const diffPct = kitchen.danaDilaporkanTerpakai > 0 ? ((diffRp / kitchen.danaDilaporkanTerpakai) * 100).toFixed(1) : '0';
                     return (
                       <div key={flag} className="p-4 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7] space-y-2">
                         <div className="flex items-center justify-between">
@@ -260,23 +276,23 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                               R5
                             </span>
                             <h3 className="text-sm font-semibold text-[#181C20]">
-                              Rekonsiliasi tidak sejalan
+                              Pemakaian yang dilaporkan tidak sejalan dengan arus keluar VA
                             </h3>
                           </div>
                           <span className="text-[10px] text-[#454652] uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-[#E0E2E7]">
-                            Indikator risiko, bukan bukti
+                            Tahap 2 • Sedang • Kuning
                           </span>
                         </div>
                         <div className="p-3 bg-white rounded-lg border border-[#E0E2E7] text-xs">
                           <p className="text-[#181C20]">
-                            Dilaporkan terpakai <span className="font-bold text-[#000F4A] font-mono">Rp {kitchen.reportedSpendTotal.toLocaleString('id-ID')}</span> vs Arus keluar Virtual Account (VA) <span className="font-bold text-[#000F4A] font-mono">Rp {kitchen.vaOutflowTotal.toLocaleString('id-ID')}</span>
+                            Dilaporkan terpakai <span className="font-bold text-[#000F4A] font-mono">Rp {kitchen.danaDilaporkanTerpakai.toLocaleString('id-ID')}</span> vs Arus keluar Virtual Account (VA) <span className="font-bold text-[#000F4A] font-mono">Rp {kitchen.arusKeluarVa.toLocaleString('id-ID')}</span>
                             <span className="inline-block ml-1 px-1.5 py-0.5 rounded bg-[#FCEBEB] text-[#B02A2A] font-bold text-[11px] font-mono">
                               (Selisih: Rp {diffRp.toLocaleString('id-ID')} atau {diffPct}%)
                             </span>
                           </p>
                         </div>
                         <p className="text-xs text-[#454652] leading-relaxed">
-                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Arus pengeluaran kas tunai/nota warung lokal belum terbukukan di mutasi perbankan VA BGN. Terdapat indikasi pergeseran ke luar channel resmi virtual account.
+                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Deviasi antara nota belanja harian dan catatan mutasi bank Himbara. Jika berdiri sendiri menghasilkan Kuning; jika aktif bersama R3 atau R4 menghasilkan Merah.
                         </p>
                       </div>
                     );
@@ -291,16 +307,16 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                               R1
                             </span>
                             <h3 className="text-sm font-semibold text-[#181C20]">
-                              Duplikasi Virtual Account Aktif
+                              Satu dapur, alamat, atau penanggung jawab memegang lebih dari satu VA aktif
                             </h3>
                           </div>
                           <span className="text-[10px] text-[#454652] uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-[#E0E2E7]">
-                            Indikator risiko, bukan bukti
+                            Tahap 1 • Kuat • Merah
                           </span>
                         </div>
                         <div className="p-3 bg-white rounded-lg border border-[#E0E2E7] text-xs">
                           <p className="text-[#181C20]">
-                            Terdeteksi <span className="font-bold text-[#D64545]">{kitchen.activeVaCount} Virtual Account aktif</span> pada alamat/pengelola yang sama.
+                            Terdeteksi <span className="font-bold text-[#D64545]">{kitchen.activeVaCount} Virtual Account aktif</span> pada entitas/penanggung jawab yang sama.
                           </p>
                         </div>
                       </div>
@@ -320,16 +336,16 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                             </h3>
                           </div>
                           <span className="text-[10px] text-[#454652] uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-[#E0E2E7]">
-                            Indikator risiko, bukan bukti
+                            Tahap 1 • Kuat • Merah
                           </span>
                         </div>
                         <div className="p-3 bg-white rounded-lg border border-[#E0E2E7] text-xs">
                           <p className="text-[#181C20]">
-                            Dapur tercatat berstatus <span className="font-bold text-[#D64545] uppercase">{kitchen.status}</span> di SIPGN atau belum terbit Sertifikat Laik Higiene Sanitasi (SLHS).
+                            Dapur berstatus <span className="font-bold text-[#D64545] uppercase">{kitchen.status}</span> di SIPGN atau belum memiliki SLHS sah.
                           </p>
                         </div>
                         <p className="text-xs text-[#454652] leading-relaxed">
-                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Hanya bahan baku minimum dicairkan bila dapur terbukti ada dan beroperasi; operasional dan insentif ditahan; penugasan verifikasi lapangan (usulan 5 hari kerja).
+                          <strong className="text-[#181C20] font-medium">Perlakuan:</strong> Hanya bahan baku minimum dicairkan bila saldo VA tidak cukup untuk penerima sinkronisasi; operasional ditahan; verifikasi lapangan maks. 4 hari kerja.
                         </p>
                       </div>
                     );
@@ -344,21 +360,49 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                               R3
                             </span>
                             <h3 className="text-sm font-semibold text-[#181C20]">
-                              Laporan porsi harian melebihi porsi penetapan atau pada hari non-layanan
+                              Porsi harian melebihi penerima hasil sinkronisasi, atau dilaporkan pada hari tanpa layanan
                             </h3>
                           </div>
                           <span className="text-[10px] text-[#454652] uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-[#E0E2E7]">
-                            Indikator risiko, bukan bukti
+                            Tahap 1 • Sedang • Kuning
                           </span>
                         </div>
                         <div className="p-3 bg-white rounded-lg border border-[#E0E2E7] text-xs">
                           <p className="text-[#181C20]">
-                            Klaim porsi harian melebihi kapasitas penetapan kuota penerima atau tercatat pada kalender hari non-layanan/libur sekolah.
+                            Porsi dilaporkan <span className="font-bold text-[#D64545]">{kitchen.porsiDilaporkan.toLocaleString('id-ID')}</span> vs Penerima sinkronisasi SK <span className="font-bold text-[#000F4A]">{kitchen.penerimaSinkronisasi.toLocaleString('id-ID')}</span>
+                            {kitchen.hariTanpaLayanan && (
+                              <span className="ml-1 text-[#D64545] font-semibold">(tercatat input pada hari tanpa layanan)</span>
+                            )}
                           </p>
                         </div>
                         <p className="text-xs text-[#454652] leading-relaxed">
-                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Mengindikasikan potensi penggelembungan porsi atau kesalahan pencatatan kalender operasional.
+                          <strong className="text-[#181C20] font-medium">Konteks:</strong> Perbedaan antara kuota SK penerima terpadu dan klaim logistik harian.
                         </p>
+                      </div>
+                    );
+                  }
+
+                  if (flag === 'R8') {
+                    return (
+                      <div key={flag} className="p-4 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7] space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded bg-[#011F7B] text-white text-[11px] font-bold tracking-wider">
+                              R8
+                            </span>
+                            <h3 className="text-sm font-semibold text-[#181C20]">
+                              Porsi berbeda dengan konfirmasi sekolah atau posyandu (sampel acak)
+                            </h3>
+                          </div>
+                          <span className="text-[10px] text-[#454652] uppercase tracking-wider bg-white px-2 py-0.5 rounded border border-[#E0E2E7]">
+                            Tahap 2 • Sedang • Kuning
+                          </span>
+                        </div>
+                        <div className="p-3 bg-white rounded-lg border border-[#E0E2E7] text-xs">
+                          <p className="text-[#181C20]">
+                            Hasil konfirmasi pihak ketiga mengindikasikan deviasi kehadiran penerima riil dibanding laporan SPPG.
+                          </p>
+                        </div>
                       </div>
                     );
                   }
@@ -513,15 +557,15 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
             </div>
           </div>
 
-          {/* CARD 3: Rincian Alokasi Dana Top-up Diajukan (3 Komponen) */}
+          {/* CARD 3: Rincian Alokasi Dana Top-up Diajukan (2 Komponen) */}
           <div className="bg-white rounded-xl shadow-sm border border-[#E0E2E7] p-6 space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#ECEEF3] pb-3 gap-2">
               <div>
                 <h2 className="text-base font-bold text-[#000F4A]">
-                  Rincian Alokasi Dana Top-up Diajukan (3 Komponen)
+                  Rincian Alokasi Dana Top-up Diajukan (2 Komponen)
                 </h2>
                 <p className="text-xs text-[#454652] mt-0.5">
-                  Bahan baku, belanja operasional dapur, dan insentif per porsi terlapor
+                  Bahan baku dan belanja operasional dapur (asumsi simulasi operasional: {params?.operasionalShare ?? 20}%)
                 </p>
               </div>
               <div className="text-right">
@@ -537,7 +581,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Komponen 1: Bahan Baku Pokok */}
               <div className="p-4 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7] flex flex-col justify-between space-y-3">
                 <div className="space-y-1">
@@ -559,13 +603,21 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                   </div>
                 </div>
 
-                <div className="p-2 rounded bg-white border border-[#E0E2E7] flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${kitchen.triase === 'Merah' && kitchen.status !== 'beroperasi' ? 'bg-[#D64545]' : 'bg-[#1E9E6A]'}`}></span>
+                <div className="p-2.5 rounded bg-white border border-[#E0E2E7] flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${kitchen.paidBahanBaku > 0 ? 'bg-[#1E9E6A]' : 'bg-[#D64545]'}`}></span>
                   <p className="text-[11px] text-[#181C20] font-semibold leading-tight">
                     {kitchen.triase === 'Hijau' && <span className="text-[#1E9E6A]">Dicairkan Penuh (100%)</span>}
                     {kitchen.triase === 'Kuning' && <span className="text-[#1E9E6A]">Dicairkan Penuh (Anak Tetap Makan)</span>}
-                    {kitchen.triase === 'Merah' && kitchen.status === 'beroperasi' && <span className="text-[#1E9E6A]">Hanya Bahan Minimum Darurat Cair</span>}
-                    {kitchen.triase === 'Merah' && kitchen.status !== 'beroperasi' && <span className="text-[#D64545]">Ditahan (Unit Belum Beroperasi / SLHS)</span>}
+                    {kitchen.triase === 'Merah' && kitchen.paidBahanBaku > 0 && (
+                      <span className="text-[#1E9E6A]">
+                        Bahan Baku Minimum Cair (Saldo VA Rp {kitchen.saldoVa.toLocaleString('id-ID')} &lt; kuota sinkronisasi)
+                      </span>
+                    )}
+                    {kitchen.triase === 'Merah' && kitchen.paidBahanBaku === 0 && (
+                      <span className="text-[#D64545]">
+                        Top-up Ditahan Penuh (Saldo VA Rp {kitchen.saldoVa.toLocaleString('id-ID')} cukup untuk penerima sinkronisasi)
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -584,7 +636,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                     </span>
                   </div>
                   <h3 className="text-sm font-bold text-[#181C20] pt-1">Operasional Dapur</h3>
-                  <p className="text-xs text-[#454652]">Honor juru masak, gas LPG, listrik, logistik</p>
+                  <p className="text-xs text-[#454652]">Honor juru masak, gas LPG, listrik, logistik (asumsi simulasi)</p>
                   <div className="pt-1">
                     <span className={`text-xl font-bold font-mono ${kitchen.triase === 'Hijau' ? 'text-[#000F4A]' : 'text-[#D64545]'}`}>
                       <AnimatedNumber value={kitchen.operasionalBudget} prefix="Rp " />
@@ -592,49 +644,15 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                   </div>
                 </div>
 
-                <div className="p-2 rounded bg-white border border-[#E0E2E7] flex items-center gap-2">
+                <div className="p-2.5 rounded bg-white border border-[#E0E2E7] flex items-center gap-2">
                   <span className={`w-2.5 h-2.5 rounded-full ${kitchen.triase === 'Hijau' ? 'bg-[#1E9E6A]' : 'bg-[#D64545]'}`}></span>
                   <p className="text-[11px] text-[#181C20] font-semibold leading-tight">
                     {kitchen.triase === 'Hijau' ? (
-                      <span className="text-[#1E9E6A]">Dicairkan Penuh</span>
+                      <span className="text-[#1E9E6A]">Dicairkan Penuh (100%)</span>
+                    ) : kitchen.triase === 'Kuning' ? (
+                      <span className="text-[#D64545]">Ditahan (klarifikasi tertulis maks. 3 hari kerja)</span>
                     ) : (
-                      <span className="text-[#D64545]">Ditahan (klarifikasi {kitchen.triase === 'Kuning' ? '3 hari kerja' : '5 hari kerja'})</span>
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              {/* Komponen 3: Insentif Petugas & Pengelola */}
-              <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${
-                kitchen.triase === 'Hijau' ? 'bg-[#F1F4F9] border-[#E0E2E7]' : 'bg-[#FFF4CC]/30 border-[#F0DB85]'
-              }`}>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-white text-[#000F4A] font-bold border border-[#E0E2E7]">
-                      Komponen 3
-                    </span>
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#fcb803] text-[#000F4A]">
-                      USULAN
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-[#181C20] pt-1">Insentif Pengelola</h3>
-                  <p className="text-xs text-[#454652]">
-                    Rp 2.000 / porsi ({kitchen.weeklyPortions.toLocaleString('id-ID')} porsi, efektif 5 Okt 2026)
-                  </p>
-                  <div className="pt-1">
-                    <span className={`text-xl font-bold font-mono ${kitchen.triase === 'Hijau' ? 'text-[#000F4A]' : 'text-[#8A5A00]'}`}>
-                      <AnimatedNumber value={kitchen.insentifBudget} prefix="Rp " />
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-2 rounded bg-white border border-[#E0E2E7] flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${kitchen.triase === 'Hijau' ? 'bg-[#1E9E6A]' : 'bg-[#8A5A00]'}`}></span>
-                  <p className="text-[11px] text-[#181C20] font-semibold leading-tight">
-                    {kitchen.triase === 'Hijau' ? (
-                      <span className="text-[#1E9E6A]">Dicairkan Penuh (Usulan)</span>
-                    ) : (
-                      <span className="text-[#8A5A00]">Ditahan bersama operasional (Usulan)</span>
+                      <span className="text-[#D64545]">Ditahan (verifikasi lapangan maks. 4 hari kerja)</span>
                     )}
                   </p>
                 </div>
@@ -663,7 +681,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                   <span className="w-2.5 h-2.5 rounded-full bg-[#1E9E6A]"></span>
                   <span className="text-xs font-semibold text-[#181C20]">Tier Hijau</span>
                 </div>
-                <span className="text-xs text-[#1E9E6A] font-semibold">Top-up 100% (3 Komponen Cair)</span>
+                <span className="text-xs text-[#1E9E6A] font-semibold">Top-up 100% Penuh</span>
               </div>
 
               {/* Tier Kuning */}
@@ -676,7 +694,7 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                   <span className="w-2.5 h-2.5 rounded-full bg-[#fcb803]"></span>
                   <span className="text-xs font-semibold text-[#181C20]">Tier Kuning</span>
                 </div>
-                <span className="text-xs text-[#8A5A00] font-semibold">Bahan Cair, Operasional &amp; Insentif Ditahan (3 Hari)</span>
+                <span className="text-xs text-[#8A5A00] font-semibold">Bahan Cair, Operasional Ditahan (3 Hari)</span>
               </div>
 
               {/* Tier Merah */}
@@ -697,14 +715,14 @@ export const DetailKasusPage: React.FC<DetailKasusPageProps> = ({
                   )}
                 </div>
                 <p className="text-xs text-[#181C20] leading-relaxed">
-                  Top-up <strong className="text-[#D64545]">HANYA</strong> bahan baku minimum darurat bila dapur fisik terbukti ada dan beroperasi; operasional dan insentif ditahan (usulan); penugasan verifikasi lapangan batas usulan 5 hari kerja.
+                  Bahan baku cair hanya bila saldo VA tidak cukup untuk porsi hasil sinkronisasi penerima; sebaliknya seluruh top-up ditahan; operasional ditahan; verifikasi lapangan Verifikator BGN maks. 4 hari kerja.
                 </p>
               </div>
             </div>
 
             <div className="p-2.5 rounded-lg bg-[#F1F4F9] border border-[#E0E2E7] flex items-center justify-between text-xs">
-              <span className="text-[#454652] font-medium">Usulan Jatuh Tempo SPP</span>
-              <span className="font-bold text-[#000F4A] font-mono">Selasa, 16:00 WIB</span>
+              <span className="text-[#454652] font-medium">Batas Waktu Rekomendasi</span>
+              <span className="font-bold text-[#000F4A] font-mono">Sebelum SPP (Senin-Selasa)</span>
             </div>
           </div>
 

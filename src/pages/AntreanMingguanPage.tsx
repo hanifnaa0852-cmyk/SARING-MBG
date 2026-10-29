@@ -100,21 +100,44 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
     }
   };
 
+  const getFlagMeta = (code: string) => {
+    switch (code) {
+      case 'R1': return { tahap: 'Tahap 1', kekuatan: 'Kuat' };
+      case 'R2': return { tahap: 'Tahap 1', kekuatan: 'Kuat' };
+      case 'R3': return { tahap: 'Tahap 1', kekuatan: 'Sedang' };
+      case 'R4': return { tahap: 'Tahap 2', kekuatan: 'Sedang' };
+      case 'R5': return { tahap: 'Tahap 2', kekuatan: 'Sedang' };
+      case 'R8': return { tahap: 'Tahap 2', kekuatan: 'Sedang' };
+      case 'R6': return { tahap: 'Tahap 3', kekuatan: 'Lemah' };
+      case 'R7': return { tahap: 'Tahap 3', kekuatan: 'Lemah' };
+      default: return { tahap: 'Tahap 1', kekuatan: 'Sedang' };
+    }
+  };
+
   const handleExportCSV = () => {
-    const headers = ['ID SPPG', 'Nama Dapur', 'Wilayah', 'Triase', 'Red Flags', 'Dana Usulan', 'Bahan Baku', 'Operasional', 'Insentif (Usulan)', 'Dana Tertahan', 'Rekomendasi'];
-    const rows = filteredKitchens.map((k) => [
-      k.id,
-      k.name,
-      k.region,
-      k.triase,
-      k.activeFlags.join(';') || '-',
-      k.topUpRequested,
-      k.bahanBakuBudget || k.foodBudget,
-      k.operasionalBudget,
-      k.insentifBudget,
-      k.heldBudget,
-      k.recommendationAction
-    ]);
+    const headers = ['ID SPPG', 'Nama Dapur', 'Wilayah', 'Triase', 'Red Flags', 'Dana Usulan', 'Bahan Baku', 'Operasional', 'Dana Tertahan', 'Perlakuan', 'Batas Klarifikasi/Verifikasi'];
+    const rows = filteredKitchens.map((k) => {
+      const perlakuan = k.triase === 'Hijau'
+        ? 'Top-up penuh'
+        : k.triase === 'Kuning'
+        ? 'Bahan baku cair, operasional ditahan'
+        : 'Bahan baku hanya bila saldo VA kurang';
+      const batas = k.triase === 'Hijau' ? '-' : k.triase === 'Kuning' ? 'Maks. 3 hari kerja' : 'Maks. 4 hari kerja';
+
+      return [
+        k.id,
+        k.name,
+        k.region,
+        k.triase,
+        k.activeFlags.join(';') || '-',
+        k.topUpRequested,
+        k.bahanBakuBudget || k.foodBudget,
+        k.operasionalBudget,
+        k.heldBudget,
+        perlakuan,
+        batas
+      ];
+    });
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
@@ -146,7 +169,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
           </div>
           <h1 className="text-2xl font-bold text-[#000F4A] tracking-tight">Antrean Top-up Minggu 4</h1>
           <p className="text-sm text-[#454652] max-w-3xl">
-            Daftar antrean verifikasi kepatuhan dan status pelepasan dana operasional SPPG sebelum penerbitan Surat Permintaan Pembayaran (SPP) oleh Pejabat Pembuat Komitmen (PPK).
+            Gerbang memberikan rekomendasi label triase sebelum Surat Perintah Pembayaran (SPP) diterbitkan oleh Pejabat Pembuat Komitmen (PPK). Keputusan final pencairan berada pada PPK.
           </p>
         </div>
 
@@ -191,15 +214,15 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
               </span>
             </div>
             <p className="text-xs text-[#181C20] leading-relaxed max-w-4xl">
-              Mekanisme proteksi likuiditas pra-SPP: untuk Kuning, bahan baku dicairkan, operasional &amp; insentif ditahan sementara (usulan 3 hari kerja). Untuk Merah, hanya bahan baku minimum dicairkan bila dapur terbukti beroperasi, operasional &amp; insentif ditahan (usulan 5 hari kerja). Total dana tertahan sementara: <strong>Rp {operasionalDitahanJuta} Juta</strong>.
+              Mekanisme proteksi likuiditas pra-SPP: untuk Kuning, bahan baku dicairkan, operasional ditahan sementara (maks. 3 hari kerja). Untuk Merah, bahan baku hanya dicairkan bila saldo VA tidak cukup, operasional ditahan (verifikasi lapangan maks. 4 hari kerja). Total operasional tertahan sementara: <strong>Rp {operasionalDitahanJuta} Juta</strong>.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
           <div className="bg-white/90 border border-[#D64545]/30 rounded-lg px-3 py-2 text-right">
-            <div className="text-[10px] text-[#757683] uppercase font-bold tracking-wider">Verifikasi Lapangan Inspektorat Utama BGN</div>
+            <div className="text-[10px] text-[#757683] uppercase font-bold tracking-wider">Verifikasi Lapangan Verifikator BGN</div>
             <div className="text-sm font-extrabold text-[#D64545] font-mono">
-              {merahCount} Dapur (usulan 5 hari kerja)
+              {merahCount} Dapur (maks. 4 hari kerja)
             </div>
           </div>
         </div>
@@ -371,8 +394,8 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                     <th className="py-2.5 px-3 whitespace-nowrap">Triase</th>
                     <th className="py-2.5 px-3 whitespace-nowrap">Red Flag</th>
                     <th className="py-2.5 px-3 text-right whitespace-nowrap">Dana Usulan (Rp)</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">Tindakan Rekomendasi</th>
-                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Batas Verifikasi</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">Perlakuan</th>
+                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Batas Klarifikasi/Verifikasi</th>
                     <th className="py-2.5 px-3 text-center w-12">Detail</th>
                   </tr>
                 </thead>
@@ -402,6 +425,18 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                         triaseIcon = 'warning';
                         shadowHighlight = 'shadow-[inset_4px_0_0_#fcb803]';
                       }
+
+                      const perlakuanText = k.triase === 'Hijau'
+                        ? 'Top-up penuh'
+                        : k.triase === 'Kuning'
+                        ? 'Bahan baku cair, operasional ditahan'
+                        : 'Bahan baku hanya bila saldo VA kurang';
+
+                      const batasText = k.triase === 'Hijau'
+                        ? '-'
+                        : k.triase === 'Kuning'
+                        ? 'Maks. 3 hari kerja'
+                        : 'Maks. 4 hari kerja';
 
                       return (
                         <tr
@@ -437,32 +472,36 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                             {k.activeFlags.length === 0 ? (
                               <span className="text-[#757683]">-</span>
                             ) : (
-                              <div className="flex items-center gap-1">
-                                {k.activeFlags.map((flag) => (
-                                  <span
-                                    key={flag}
-                                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                                      k.triase === 'Merah'
-                                        ? 'bg-[#FCEBEB] text-[#B02A2A]'
-                                        : 'bg-[#FFF4CC] text-[#8A5A00]'
-                                    }`}
-                                  >
-                                    {flag}
-                                  </span>
-                                ))}
+                              <div className="flex items-center gap-1 flex-wrap">
+                                {k.activeFlags.map((flag) => {
+                                  const meta = getFlagMeta(flag);
+                                  return (
+                                    <span
+                                      key={flag}
+                                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-mono ${
+                                        k.triase === 'Merah'
+                                          ? 'bg-[#FCEBEB] text-[#B02A2A]'
+                                          : 'bg-[#FFF4CC] text-[#8A5A00]'
+                                      }`}
+                                      title={`${flag}: ${meta.tahap}, Kekuatan ${meta.kekuatan}`}
+                                    >
+                                      {flag} ({meta.tahap}, {meta.kekuatan})
+                                    </span>
+                                  );
+                                })}
                               </div>
                             )}
                           </td>
                           <td className="py-3 px-3 text-right font-bold text-[#000F4A] tabular-nums font-mono whitespace-nowrap">
                             Rp {k.topUpRequested.toLocaleString('id-ID')}
                           </td>
-                          <td className="py-3 px-3 text-[#181C20] whitespace-nowrap">
-                            {k.recommendationAction}
+                          <td className="py-3 px-3 text-[#181C20] whitespace-nowrap font-medium">
+                            {perlakuanText}
                           </td>
                           <td className={`py-3 px-3 text-center font-semibold tabular-nums whitespace-nowrap ${
                             k.triase === 'Merah' ? 'text-[#D64545]' : k.triase === 'Kuning' ? 'text-[#8A5A00]' : 'text-[#757683]'
                           }`}>
-                            {k.verificationDeadline}
+                            {batasText}
                           </td>
                           <td className="py-3 px-3 text-center">
                             <button
@@ -547,7 +586,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                   <span>Hijau (Siap Salur)</span>
                 </div>
                 <p className="text-[#454652] leading-relaxed text-[11px]">
-                  Semua 3 komponen dicairkan (bahan baku, operasional, dan insentif) langsung ke rekening operasional SPPG tanpa penahanan.
+                  Top-up penuh dicairkan (bahan baku dan operasional) langsung ke rekening operasional SPPG tanpa penahanan.
                 </p>
               </div>
 
@@ -558,7 +597,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                   <span>Kuning (Klarifikasi Dokumen)</span>
                 </div>
                 <p className="text-[#454652] leading-relaxed text-[11px]">
-                  Bahan baku tetap cair; operasional dan insentif ditahan sementara menunggu klarifikasi tertulis (usulan 3 hari kerja).
+                  Bahan baku tetap cair; operasional ditahan sementara menunggu klarifikasi tertulis (maks. 3 hari kerja).
                 </p>
               </div>
 
@@ -566,10 +605,10 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
               <div className="p-3 rounded-lg bg-white border border-[#E0E2E7] space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-[#D64545]">
                   <span className="material-symbols-outlined text-[16px]">dangerous</span>
-                  <span>Merah (Audit Investigasi)</span>
+                  <span>Merah (Verifikasi Lapangan)</span>
                 </div>
                 <p className="text-[#454652] leading-relaxed text-[11px]">
-                  Hanya bahan baku minimum darurat bila SPPG terbukti ada &amp; beroperasi; operasional &amp; insentif ditahan (usulan); verifikasi lapangan usulan 5 hari kerja.
+                  Bahan baku hanya dicairkan bila sisa saldo VA tidak mencukupi untuk penerima hasil sinkronisasi; operasional ditahan; verifikasi lapangan maks. 4 hari kerja.
                 </p>
               </div>
             </div>
@@ -648,11 +687,11 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                 </div>
               </div>
 
-              {/* Section 2: Rincian Anggaran */}
+              {/* Section 2: Rincian Anggaran (Dua Komponen Saja) */}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#757683]">
                   <span className="material-symbols-outlined text-[15px]">payments</span>
-                  <span>2. Rincian Anggaran Diajukan</span>
+                  <span>2. Rincian Anggaran Diajukan (2 Komponen)</span>
                 </div>
                 <div className="rounded-lg p-3 bg-[#F1F4F9] space-y-2 border border-[#E0E2E7]">
                   <div className="flex justify-between items-baseline">
@@ -680,16 +719,6 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                         Rp {(selectedKitchen.operasionalBudget || Math.round(selectedKitchen.topUpRequested * 0.2)).toLocaleString('id-ID')}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-[#454652] flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-[#FFBA09]"></span>
-                        <span>Insentif (Rp2.000/porsi)</span>
-                        <span className="text-[9px] px-1 py-0.2 bg-[#FFBA09]/20 text-[#8A5A00] font-bold rounded">USULAN</span>
-                      </span>
-                      <span className="font-bold text-[#8A5A00] tabular-nums font-mono">
-                        Rp {(selectedKitchen.insentifBudget || (selectedKitchen.weeklyPortions * 2000)).toLocaleString('id-ID')}
-                      </span>
-                    </div>
                     <div className="flex justify-between pt-1 border-t border-[#E0E2E7]">
                       <span className="text-[#454652] flex items-center gap-1 font-semibold">
                         <span className="w-2 h-2 rounded-full bg-[#D64545]"></span>
@@ -704,8 +733,8 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                   </div>
 
                   <div className="pt-1 text-[10px] text-[#757683] font-medium flex justify-between">
-                    <span>Perlakuan Insentif: <strong className="text-[#000F4A]">Usulan</strong></span>
-                    <span>Status: <strong className={selectedKitchen.triase === 'Hijau' ? 'text-[#1E9E6A]' : selectedKitchen.triase === 'Kuning' ? 'text-[#8A5A00]' : 'text-[#D64545]'}>{selectedKitchen.triase}</strong></span>
+                    <span>Status Label: <strong className={selectedKitchen.triase === 'Hijau' ? 'text-[#1E9E6A]' : selectedKitchen.triase === 'Kuning' ? 'text-[#8A5A00]' : 'text-[#D64545]'}>{selectedKitchen.triase}</strong></span>
+                    <span>Batas Resolusi: <strong className="text-[#000F4A]">{selectedKitchen.triase === 'Hijau' ? '-' : selectedKitchen.triase === 'Kuning' ? '3 hari kerja' : '4 hari kerja'}</strong></span>
                   </div>
                 </div>
               </div>
@@ -724,23 +753,13 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                     </div>
                   ) : (
                     selectedKitchen.activeFlags.map((code) => {
+                      const meta = getFlagMeta(code);
                       let title = '';
                       let desc = '';
                       let diff = '';
 
-                      if (code === 'R4a') {
-                        title = 'R4a: Integritas Nota Logistik / Pagu';
-                        const diffPct = (((selectedKitchen.reportedCostPerPortion - selectedKitchen.paguPerPorsi) / selectedKitchen.paguPerPorsi) * 100).toFixed(1);
-                        diff = `Deviasi +${diffPct}%`;
-                        desc = `Biaya bahan Rp ${selectedKitchen.reportedCostPerPortion.toLocaleString('id-ID')}/porsi melebihi pagu regional Rp ${selectedKitchen.paguPerPorsi.toLocaleString('id-ID')}.`;
-                      } else if (code === 'R5') {
-                        title = 'R5: Rekonsiliasi Rekening VA';
-                        const diffRp = Math.abs(selectedKitchen.reportedSpendTotal - selectedKitchen.vaOutflowTotal);
-                        const diffPct = ((diffRp / selectedKitchen.reportedSpendTotal) * 100).toFixed(1);
-                        diff = `Selisih ${diffPct}%`;
-                        desc = `Selisih Rp ${diffRp.toLocaleString('id-ID')} antara lapor harian SPPG vs mutasi keluar VA BGN.`;
-                      } else if (code === 'R1') {
-                        title = 'R1: Duplikasi Rekening VA';
+                      if (code === 'R1') {
+                        title = 'R1: Duplikasi Virtual Account Aktif';
                         diff = 'VA Ganda';
                         desc = `Ditemukan ${selectedKitchen.activeVaCount} virtual account aktif pada unit dapur dan penanggung jawab yang sama.`;
                       } else if (code === 'R2') {
@@ -750,14 +769,29 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                       } else if (code === 'R3') {
                         title = 'R3: Penetapan Penerima / Hari Layanan';
                         diff = 'Anomali Porsi';
-                        desc = 'Porsi harian yang dilaporkan melebihi alokasi penetapan penerima atau dilaporkan pada hari non-layanan.';
+                        desc = 'Porsi harian melebihi penerima hasil sinkronisasi, atau dilaporkan pada hari tanpa layanan.';
+                      } else if (code === 'R4') {
+                        title = 'R4: Harga Acuan Bahan per Porsi';
+                        const diffPct = (((selectedKitchen.biayaBahanPerPorsi - selectedKitchen.hargaAcuan) / selectedKitchen.hargaAcuan) * 100).toFixed(1);
+                        diff = `Deviasi +${diffPct}%`;
+                        desc = `Biaya bahan Rp ${selectedKitchen.biayaBahanPerPorsi.toLocaleString('id-ID')}/porsi melebihi harga acuan/HET Rp ${selectedKitchen.hargaAcuan.toLocaleString('id-ID')}.`;
+                      } else if (code === 'R5') {
+                        title = 'R5: Rekonsiliasi Rekening VA';
+                        const diffRp = Math.abs(selectedKitchen.danaDilaporkanTerpakai - selectedKitchen.arusKeluarVa);
+                        const diffPct = selectedKitchen.danaDilaporkanTerpakai > 0 ? ((diffRp / selectedKitchen.danaDilaporkanTerpakai) * 100).toFixed(1) : '0';
+                        diff = `Selisih ${diffPct}%`;
+                        desc = `Pemakaian yang dilaporkan tidak sejalan dengan arus keluar VA (selisih Rp ${diffRp.toLocaleString('id-ID')}).`;
+                      } else if (code === 'R8') {
+                        title = 'R8: Konfirmasi Pihak Ketiga';
+                        diff = 'Deviasi Sekolah';
+                        desc = 'Porsi berbeda dengan konfirmasi sekolah atau posyandu (sampel acak).';
                       }
 
                       return (
                         <div key={code} className="p-2.5 rounded-lg bg-[#F1F4F9] border border-[#E0E2E7] space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FCEBEB] text-[#B02A2A]">
-                              {title}
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FCEBEB] text-[#B02A2A] font-mono">
+                              {code} ({meta.tahap}, {meta.kekuatan})
                             </span>
                             <span className="text-[#D64545] font-bold font-mono">{diff}</span>
                           </div>
@@ -790,7 +824,7 @@ export const AntreanMingguanPage: React.FC<AntreanMingguanPageProps> = ({
                     </span>
                   </div>
                   <div className="text-[10px] text-[#757683]">
-                    Jatuh tempo SPP: Selasa, 16:00 WIB
+                    Jatuh tempo SPP: Senin–Selasa per Juknis
                   </div>
                 </div>
 

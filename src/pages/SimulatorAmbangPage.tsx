@@ -5,7 +5,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { SimulationParameters } from '../types';
-import { generateSyntheticKitchens, computeSimulationMetrics, computeTradeOffCurve } from '../utils/syntheticData';
+import {
+  generateSyntheticKitchens,
+  computeSimulationMetrics,
+  computeTradeOffCurve,
+  DEFAULT_SIMULATION_PARAMETERS
+} from '../utils/syntheticData';
 import { AnimatedNumber } from '../components/AnimatedNumber';
 
 interface SimulatorAmbangPageProps {
@@ -19,6 +24,7 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
 }) => {
   const [params, setParams] = useState<SimulationParameters>(currentParams);
   const [preset, setPreset] = useState<string>('kalibrasi_awal');
+  const [selectedChartThreshold, setSelectedChartThreshold] = useState<'R3' | 'R4' | 'R5'>('R5');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -35,11 +41,12 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
     return computeSimulationMetrics(simulatedKitchens, params);
   }, [simulatedKitchens, params]);
 
+  // Trade-off curve for selected threshold (R3, R4, or R5)
   const tradeOffData = useMemo(() => {
-    return computeTradeOffCurve(params);
-  }, [params.tolR4a, params.paguBahan, params.enableR3Tahap1, params.propProblematic, params.propHonestError]);
+    return computeTradeOffCurve(params, selectedChartThreshold);
+  }, [params, selectedChartThreshold]);
 
-  const handleSliderChange = (key: keyof SimulationParameters, value: number | boolean) => {
+  const handleSliderChange = (key: keyof SimulationParameters, value: number | string | boolean) => {
     const updated = { ...params, [key]: value };
     setParams(updated);
     onUpdateParams(updated);
@@ -50,64 +57,53 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
     let updated: SimulationParameters;
     if (presetKey === 'ketat') {
       updated = {
+        ...params,
+        mode: 'tahap1_2',
+        tolR3: 2,
+        tolR4: 0,
         tolR5: 5,
-        tolR4a: 0,
-        paguBahan: 10000,
-        enableR3Tahap1: false,
         propProblematic: 6,
         propHonestError: 10,
         fieldCapacity: 200,
+        docReviewCapacity: 700,
       };
     } else if (presetKey === 'longgar') {
       updated = {
+        ...params,
+        mode: 'tahap1_2',
+        tolR3: 10,
+        tolR4: 5,
         tolR5: 20,
-        tolR4a: 5,
-        paguBahan: 10000,
-        enableR3Tahap1: false,
         propProblematic: 3,
         propHonestError: 5,
-        fieldCapacity: 100,
+        fieldCapacity: 120,
+        docReviewCapacity: 500,
       };
     } else {
       updated = {
-        tolR5: 10,
-        tolR4a: 0,
-        paguBahan: 10000,
-        enableR3Tahap1: false,
-        propProblematic: 4,
-        propHonestError: 8,
-        fieldCapacity: 150,
+        ...DEFAULT_SIMULATION_PARAMETERS,
       };
     }
     setParams(updated);
     onUpdateParams(updated);
-    showToast(`Preset "${presetKey === 'ketat' ? 'Pemeriksaan Ketat' : presetKey === 'longgar' ? 'Fasilitasi Kelancaran Salur' : 'Kalibrasi Awal Tahap 1'}" diterapkan.`);
+    showToast(`Preset "${presetKey === 'ketat' ? 'Pemeriksaan Ketat' : presetKey === 'longgar' ? 'Fasilitasi Kelancaran Salur' : 'Rancangan Pilot (Tahap 1 Default)'}" diterapkan.`);
   };
 
   const handleReset = () => {
-    const defaultParams: SimulationParameters = {
-      tolR5: 10,
-      tolR4a: 0,
-      paguBahan: 10000,
-      enableR3Tahap1: false,
-      propProblematic: 4,
-      propHonestError: 8,
-      fieldCapacity: 150,
-    };
     setPreset('kalibrasi_awal');
-    setParams(defaultParams);
-    onUpdateParams(defaultParams);
-    showToast('Parameter simulasi dikembalikan ke nilai default.');
+    setParams(DEFAULT_SIMULATION_PARAMETERS);
+    onUpdateParams(DEFAULT_SIMULATION_PARAMETERS);
+    showToast('Parameter simulasi dikembalikan ke default juknis pilot.');
   };
 
   const handleExportCSV = () => {
-    const headers = ['Toleransi R5 (%)', 'Tingkat Positif Palsu (%)', 'Tingkat Negatif Palsu (%)', 'Jumlah Dapur Ditandai', 'Dana Tertahan (Rp)'];
-    const rows = tradeOffData.map((d) => [d.tolR5, d.falsePositiveRate, d.falseNegativeRate, d.flaggedCount, d.withheldTotal]);
+    const headers = ['Nilai Ambang (%)', 'Tingkat Positif Palsu (%)', 'Tingkat Negatif Palsu (%)', 'Jumlah Dapur Ditandai', 'Dana Tertahan (Rp)'];
+    const rows = tradeOffData.map((d) => [d.thresholdValue, d.falsePositiveRate, d.falseNegativeRate, d.flaggedCount, d.withheldTotal]);
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Skenario_TradeOff_Ambang_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `Skenario_TradeOff_${selectedChartThreshold}_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -115,18 +111,32 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
   };
 
   // SVG Chart Dimensions & Dynamic Marker Position
-  // R5 range 5% - 30% mapped to SVG X: 60 - 720
-  const chartX = 60 + ((params.tolR5 - 5) / 25) * (720 - 60);
-
+  // Mapped to SVG Y: 0 - 100% (Y: 180 -> 20, height 160)
   const getY = (val: number) => 180 - (Math.min(100, Math.max(0, val)) / 100) * 160;
-  const getX = (tol: number) => 60 + ((tol - 5) / 25) * 660;
 
-  const fpPoints = tradeOffData.map(d => ({ x: getX(d.tolR5), y: getY(d.falsePositiveRate), tol: d.tolR5, val: d.falsePositiveRate }));
-  const fnPoints = tradeOffData.map(d => ({ x: getX(d.tolR5), y: getY(d.falseNegativeRate), tol: d.tolR5, val: d.falseNegativeRate }));
+  // Active value on X axis
+  let activeThreshVal = params.tolR5;
+  let minThresh = 5;
+  let maxThresh = 30;
+  if (selectedChartThreshold === 'R3') {
+    activeThreshVal = params.tolR3;
+    minThresh = 0;
+    maxThresh = 20;
+  } else if (selectedChartThreshold === 'R4') {
+    activeThreshVal = params.tolR4;
+    minThresh = 0;
+    maxThresh = 15;
+  }
+
+  const getX = (val: number) => 60 + ((val - minThresh) / (maxThresh - minThresh || 1)) * 660;
+
+  const fpPoints = tradeOffData.map(d => ({ x: getX(d.thresholdValue), y: getY(d.falsePositiveRate), tol: d.thresholdValue, val: d.falsePositiveRate }));
+  const fnPoints = tradeOffData.map(d => ({ x: getX(d.thresholdValue), y: getY(d.falseNegativeRate), tol: d.thresholdValue, val: d.falseNegativeRate }));
 
   const fpPath = fpPoints.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`, '');
   const fnPath = fnPoints.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`, '');
 
+  const activeMarkerX = getX(activeThreshVal);
   const activeFpY = getY(metrics.falsePositiveRate);
   const activeFnY = getY(metrics.falseNegativeRate);
 
@@ -140,275 +150,363 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
         </div>
       )}
 
-      {/* Breadcrumb & Top Bar Action */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-1.5 text-[#454652] text-xs">
-          <span>Pilar Audit MBG</span>
-          <span className="material-symbols-outlined text-[16px] text-[#757683]">chevron_right</span>
-          <span className="font-semibold text-[#011F7B]">Simulator Ambang</span>
+      {/* Top Breadcrumb & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[#454652] text-xs">
+            <span>Pilar Audit MBG</span>
+            <span className="material-symbols-outlined text-[14px] text-[#C5C5D4]">chevron_right</span>
+            <span className="font-semibold text-[#000F4A]">Simulator Ambang &amp; Kurva Trade-off</span>
+          </nav>
+          <h1 className="text-2xl font-bold text-[#000F4A] tracking-tight mt-1">
+            Simulator Ambang &amp; Kurva Trade-off Forensik
+          </h1>
+          <p className="text-sm text-[#454652]">
+            Eksplorasi trade-off sensitivitas red flag, kapasitas verifikator, dan kepastian salur bahan baku MBG.
+          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg shadow-xs border border-[#E0E2E7] text-[#011F7B] text-xs">
-            <span className="material-symbols-outlined text-[18px]">tune</span>
-            <span className="font-semibold">Preset:</span>
-            <select
-              value={preset}
-              onChange={(e) => handlePresetChange(e.target.value)}
-              className="bg-transparent border-0 text-[#000F4A] font-semibold focus:outline-none cursor-pointer"
-            >
-              <option value="kalibrasi_awal">Kalibrasi Awal Tahap 1</option>
-              <option value="ketat">Pemeriksaan Ketat (Zero-Leakage)</option>
-              <option value="longgar">Fasilitasi Kelancaran Salur</option>
-            </select>
-          </div>
-
+        <div className="flex items-center gap-2">
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white border border-[#E0E2E7] text-[#011F7B] text-xs font-semibold shadow-xs hover:bg-[#F1F4F9] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-[#000F4A] border border-[#E0E2E7] rounded-lg shadow-xs hover:bg-[#F1F4F9] transition-colors text-xs font-semibold cursor-pointer"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">download</span>
-            <span>Unduh Skenario (CSV)</span>
+            <span>Ekspor Skenario (CSV)</span>
           </button>
         </div>
       </div>
 
-      {/* Header Row */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#000F4A] tracking-tight">Simulator Ambang dan Trade-off</h1>
-        <p className="text-sm text-[#454652] mt-1">
-          Geser ambang untuk melihat dana tertahan, positif palsu, dan beban verifikasi. Semua angka sintetis.
-        </p>
-      </div>
-
-      {/* Main Grid: 2-column split (35% Left Panel, 65% Right Area) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* LEFT PANEL (Parameter Kalibrasi Ambang) ~35% */}
-        <div className="lg:col-span-5 xl:col-span-4 bg-white rounded-xl p-6 shadow-sm border border-[#E0E2E7] flex flex-col gap-6">
-          <div className="flex items-center justify-between pb-2 border-b border-[#ECEEF3]">
-            <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-[#011F7B]/10 flex items-center justify-center text-[#011F7B]">
-                <span className="material-symbols-outlined text-[20px]">tune</span>
+      {/* MAIN TWO-COLUMN WORKBENCH */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* LEFT COLUMN: PARAMETER CONTROLS (~35%) */}
+        <div className="lg:col-span-5 xl:col-span-4 bg-white rounded-xl shadow-sm border border-[#E0E2E7] p-5 space-y-5">
+          <div className="border-b border-[#ECEEF3] pb-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#757683]">
+                Mode &amp; Parameter Gerbang
               </span>
-              <span className="text-base font-bold text-[#000F4A]">Parameter Kalibrasi</span>
+              <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-[#ECEEF3] text-[#000F4A]">
+                N = 500 Dapur
+              </span>
             </div>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-[#ECEEF3] text-[#454652] uppercase tracking-wider font-semibold">
-              6 Parameter &amp; 1 Toggle
-            </span>
+
+            {/* Mode Switcher */}
+            <div className="space-y-1.5 pt-1">
+              <label className="text-xs font-bold text-[#000F4A] block">
+                Cakupan Tahap Red Flag
+              </label>
+              <div className="grid grid-cols-2 gap-1.5 bg-[#F1F4F9] p-1 rounded-lg border border-[#E0E2E7]">
+                <button
+                  type="button"
+                  onClick={() => handleSliderChange('mode', 'tahap1')}
+                  className={`py-1.5 px-2 rounded-md text-[11px] font-bold transition-all cursor-pointer text-center ${
+                    params.mode === 'tahap1'
+                      ? 'bg-[#011F7B] text-white shadow-xs'
+                      : 'text-[#454652] hover:text-[#000F4A]'
+                  }`}
+                >
+                  Tahap 1 (Pilot: R1, R2, R3)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSliderChange('mode', 'tahap1_2')}
+                  className={`py-1.5 px-2 rounded-md text-[11px] font-bold transition-all cursor-pointer text-center ${
+                    params.mode === 'tahap1_2'
+                      ? 'bg-[#011F7B] text-white shadow-xs'
+                      : 'text-[#454652] hover:text-[#000F4A]'
+                  }`}
+                >
+                  Tahap 1 + 2 (+ R4, R5, R8)
+                </button>
+              </div>
+              <p className="text-[10px] text-[#757683]">
+                {params.mode === 'tahap1'
+                  ? 'Hanya R1, R2, R3 yang dihitung (sesuai rancangan awal pilot di satu wilayah).'
+                  : 'Seluruh R1, R2, R3, R4, R5, dan R8 dihitung bersamaan.'}
+              </p>
+            </div>
+
+            {/* Preset Selector */}
+            <div className="pt-2">
+              <span className="text-[11px] font-semibold text-[#454652] block mb-1.5">Preset Kalibrasi:</span>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { key: 'kalibrasi_awal', label: 'Pilot (Def)' },
+                  { key: 'ketat', label: 'Ketat' },
+                  { key: 'longgar', label: 'Longgar' },
+                ].map((p) => (
+                  <button
+                    key={p.key}
+                    onClick={() => handlePresetChange(p.key)}
+                    className={`py-1 px-2 rounded text-[11px] font-semibold border transition-all cursor-pointer ${
+                      preset === p.key
+                        ? 'bg-[#011F7B] text-white border-[#011F7B] shadow-xs'
+                        : 'bg-[#F1F4F9] text-[#454652] border-[#E0E2E7] hover:bg-[#ECEEF3]'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-5">
-            {/* Parameter: Pagu bahan per porsi */}
-            <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[#F7F9FE] border border-[#011F7B]/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <label className="text-xs font-bold text-[#000F4A]">
-                    Pagu bahan per porsi
-                  </label>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded font-bold bg-[#ECEEF3] border border-[#C5C5D4] text-[#011F7B]">
-                    perlu dicek ke juknis
-                  </span>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-[#011F7B] text-white font-bold font-mono">
-                  Rp {(params.paguBahan || 10000).toLocaleString('id-ID')}
-                </span>
-              </div>
-              <p className="text-[11px] text-[#454652] leading-relaxed">
-                Nilai dasar batas belanja bahan pangan per porsi. Digunakan R4a bersama toleransi.
-              </p>
-              <div className="relative pt-1">
-                <input
-                  type="range"
-                  min="7000"
-                  max="15000"
-                  step="500"
-                  value={params.paguBahan || 10000}
-                  onChange={(e) => handleSliderChange('paguBahan', Number(e.target.value))}
-                  className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
-                />
-                <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
-                  <span>Rp 7.000</span>
-                  <span>Rp 10.000 (Default)</span>
-                  <span>Rp 15.000</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Toggle: Pindahkan R3 ke Tahap 1 */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7]">
-              <div className="pr-2">
-                <label className="text-xs font-bold text-[#000F4A] block">
-                  Pindahkan R3 ke Tahap 1
-                </label>
-                <span className="text-[10px] text-[#454652] block leading-snug">
-                  (bila data penetapan penerima sudah digital)
-                </span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                <input
-                  type="checkbox"
-                  checked={params.enableR3Tahap1 || false}
-                  onChange={(e) => {
-                    handleSliderChange('enableR3Tahap1', e.target.checked);
-                    showToast(e.target.checked ? 'R3 dipindahkan ke Tahap 1' : 'R3 dikembalikan ke Tahap 2');
-                  }}
-                  className="sr-only peer"
-                />
-                <div className="w-10 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#011F7B]"></div>
-              </label>
-            </div>
-
-            {/* Slider 1: R5 */}
+          {/* SLIDERS LIST */}
+          <div className="space-y-4 text-xs">
+            {/* Slider 1: Toleransi R3 */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#000F4A]">
-                  Toleransi selisih rekonsiliasi R5
+                <label className="font-semibold text-[#000F4A] flex items-center gap-1">
+                  <span>Toleransi kelebihan porsi (R3)</span>
+                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#FFF4CC] text-[#8A5A00]">Tahap 1</span>
                 </label>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-[#011F7B] text-white font-bold font-mono">
+                <span className="font-mono font-bold text-[#000F4A] bg-[#ECEEF3] px-2 py-0.5 rounded">
+                  {params.tolR3}%
+                </span>
+              </div>
+              <p className="text-[11px] text-[#454652]">
+                Batas wajar kelebihan porsi harian vs data penerima hasil sinkronisasi.
+              </p>
+              <input
+                type="range"
+                min="0"
+                max="20"
+                step="1"
+                value={params.tolR3}
+                onChange={(e) => handleSliderChange('tolR3', Number(e.target.value))}
+                className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
+              />
+              <div className="flex justify-between text-[10px] text-[#757683] font-mono">
+                <span>0% (Ketat)</span>
+                <span>5% (Default)</span>
+                <span>20% (Longgar)</span>
+              </div>
+            </div>
+
+            {/* Slider 2: Toleransi R4 */}
+            <div className={`flex flex-col gap-1.5 ${params.mode === 'tahap1' ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-[#000F4A] flex items-center gap-1">
+                  <span>Toleransi biaya bahan (R4)</span>
+                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#ECEEF3] text-[#454652]">Tahap 2</span>
+                </label>
+                <span className="font-mono font-bold text-[#000F4A] bg-[#ECEEF3] px-2 py-0.5 rounded">
+                  {params.tolR4}%
+                </span>
+              </div>
+              <p className="text-[11px] text-[#454652]">
+                Toleransi harga bahan pasar vs harga acuan Rp {(params.hargaAcuan || 10000).toLocaleString('id-ID')}.
+              </p>
+              <input
+                type="range"
+                min="0"
+                max="15"
+                step="1"
+                value={params.tolR4}
+                onChange={(e) => handleSliderChange('tolR4', Number(e.target.value))}
+                className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
+              />
+              <div className="flex justify-between text-[10px] text-[#757683] font-mono">
+                <span>0% (Acuan HET)</span>
+                <span>15%</span>
+              </div>
+            </div>
+
+            {/* Slider 3: Toleransi R5 */}
+            <div className={`flex flex-col gap-1.5 ${params.mode === 'tahap1' ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-[#000F4A] flex items-center gap-1">
+                  <span>Toleransi selisih rekonsiliasi (R5)</span>
+                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#ECEEF3] text-[#454652]">Tahap 2</span>
+                </label>
+                <span className="font-mono font-bold text-[#000F4A] bg-[#ECEEF3] px-2 py-0.5 rounded">
                   {params.tolR5}%
                 </span>
               </div>
-              <p className="text-[11px] text-[#454652] leading-relaxed">
-                Batas toleransi deviasi antara laporan dapur vs arus keluar VA BGN sebelum terpicu R5.
+              <p className="text-[11px] text-[#454652]">
+                Batas deviasi laporan belanja harian SPPG vs mutasi keluar Virtual Account.
               </p>
-              <div className="relative pt-1">
-                <input
-                  type="range"
-                  min="5"
-                  max="30"
-                  step="1"
-                  value={params.tolR5}
-                  onChange={(e) => handleSliderChange('tolR5', Number(e.target.value))}
-                  className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
-                />
-                <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
-                  <span>5% (Ketat)</span>
-                  <span>30% (Longgar)</span>
-                </div>
+              <input
+                type="range"
+                min="5"
+                max="30"
+                step="1"
+                value={params.tolR5}
+                onChange={(e) => handleSliderChange('tolR5', Number(e.target.value))}
+                className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
+              />
+              <div className="flex justify-between text-[10px] text-[#757683] font-mono">
+                <span>5% (Ketat)</span>
+                <span>10% (Default)</span>
+                <span>30% (Longgar)</span>
               </div>
             </div>
 
-            {/* Slider 2: R4a */}
-            <div className="flex flex-col gap-1.5">
+            {/* Parameter Harga Acuan Bahan per Porsi */}
+            <div className="p-3 bg-[#F7F9FE] rounded-lg border border-[#011F7B]/20 space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#000F4A]">
-                  Toleransi biaya bahan di atas pagu (R4a)
+                <label className="font-bold text-[#000F4A]">
+                  Harga acuan bahan per porsi
                 </label>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-[#ECEEF3] text-[#000F4A] font-bold font-mono">
-                  {params.tolR4a === 0 ? '0% - Pagu Ketat' : `${params.tolR4a}% (+Rp ${(((params.paguBahan || 10000) * params.tolR4a) / 100).toFixed(0)})`}
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#FFBA09]/20 text-[#8A5A00] font-bold">
+                  perlu dicek ke juknis
                 </span>
               </div>
-              <p className="text-[11px] text-[#454652] leading-relaxed">
-                Toleransi kenaikan harga pasar lokal terhadap pagu bahan per porsi (Rp {(params.paguBahan || 10000).toLocaleString('id-ID')}).
-              </p>
-              <div className="relative pt-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-[#454652]">Rp</span>
                 <input
-                  type="range"
-                  min="0"
-                  max="15"
-                  step="1"
-                  value={params.tolR4a}
-                  onChange={(e) => handleSliderChange('tolR4a', Number(e.target.value))}
-                  className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
+                  type="number"
+                  step="500"
+                  min="6000"
+                  max="16000"
+                  value={params.hargaAcuan}
+                  onChange={(e) => handleSliderChange('hargaAcuan', Number(e.target.value))}
+                  className="w-full px-2.5 py-1 text-xs font-mono font-bold border border-[#E0E2E7] rounded bg-white text-[#000F4A]"
                 />
-                <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
-                  <span>0% (Pagu)</span>
-                  <span>15% (+Rp {(((params.paguBahan || 10000) * 0.15)).toFixed(0)})</span>
-                </div>
               </div>
+              <p className="text-[10px] text-[#757683]">
+                Digunakan oleh R4 dan kalkulasi alokasi bahan baku minimum dapur Merah.
+              </p>
             </div>
 
-            {/* Slider 3: Proporsi Dapur Bermasalah */}
+            {/* Parameter Porsi Operasional */}
+            <div className="p-3 bg-[#F1F4F9] rounded-lg border border-[#E0E2E7] space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="font-bold text-[#000F4A]">
+                  Porsi operasional top-up
+                </label>
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#ECEEF3] text-[#454652] font-semibold">
+                  asumsi simulasi
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <input
+                  type="range"
+                  min="10"
+                  max="35"
+                  step="1"
+                  value={params.operasionalShare}
+                  onChange={(e) => handleSliderChange('operasionalShare', Number(e.target.value))}
+                  className="w-3/4 h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#011F7B]"
+                />
+                <span className="font-mono font-bold text-xs text-[#000F4A]">
+                  {params.operasionalShare}%
+                </span>
+              </div>
+              <p className="text-[10px] text-[#757683]">
+                Top-up hanya terdiri dari dua komponen: bahan baku ({(100 - params.operasionalShare)}%) dan operasional ({params.operasionalShare}%).
+              </p>
+            </div>
+
+            {/* Slider 4: Proporsi Bermasalah Riil */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#000F4A]">
-                  Proporsi dapur bermasalah riil
+                <label className="font-semibold text-[#000F4A]">
+                  Proporsi dapur bermasalah riil (p)
                 </label>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-[#ECEEF3] text-[#000F4A] font-bold font-mono">
+                <span className="font-mono font-bold text-[#000F4A] bg-[#ECEEF3] px-2 py-0.5 rounded">
                   {params.propProblematic}% (~{Math.round(500 * (params.propProblematic / 100))} dapur)
                 </span>
               </div>
-              <p className="text-[11px] text-[#454652] leading-relaxed">
-                Estimasi proporsi dapur dengan indikasi penyimpangan tata kelola nyata (asumsi data sintetis).
-              </p>
-              <div className="relative pt-1">
-                <input
-                  type="range"
-                  min="2"
-                  max="10"
-                  step="0.5"
-                  value={params.propProblematic}
-                  onChange={(e) => handleSliderChange('propProblematic', Number(e.target.value))}
-                  className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
-                />
-                <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
-                  <span>2% (10 unit)</span>
-                  <span>4% (Default)</span>
-                  <span>10% (50 unit)</span>
-                </div>
+              <input
+                type="range"
+                min="2"
+                max="10"
+                step="0.5"
+                value={params.propProblematic}
+                onChange={(e) => handleSliderChange('propProblematic', Number(e.target.value))}
+                className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
+              />
+              <div className="flex justify-between text-[10px] text-[#757683] font-mono">
+                <span>2%</span>
+                <span>4% (Default)</span>
+                <span>10%</span>
               </div>
             </div>
 
-            {/* Slider 4: Proporsi Kesalahan Jujur */}
+            {/* Slider 5: Proporsi Kesalahan Jujur */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#000F4A]">
+                <label className="font-semibold text-[#000F4A]">
                   Proporsi kesalahan input jujur
                 </label>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-[#ECEEF3] text-[#000F4A] font-bold font-mono">
+                <span className="font-mono font-bold text-[#000F4A] bg-[#ECEEF3] px-2 py-0.5 rounded">
                   {params.propHonestError}% (~{Math.round(500 * (params.propHonestError / 100))} dapur)
                 </span>
               </div>
-              <p className="text-[11px] text-[#454652] leading-relaxed">
-                Human error administratif, salah input koma desimal, atau nota terlambat unggah.
-              </p>
-              <div className="relative pt-1">
-                <input
-                  type="range"
-                  min="3"
-                  max="15"
-                  step="0.5"
-                  value={params.propHonestError}
-                  onChange={(e) => handleSliderChange('propHonestError', Number(e.target.value))}
-                  className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
-                />
-                <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
-                  <span>3% (15 unit)</span>
-                  <span>8% (Default)</span>
-                  <span>15% (75 unit)</span>
-                </div>
+              <input
+                type="range"
+                min="3"
+                max="15"
+                step="0.5"
+                value={params.propHonestError}
+                onChange={(e) => handleSliderChange('propHonestError', Number(e.target.value))}
+                className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
+              />
+              <div className="flex justify-between text-[10px] text-[#757683] font-mono">
+                <span>3%</span>
+                <span>8% (Default)</span>
+                <span>15%</span>
               </div>
             </div>
 
-            {/* Slider 5: Kapasitas Verifikasi */}
+            {/* Slider 6: Kapasitas Lapangan Merah */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#000F4A]">
-                  Kapasitas verifikasi lapangan/minggu
+                <label className="font-semibold text-[#000F4A]">
+                  Kapasitas verifikasi lapangan (Merah)
                 </label>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-[#ECEEF3] text-[#000F4A] font-bold font-mono">
-                  {params.fieldCapacity} Dapur
+                <span className="font-mono font-bold text-[#000F4A] bg-[#ECEEF3] px-2 py-0.5 rounded">
+                  {params.fieldCapacity} / minggu
                 </span>
               </div>
-              <p className="text-[11px] text-[#454652] leading-relaxed">
-                Jumlah maksimal SPPG yang dapat diverifikasi fisik oleh tim auditor &amp; PPK per siklus.
-              </p>
-              <div className="relative pt-1">
-                <input
-                  type="range"
-                  min="50"
-                  max="500"
-                  step="10"
-                  value={params.fieldCapacity}
-                  onChange={(e) => handleSliderChange('fieldCapacity', Number(e.target.value))}
-                  className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#fcb803]"
-                />
-                <div className="flex justify-between text-[10px] text-[#757683] mt-1 font-mono">
-                  <span>50 SPPG</span>
-                  <span>150 (Default)</span>
-                  <span>500 SPPG</span>
-                </div>
+              <span className="text-[10px] text-[#757683] italic">
+                asumsi: jumlah verifikator BGN belum diketahui
+              </span>
+              <input
+                type="range"
+                min="50"
+                max="500"
+                step="10"
+                value={params.fieldCapacity}
+                onChange={(e) => handleSliderChange('fieldCapacity', Number(e.target.value))}
+                className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#011F7B]"
+              />
+              <div className="flex justify-between text-[10px] text-[#757683] font-mono">
+                <span>50</span>
+                <span>150 (Default)</span>
+                <span>500</span>
+              </div>
+            </div>
+
+            {/* Slider 7: Kapasitas Reviu Dokumen Kuning */}
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <label className="font-semibold text-[#000F4A]">
+                  Kapasitas reviu dokumen (Kuning)
+                </label>
+                <span className="font-mono font-bold text-[#000F4A] bg-[#ECEEF3] px-2 py-0.5 rounded">
+                  {params.docReviewCapacity} / minggu
+                </span>
+              </div>
+              <span className="text-[10px] text-[#757683] italic">
+                asumsi kapasitas verifikator memeriksa berkas tertulis
+              </span>
+              <input
+                type="range"
+                min="200"
+                max="1000"
+                step="25"
+                value={params.docReviewCapacity}
+                onChange={(e) => handleSliderChange('docReviewCapacity', Number(e.target.value))}
+                className="w-full h-2 bg-[#ECEEF3] rounded-lg appearance-none cursor-pointer accent-[#011F7B]"
+              />
+              <div className="flex justify-between text-[10px] text-[#757683] font-mono">
+                <span>200</span>
+                <span>600 (Default)</span>
+                <span>1000</span>
               </div>
             </div>
           </div>
@@ -416,418 +514,345 @@ export const SimulatorAmbangPage: React.FC<SimulatorAmbangPageProps> = ({
           {/* Action Buttons */}
           <div className="pt-2 flex flex-col gap-2">
             <button
-              onClick={() => {
-                onUpdateParams({ ...params });
-                showToast('Simulasi berhasil dijalankan ulang.');
-              }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#fcb803] text-[#000F4A] text-xs font-bold shadow-xs hover:bg-[#eaa700] transition-all cursor-pointer"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-[18px]">refresh</span>
-              <span>Jalankan Ulang Simulasi</span>
-            </button>
-            <button
               onClick={handleReset}
-              className="w-full flex items-center justify-center gap-1.5 py-2 text-[#011F7B] text-xs font-semibold hover:bg-[#F1F4F9] rounded-lg transition-colors cursor-pointer"
+              className="w-full flex items-center justify-center gap-1.5 py-2 text-[#011F7B] text-xs font-semibold hover:bg-[#F1F4F9] rounded-lg transition-colors cursor-pointer border border-[#E0E2E7]"
               type="button"
             >
               <span className="material-symbols-outlined text-[16px]">restart_alt</span>
-              <span>Reset ke Default</span>
+              <span>Reset Parameter ke Default</span>
             </button>
           </div>
         </div>
 
-        {/* RIGHT AREA ~65% */}
-        <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-5">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white p-4 rounded-xl shadow-xs border border-[#E0E2E7]">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[22px] text-[#011F7B]">query_stats</span>
-              <div>
-                <h2 className="text-sm font-bold text-[#000F4A]">Hasil Simulasi Dampak &amp; Beban Operasional</h2>
-                <p className="text-xs text-[#454652]">Model probabilitas bersyarat dengan perataan top-up mingguan</p>
-              </div>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ECEEF3] text-[#000F4A] text-[10px] font-bold uppercase tracking-wider self-start sm:self-auto">
-              <span className="w-2 h-2 rounded-full bg-[#1E9E6A]"></span>
-              <span>Siklus Mingguan N=500 Dapur</span>
-            </div>
-          </div>
-
-          {/* Grid of 6 KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {/* RIGHT COLUMN: DASHBOARD CARDS & TRADE-OFF CURVE (~65%) */}
+        <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+          {/* PRIMARY METRIC CARDS (10 Key Figures) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             {/* Card 1: Dapur Merah */}
-            {/* Card 1: Dapur Merah */}
-            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between">
+            <div className="bg-white p-4 rounded-xl border border-[#FAC7C7] bg-[#FCEBEB]/20 shadow-xs flex flex-col justify-between">
               <div>
-                <div className="flex items-start justify-between gap-1 mb-2">
-                  <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
-                    Dapur Merah (Bahan Baku Minimum)
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#FCEBEB] text-[#B02A2A] text-[10px] font-bold">
-                    <span className="material-symbols-outlined text-[12px]">block</span>
-                    Tahan
-                  </span>
-                </div>
-                <div className="text-xl font-bold text-[#D64545] font-mono tabular-nums">
-                  <AnimatedNumber value={metrics.merahCount} suffix=" dapur" /> (<AnimatedNumber value={(metrics.merahCount / 500) * 100} decimals={1} suffix="%" />)
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#B02A2A]">
+                  DAPUR MERAH (BAHAN MINIMUM)
+                </span>
+                <div className="text-2xl font-black text-[#B02A2A] mt-1 font-mono">
+                  <AnimatedNumber value={metrics.merahCount} /> <span className="text-xs font-normal text-[#454652]">/ 500</span>
                 </div>
               </div>
-              <p className="text-xs text-[#454652] mt-3 leading-snug">
-                Bahan baku minimum cair, operasional ditahan; verifikasi lapangan oleh Verifikator BGN (usulan 5 hari kerja); Inspektorat Utama BGN hanya mereviu eksepsi &amp; menerima rujukan audit investigatif.
+              <p className="text-[11px] text-[#454652] mt-2 pt-2 border-t border-[#FAC7C7]/50">
+                Verifikasi lapangan maks. 4 hari kerja oleh Verifikator BGN.
               </p>
             </div>
 
             {/* Card 2: Dapur Kuning */}
-            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="bg-white p-4 rounded-xl border border-[#F0DB85] bg-[#FFF4CC]/20 shadow-xs flex flex-col justify-between">
               <div>
-                <div className="flex items-start justify-between gap-1 mb-2">
-                  <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
-                    Dapur Kuning (Klarifikasi Dokumen)
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00] text-[10px] font-bold">
-                    <span className="material-symbols-outlined text-[12px]">warning</span>
-                    Klarifikasi
-                  </span>
-                </div>
-                <div className="text-xl font-bold text-[#8A5A00] font-mono tabular-nums">
-                  <AnimatedNumber value={metrics.kuningCount} suffix=" dapur" /> (<AnimatedNumber value={(metrics.kuningCount / 500) * 100} decimals={1} suffix="%" />)
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#8A5A00]">
+                  DAPUR KUNING (KLARIFIKASI)
+                </span>
+                <div className="text-2xl font-black text-[#8A5A00] mt-1 font-mono">
+                  <AnimatedNumber value={metrics.kuningCount} /> <span className="text-xs font-normal text-[#454652]">/ 500</span>
                 </div>
               </div>
-              <p className="text-xs text-[#454652] mt-3 leading-snug">
-                Bahan cair penuh, operasional &amp; insentif ditahan sementara menunggu klarifikasi tertulis (usulan 3 hari kerja).
+              <p className="text-[11px] text-[#454652] mt-2 pt-2 border-t border-[#F0DB85]/50">
+                Bahan baku cair, operasional ditahan (klarifikasi maks. 3 hari kerja).
               </p>
             </div>
 
-            {/* Card 3: Dana Tertahan Sementara */}
-            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between hover:shadow-md transition-shadow">
+            {/* Card 3: Positif Palsu */}
+            <div className="bg-white p-4 rounded-xl border border-[#E0E2E7] shadow-xs flex flex-col justify-between">
               <div>
-                <div className="flex items-start justify-between gap-1 mb-2">
-                  <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
-                    Dana Tertahan Sementara
-                  </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ECEEF3] text-[#000F4A]">
-                    Ilustrasi
-                  </span>
-                </div>
-                <div className="text-xl font-bold text-[#000F4A] font-mono tabular-nums">
-                  <AnimatedNumber value={metrics.withheldTotal / 1000000000} decimals={2} prefix="Rp " suffix=" Miliar" />
-                </div>
-              </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-[#454652]">
-                <span>Porsi operasional + insentif <AnimatedNumber value={metrics.flaggedCount} /> dapur</span>
-                <span className="font-mono text-[#757683] text-[11px]">
-                  dari Rp {(metrics.totalRequested / 1000000000).toFixed(2).replace('.', ',')} M
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#757683]">
+                  POSITIF PALSU (TYPE I)
                 </span>
-              </div>
-            </div>
-
-            {/* Card 4: Positif Palsu */}
-            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div>
-                <div className="flex items-start justify-between gap-1 mb-2">
-                  <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
-                    Positif Palsu (% Ditandai)
-                  </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FCEBEB] text-[#B02A2A]">
-                    Beban Dapur Jujur
-                  </span>
-                </div>
-                <div className="text-xl font-bold text-[#000F4A] font-mono tabular-nums">
+                <div className="text-2xl font-bold text-[#000F4A] mt-1 font-mono">
                   <AnimatedNumber value={metrics.falsePositiveRate} decimals={1} suffix="%" />
                 </div>
               </div>
-              <div className="mt-3 text-xs text-[#454652] leading-snug space-y-1">
-                <p>
-                  <AnimatedNumber value={metrics.falsePositivesCount} /> dari {metrics.flaggedCount} dapur ditandai adalah kesalahan input jujur.
-                </p>
-                <p className="text-[10px] text-[#757683] font-mono pt-1 border-t border-[#ECEEF3]">
-                  Penyebut: ditandai tapi tidak bermasalah / semua ditandai ({metrics.falsePositivesCount}/{metrics.flaggedCount})
-                </p>
+              <div className="text-[10px] text-[#454652] mt-2 pt-2 border-t border-[#ECEEF3] space-y-0.5">
+                <span className="font-semibold block">Penyebut: {metrics.falsePositivesCount} dapur tidak bermasalah / {metrics.flaggedCount} dapur ditandai</span>
               </div>
             </div>
 
-            {/* Card 5: Negatif Palsu */}
-            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between hover:shadow-md transition-shadow">
+            {/* Card 4: Negatif Palsu */}
+            <div className="bg-white p-4 rounded-xl border border-[#E0E2E7] shadow-xs flex flex-col justify-between">
               <div>
-                <div className="flex items-start justify-between gap-1 mb-2">
-                  <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
-                    Negatif Palsu (Bermasalah Lolos)
-                  </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00]">
-                    Risiko Kebocoran
-                  </span>
-                </div>
-                <div className="text-xl font-bold text-[#000F4A] font-mono tabular-nums">
-                  <AnimatedNumber value={metrics.falseNegativesCount} suffix=" dapur" /> (<AnimatedNumber value={metrics.falseNegativeRate} decimals={1} suffix="%" />)
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#757683]">
+                  NEGATIF PALSU (LOLOS HIJAU)
+                </span>
+                <div className="text-2xl font-bold text-[#000F4A] mt-1 font-mono">
+                  <AnimatedNumber value={metrics.falseNegativeRate} decimals={1} suffix="%" />
                 </div>
               </div>
-              <div className="mt-3 text-xs text-[#454652] leading-snug space-y-1">
-                <p>
-                  Bermasalah berlabel Hijau / semua dapur: <strong>{metrics.falseNegativesCount} / {metrics.total} ({metrics.falseNegativeRate.toFixed(1)}%)</strong>
-                </p>
-                <p className="text-[10px] text-[#757683] pt-1 border-t border-[#ECEEF3]">
-                  Versi atas dapur Hijau: <strong>{metrics.falseNegativesCount} / {metrics.hijauCount} ({metrics.falseNegativesOverHijauRate.toFixed(1)}%)</strong>
-                </p>
+              <div className="text-[10px] text-[#454652] mt-2 pt-2 border-t border-[#ECEEF3] space-y-0.5">
+                <span className="block font-semibold">Penyebut total: {metrics.falseNegativesCount} / 500 dapur</span>
+                <span className="text-[#757683] block">Rasio atas Hijau: {metrics.falseNegativesOverHijauRate.toFixed(1)}%</span>
               </div>
             </div>
+          </div>
 
-            {/* Card 6: Presisi (Base Rate) */}
-            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#011F7B]/30 flex flex-col justify-between hover:shadow-md transition-shadow bg-gradient-to-b from-white to-[#F7F9FE]">
-              <div>
-                <div className="flex items-start justify-between gap-1 mb-2">
-                  <span className="text-[10px] uppercase text-[#011F7B] tracking-wider font-bold">
-                    Presisi (Base Rate)
-                  </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#011F7B] text-white font-mono">
-                    p·s / [p·s+(1-p)(1-k)]
-                  </span>
-                </div>
-                <div className="text-xl font-bold text-[#011F7B] font-mono tabular-nums">
+          {/* SECOND ROW: PRESISI & DANA TERTAHAN */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Presisi Card */}
+            <div className="bg-white p-5 rounded-xl border border-[#E0E2E7] shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold uppercase text-[#011F7B]">
+                  Presisi (Base Rate Formulasi)
+                </span>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-[#011F7B]/10 text-[#011F7B] rounded">
+                  p·s / [p·s + (1-p)(1-k)]
+                </span>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black text-[#000F4A] font-mono">
                   <AnimatedNumber value={metrics.precisionBaseRate} decimals={1} suffix="%" />
-                </div>
+                </span>
+                <span className="text-xs text-[#454652]">
+                  proporsi tepat sasaran dari seluruh yang ditahan
+                </span>
               </div>
-              <div className="mt-3 text-xs text-[#454652] leading-snug space-y-1.5">
-                <p>
-                  Bila dapur yang benar-benar bermasalah jarang, sebagian besar tanda jatuh pada dapur yang sah. Karena itu kuning tetap mencairkan bahan baku dan ambang dikalibrasi di pilot.
-                </p>
-                <p className="text-[10px] text-[#757683] italic border-t border-[#ECEEF3] pt-1">
-                  Presisi dihasilkan oleh asumsi simulasi (proporsi bermasalah dan kesalahan jujur), bukan temuan.
-                </p>
-              </div>
+              <p className="text-xs text-[#454652] leading-relaxed pt-1 border-t border-[#ECEEF3]">
+                Bila dapur yang benar-benar bermasalah jarang, sebagian besar tanda jatuh pada dapur yang sah. Karena itu Kuning tetap mencairkan bahan baku dan ambang dikalibrasi di pilot.
+              </p>
+              <p className="text-[10px] text-[#757683] italic">
+                * Presisi dihasilkan oleh asumsi simulasi (proporsi bermasalah dan kesalahan jujur), bukan temuan.
+              </p>
             </div>
 
-            {/* Card 7: Beban Lapangan (Merah) vs Kapasitas */}
-            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div>
-                <div className="flex items-start justify-between gap-1 mb-2">
-                  <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
-                    Beban Lapangan (Merah) vs Kapasitas
-                  </span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                    metrics.isOverCapacity ? 'bg-[#FCEBEB] text-[#B02A2A]' : 'bg-[#E8F6F0] text-[#1E9E6A]'
-                  }`}>
-                    {metrics.isOverCapacity ? 'Kelebihan Beban' : 'Aman'}
-                  </span>
-                </div>
-                <div className={`text-xl font-bold font-mono tabular-nums ${
-                  metrics.isOverCapacity ? 'text-[#D64545]' : 'text-[#000F4A]'
-                }`}>
-                  <AnimatedNumber value={metrics.fieldBurden} /> / {metrics.capacity} Dapur (<AnimatedNumber value={metrics.burdenPercent} decimals={1} suffix="%" />)
-                </div>
+            {/* Dana Tertahan Card */}
+            <div className="bg-white p-5 rounded-xl border border-[#E0E2E7] shadow-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold uppercase text-[#D64545]">
+                  Dana Tertahan Sementara (Minggu 4)
+                </span>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-[#FCEBEB] text-[#B02A2A] rounded">
+                  Formula Perlakuan
+                </span>
               </div>
-              <div className="mt-3 space-y-1.5">
-                <div className="w-full bg-[#ECEEF3] rounded-full h-2 overflow-hidden">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      metrics.isOverCapacity ? 'bg-[#D64545]' : 'bg-[#011F7B]'
-                    }`}
-                    style={{ width: `${Math.min(100, metrics.burdenPercent)}%` }}
-                  ></div>
-                </div>
-                <p className={`text-xs leading-snug ${
-                  metrics.isOverCapacity ? 'text-[#D64545] font-semibold' : 'text-[#1E9E6A] font-medium'
-                }`}>
-                  {metrics.isOverCapacity
-                    ? `Melebihi kapasitas audit fisik (+${metrics.fieldBurden - metrics.capacity} unit tertunda)`
-                    : `Aman: Kapasitas tim lapangan mencukupi (+${metrics.capacity - metrics.fieldBurden} kuota tersisa)`}
-                </p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black text-[#D64545] font-mono">
+                  Rp {(metrics.withheldTotal / 1000000).toFixed(1).replace('.', ',')} M
+                </span>
+                <span className="text-xs text-[#757683] font-mono">
+                  / Rp {(metrics.totalRequested / 1000000000).toFixed(2).replace('.', ',')} M total top-up
+                </span>
+              </div>
+              <p className="text-xs text-[#454652] leading-relaxed pt-1 border-t border-[#ECEEF3]">
+                <strong>Formula &amp; Periode:</strong> Nilai top-up diajukan minus nilai yang dicairkan sesuai perlakuan pada Minggu 4 (operasional Kuning/Merah serta bahan baku dapur belum beroperasi/saldo mencukupi).
+              </p>
+              <div className="text-[11px] text-[#011F7B] font-semibold">
+                Bahan baku tetap diprioritaskan cair untuk menjamin hak porsi makan anak sekolah.
               </div>
             </div>
+          </div>
 
-            {/* Card 8: Beban Reviu Dokumen (Kuning) */}
-            <div className="bg-white rounded-xl p-4 shadow-xs border border-[#E0E2E7] flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div>
-                <div className="flex items-start justify-between gap-1 mb-2">
-                  <span className="text-[10px] uppercase text-[#454652] tracking-wider font-semibold">
-                    Beban Reviu Dokumen (Kuning)
-                  </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FFF4CC] text-[#8A5A00]">
-                    Klarifikasi 3 Hari
-                  </span>
-                </div>
-                <div className="text-xl font-bold text-[#000F4A] font-mono tabular-nums">
-                  <AnimatedNumber value={metrics.docReviewBurden} suffix=" dapur" />
-                </div>
+          {/* THIRD ROW: BEBAN KERJA & VERIFIKASI OVERFLOW */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {/* Beban Lapangan Merah */}
+            <div className="bg-white p-4 rounded-xl border border-[#E0E2E7] shadow-xs space-y-1">
+              <span className="text-[10px] font-mono font-bold uppercase text-[#757683] block">
+                Beban Lapangan (Merah Saja)
+              </span>
+              <div className="text-xl font-bold text-[#000F4A] font-mono">
+                {metrics.fieldBurden} / {params.fieldCapacity} <span className="text-xs font-normal text-[#757683]">dapur</span>
               </div>
-              <p className="text-xs text-[#454652] mt-3 leading-snug">
-                Pemeriksaan nota faktur &amp; klarifikasi tertulis secara administratif oleh Verifikator BGN sebelum penerbitan SPP.
+              <div className="w-full bg-[#ECEEF3] h-1.5 rounded-full overflow-hidden mt-2">
+                <div
+                  className={`h-full rounded-full ${metrics.isOverCapacity ? 'bg-[#D64545]' : 'bg-[#1E9E6A]'}`}
+                  style={{ width: `${Math.min(100, metrics.burdenPercent)}%` }}
+                />
+              </div>
+              <span className={`text-[10px] font-bold block pt-1 ${metrics.isOverCapacity ? 'text-[#D64545]' : 'text-[#1E9E6A]'}`}>
+                {metrics.isOverCapacity ? 'Kelebihan Beban Lapangan' : 'Kapasitas Lapangan Aman'}
+              </span>
+            </div>
+
+            {/* Beban Reviu Dokumen Kuning */}
+            <div className="bg-white p-4 rounded-xl border border-[#E0E2E7] shadow-xs space-y-1">
+              <span className="text-[10px] font-mono font-bold uppercase text-[#757683] block">
+                Beban Reviu Dokumen (Kuning)
+              </span>
+              <div className="text-xl font-bold text-[#000F4A] font-mono">
+                {metrics.docReviewBurden} / {params.docReviewCapacity} <span className="text-xs font-normal text-[#757683]">berkas</span>
+              </div>
+              <div className="w-full bg-[#ECEEF3] h-1.5 rounded-full overflow-hidden mt-2">
+                <div
+                  className="h-full bg-[#011F7B] rounded-full"
+                  style={{ width: `${Math.min(100, (metrics.docReviewBurden / params.docReviewCapacity) * 100)}%` }}
+                />
+              </div>
+              <span className="text-[10px] text-[#454652] block pt-1 font-semibold">
+                Reviu berkas tertulis (3 hari kerja)
+              </span>
+            </div>
+
+            {/* Merah Terlambat */}
+            <div className="bg-white p-4 rounded-xl border border-[#FAC7C7] bg-[#FCEBEB]/30 shadow-xs space-y-1">
+              <span className="text-[10px] font-mono font-bold uppercase text-[#B02A2A] block">
+                Merah Terlambat Lapang
+              </span>
+              <div className="text-xl font-bold text-[#B02A2A] font-mono">
+                {metrics.merahLateCount} <span className="text-xs font-normal text-[#454652]">dapur</span>
+              </div>
+              <p className="text-[10px] text-[#454652] pt-1">
+                Melampaui kapasitas lapangan; dilaporkan ke Inspektorat Utama BGN (tanpa pelepasan otomatis).
+              </p>
+            </div>
+
+            {/* Kuning Dilepas */}
+            <div className="bg-white p-4 rounded-xl border border-[#F0DB85] bg-[#FFF4CC]/30 shadow-xs space-y-1">
+              <span className="text-[10px] font-mono font-bold uppercase text-[#8A5A00] block">
+                Kuning Dilepas Otomatis
+              </span>
+              <div className="text-xl font-bold text-[#8A5A00] font-mono">
+                {metrics.kuningReleasedCount} <span className="text-xs font-normal text-[#454652]">dapur</span>
+              </div>
+              <p className="text-[10px] text-[#454652] pt-1">
+                Operasional dicairkan karena verifikator terlambat melewati batas SLA 3 hari kerja.
               </p>
             </div>
           </div>
 
-          {/* Visual Trade-off Chart Card */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E0E2E7] flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+          {/* Mandated Beban Note */}
+          <div className="p-3 bg-[#F7F9FE] rounded-lg border border-[#011F7B]/20 text-xs text-[#011F7B] leading-relaxed">
+            <strong>Catatan Beban Riil:</strong> Bila 2% sampai 10% dari 27.485 SPPG ditandai, verifikator menangani sekitar 550 sampai 2.750 dapur per minggu, dan hanya yang Merah perlu dikunjungi (skenario, bukan prediksi).
+          </div>
+
+          {/* INTERACTIVE TRADE-OFF CURVE */}
+          <div className="bg-white rounded-xl shadow-sm border border-[#E0E2E7] p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#ECEEF3] pb-3">
               <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[#011F7B] text-[20px]">show_chart</span>
-                  <h3 className="text-sm font-bold text-[#000F4A]">
-                    Analisis Trade-off Ambang Sensitivitas (R5 vs Akurasi)
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[20px] text-[#011F7B]">ssid_chart</span>
+                  <h3 className="text-base font-bold text-[#000F4A]">
+                    Kurva Trade-off: Positif Palsu vs Negatif Palsu (Skala 0–100%)
                   </h3>
                 </div>
                 <p className="text-xs text-[#454652] mt-0.5">
-                  Hubungan invers antara Dapur Jujur Tertahan (Tipe I) dan Risiko Kebocoran Lolos (Tipe II)
+                  Titik aktif pada kurva dihitung dari penjaluran ulang simulasi penuh 500 dapur dan identik dengan kartu di atas.
                 </p>
               </div>
 
-              {/* Legend */}
-              <div className="flex flex-wrap items-center gap-4 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-3.5 h-1 bg-[#011F7B] rounded-full"></span>
-                  <span className="font-semibold text-[#011F7B]">Positif Palsu (Jujur Tertahan)</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-3.5 h-1 bg-[#fcb803] rounded-full"></span>
-                  <span className="font-semibold text-[#8A5A00]">Negatif Palsu (Risiko Lolos)</span>
+              {/* Threshold Selector */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs font-semibold text-[#454652]">Uji Ambang:</span>
+                <div className="flex items-center bg-[#F1F4F9] p-0.5 rounded-lg border border-[#E0E2E7] text-xs font-bold">
+                  {(['R3', 'R4', 'R5'] as const).map((code) => (
+                    <button
+                      key={code}
+                      onClick={() => setSelectedChartThreshold(code)}
+                      className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                        selectedChartThreshold === code
+                          ? 'bg-[#011F7B] text-white shadow-xs'
+                          : 'text-[#454652] hover:text-[#000F4A]'
+                      }`}
+                    >
+                      {code}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Inline Scalable SVG Curve Chart */}
-            <div className="w-full bg-[#F1F4F9] rounded-xl p-4 border border-[#E0E2E7]">
-              <div className="relative w-full aspect-[21/9] min-h-[200px]">
-                <svg className="w-full h-full overflow-visible" viewBox="0 0 760 220" preserveAspectRatio="none">
-                  <defs>
-                    <style>{`
-                      @keyframes flowWaveNavy {
-                        0% { stroke-dashoffset: 120; }
-                        100% { stroke-dashoffset: 0; }
-                      }
-                      @keyframes flowWaveGold {
-                        0% { stroke-dashoffset: -120; }
-                        100% { stroke-dashoffset: 0; }
-                      }
-                      @keyframes pulseNode {
-                        0%, 100% { transform: scale(1); opacity: 1; }
-                        50% { transform: scale(1.4); opacity: 0.7; }
-                      }
-                      .curve-flow-navy {
-                        stroke-dasharray: 6 3;
-                        animation: flowWaveNavy 3s linear infinite;
-                      }
-                      .curve-flow-gold {
-                        stroke-dasharray: 6 3;
-                        animation: flowWaveGold 3s linear infinite;
-                      }
-                    `}</style>
-                  </defs>
+            {/* SVG Chart Canvas */}
+            <div className="relative w-full overflow-hidden bg-[#FAFBFD] rounded-xl border border-[#E0E2E7] p-2">
+              <svg viewBox="0 0 760 210" className="w-full h-56 select-none font-mono">
+                {/* Horizontal Grid lines (0%, 25%, 50%, 75%, 100%) */}
+                {[0, 25, 50, 75, 100].map((pct) => {
+                  const y = getY(pct);
+                  return (
+                    <g key={pct}>
+                      <line x1="60" y1={y} x2="720" y2={y} stroke="#E0E2E7" strokeDasharray="3 3" />
+                      <text x="52" y={y + 4} textAnchor="end" fontSize="10" fill="#757683">
+                        {pct}%
+                      </text>
+                    </g>
+                  );
+                })}
 
-                  {/* Grid Lines */}
-                  <line x1="60" y1="20" x2="720" y2="20" stroke="#E0E2E7" strokeDasharray="4" />
-                  <line x1="60" y1="60" x2="720" y2="60" stroke="#E0E2E7" strokeDasharray="4" />
-                  <line x1="60" y1="100" x2="720" y2="100" stroke="#E0E2E7" strokeDasharray="4" />
-                  <line x1="60" y1="140" x2="720" y2="140" stroke="#E0E2E7" strokeDasharray="4" />
-                  <line x1="60" y1="180" x2="720" y2="180" stroke="#C5C5D4" strokeWidth="1.5" />
+                {/* Vertical Axis labels for X values */}
+                {tradeOffData.map((d) => {
+                  const x = getX(d.thresholdValue);
+                  return (
+                    <g key={d.thresholdValue}>
+                      <line x1={x} y1="20" x2={x} y2="180" stroke="#ECEEF3" strokeWidth="1" />
+                      <text x={x} y="196" textAnchor="middle" fontSize="10" fill="#757683">
+                        {d.thresholdValue}%
+                      </text>
+                    </g>
+                  );
+                })}
 
-                  {/* Y Axis Labels (0-100% no clipping) */}
-                  <text x="45" y="24" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">100%</text>
-                  <text x="45" y="64" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">75%</text>
-                  <text x="45" y="104" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">50%</text>
-                  <text x="45" y="144" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">25%</text>
-                  <text x="45" y="184" textAnchor="end" fill="#757683" fontSize="11" fontFamily="Plus Jakarta Sans">0%</text>
+                {/* X Axis Label */}
+                <text x="390" y="208" textAnchor="middle" fontSize="10" fill="#011F7B" fontWeight="bold">
+                  Nilai Ambang {selectedChartThreshold} (%)
+                </text>
 
-                  {/* Active Setting Indicator Zone */}
-                  <rect
-                    x={chartX - 12}
-                    y="15"
-                    width="24"
-                    height="165"
-                    rx="4"
-                    fill="#011F7B"
-                    fillOpacity="0.08"
-                  />
-                  <line
-                    x1={chartX}
-                    y1="15"
-                    x2={chartX}
-                    y2="180"
-                    stroke="#011F7B"
-                    strokeWidth="2"
-                    strokeDasharray="4 2"
-                  />
+                {/* FP Curve (Gold) */}
+                <path d={fpPath} fill="none" stroke="#fcb803" strokeWidth="2.5" strokeLinecap="round" />
+                {fpPoints.map((p, i) => (
+                  <circle key={`fp-${i}`} cx={p.x} cy={p.y} r="3" fill="#fcb803" />
+                ))}
 
-                  {/* Curve 1: Positif Palsu (Navy #011F7B with Moving Flow) */}
-                  <path
-                    d={fpPath}
-                    fill="none"
-                    stroke="#011F7B"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    className="curve-flow-navy"
-                  />
+                {/* FN Curve (Blue) */}
+                <path d={fnPath} fill="none" stroke="#011F7B" strokeWidth="2.5" strokeLinecap="round" />
+                {fnPoints.map((p, i) => (
+                  <circle key={`fn-${i}`} cx={p.x} cy={p.y} r="3" fill="#011F7B" />
+                ))}
 
-                  {/* Curve 2: Negatif Palsu (Yellow #fcb803 with Moving Flow) */}
-                  <path
-                    d={fnPath}
-                    fill="none"
-                    stroke="#fcb803"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    className="curve-flow-gold"
-                  />
+                {/* Active Parameter Vertical Line */}
+                <line
+                  x1={activeMarkerX}
+                  y1="20"
+                  x2={activeMarkerX}
+                  y2="180"
+                  stroke="#D64545"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 2"
+                />
 
-                  {/* Data Points Positif Palsu */}
-                  {fpPoints.map((pt, i) => (
-                    <circle key={`fp-${i}`} cx={pt.x} cy={pt.y} r={pt.tol === params.tolR5 ? 6 : 4} fill="#011F7B" stroke="#ffffff" strokeWidth={pt.tol === params.tolR5 ? 2 : 1} />
-                  ))}
+                {/* Active Points Highlights */}
+                <circle cx={activeMarkerX} cy={activeFpY} r="6" fill="#fcb803" stroke="#FFFFFF" strokeWidth="2" />
+                <circle cx={activeMarkerX} cy={activeFnY} r="6" fill="#011F7B" stroke="#FFFFFF" strokeWidth="2" />
 
-                  {/* Data Points Negatif Palsu */}
-                  {fnPoints.map((pt, i) => (
-                    <circle key={`fn-${i}`} cx={pt.x} cy={pt.y} r={pt.tol === params.tolR5 ? 6 : 4} fill="#fcb803" stroke="#ffffff" strokeWidth={pt.tol === params.tolR5 ? 2 : 1} />
-                  ))}
-
-                  {/* Active Point Markers (exactly equal to card values) */}
-                  <circle cx={chartX} cy={activeFpY} r="7" fill="#011F7B" stroke="#ffffff" strokeWidth="2.5" className="animate-pulse" />
-                  <circle cx={chartX} cy={activeFnY} r="7" fill="#fcb803" stroke="#ffffff" strokeWidth="2.5" className="animate-pulse" />
-
-                  {/* Interactive Pin Marker with Animated Beacon */}
-                  <g transform={`translate(${chartX}, 45)`}>
-                    <circle cx="0" cy="0" r="8" fill="#FFBA09" opacity="0.3" className="animate-ping" />
-                    <rect x="-95" y="-26" width="190" height="22" rx="4" fill="#011F7B" />
-                    <text x="0" y="-11" textAnchor="middle" fill="#ffffff" fontSize="9.5" fontWeight="700" fontFamily="Plus Jakarta Sans">
-                      Ambang {params.tolR5}%: PP {metrics.falsePositiveRate.toFixed(1)}% | NP {metrics.falseNegativeRate.toFixed(1)}%
-                    </text>
-                    <polygon points="-4,-4 4,-4 0,0" fill="#011F7B" />
-                  </g>
-
-                  {/* X Axis Labels */}
-                  <text x="60" y="202" textAnchor="middle" fill="#454652" fontSize="12" fontWeight="600" fontFamily="Plus Jakarta Sans">5%</text>
-                  <text x="192" y="202" textAnchor="middle" fill="#011F7B" fontSize="12" fontWeight="700" fontFamily="Plus Jakarta Sans">10%</text>
-                  <text x="324" y="202" textAnchor="middle" fill="#454652" fontSize="12" fontWeight="600" fontFamily="Plus Jakarta Sans">15%</text>
-                  <text x="456" y="202" textAnchor="middle" fill="#454652" fontSize="12" fontWeight="600" fontFamily="Plus Jakarta Sans">20%</text>
-                  <text x="588" y="202" textAnchor="middle" fill="#454652" fontSize="12" fontWeight="600" fontFamily="Plus Jakarta Sans">25%</text>
-                  <text x="720" y="202" textAnchor="middle" fill="#454652" fontSize="12" fontWeight="600" fontFamily="Plus Jakarta Sans">30%</text>
-                </svg>
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-[#454652] px-2 pt-2">
-                <span className="font-medium">← Zona Pengawasan Ketat</span>
-                <span className="font-semibold text-[#011F7B]">Toleransi Selisih R5 (%)</span>
-                <span className="font-medium">Zona Akselerasi Salur →</span>
-              </div>
+                {/* Active Point Callout Labels */}
+                <text x={activeMarkerX + 8} y={activeFpY - 6} fontSize="10" fill="#8A5A00" fontWeight="bold">
+                  FP: {metrics.falsePositiveRate.toFixed(1)}%
+                </text>
+                <text x={activeMarkerX + 8} y={activeFnY + 12} fontSize="10" fill="#011F7B" fontWeight="bold">
+                  FN: {metrics.falseNegativeRate.toFixed(1)}%
+                </text>
+              </svg>
             </div>
 
-            {/* Trade-off Principle Callout */}
-            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-[#ECEEF3] border-l-4 border-[#011F7B] text-xs">
-              <span className="material-symbols-outlined text-[18px] text-[#011F7B] shrink-0 mt-0.5">balance</span>
-              <div>
-                <span className="font-bold text-[#000F4A]">Prinsip Ekuilibrium Audit:</span>
-                <span className="text-[#454652] ml-1">
-                  Hubungan invers antara Dapur Jujur Tertahan (Tipe I) dan Risiko Kebocoran Lolos (Tipe II). Semakin longgar toleransi R5, semakin sedikit dapur jujur yang tertahan (positif palsu turun), namun semakin banyak dapur bermasalah yang lolos (negatif palsu naik). Ambang dikalibrasi berkala pada pilot untuk menemukan titik ekuilibrium yang optimal.
-                </span>
+            {/* Chart Legend & Caption */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-3 pt-1">
+              <div className="flex items-center gap-5">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-[#fcb803]"></span>
+                  <span className="font-semibold text-[#8A5A00]">
+                    Positif Palsu (Dapur sah tertahan)
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-[#011F7B]"></span>
+                  <span className="font-semibold text-[#011F7B]">
+                    Negatif Palsu (Dapur bermasalah lolos)
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[#D64545] rounded-full"></span>
+                  <span className="font-mono text-[#D64545] font-semibold">
+                    Ambang Aktif ({activeThreshVal}%)
+                  </span>
+                </div>
               </div>
+
+              <span className="text-[11px] text-[#757683] italic">
+                * Ambang lebih longgar menurunkan positif palsu namun menaikkan risiko kebocoran negatif palsu.
+              </span>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Muted Footer Note Card */}
-      <div className="p-4 rounded-xl bg-[#F1F4F9] border border-[#E0E2E7] flex items-start gap-3 text-[#454652] text-xs">
-        <span className="material-symbols-outlined text-[20px] text-[#011F7B] shrink-0 mt-0.5">info</span>
-        <p className="leading-relaxed">
-          <strong className="text-[#000F4A] font-semibold">Catatan Metodologi Audit:</strong> Simulasi ini menunjukkan cara kerja mekanisme pertukaran risiko (trade-off), bukan membuktikan efektivitas statis. Ambang batas adalah usulan dinamis yang dikalibrasi berkala pada uji coba lapangan untuk menyeimbangkan pelindungan integritas APBN dan kepastian pemenuhan nutrisi anak sekolah tanpa jeda pasokan.
-        </p>
       </div>
     </div>
   );
